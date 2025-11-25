@@ -4,7 +4,7 @@ import { Sidebar } from '@/components/Sidebar';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Search, Edit, Trash2, ChevronRight, ChevronDown } from 'lucide-react';
+import { Search, Edit, ChevronRight, ChevronDown } from 'lucide-react';
 
 interface Article {
   id: number;
@@ -32,7 +32,7 @@ export default function ArticlesPage() {
   const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [deleteId, setDeleteId] = useState<number | null>(null);
+
   const [deleting, setDeleting] = useState(false);
   const [expandedRows, setExpandedRows] = useState<Set<number>>(new Set());
   const [selectedArticles, setSelectedArticles] = useState<number[]>([]);
@@ -80,50 +80,34 @@ export default function ArticlesPage() {
     router.push(`/articles/edit/${id}`);
   };
 
-  const handleDeleteClick = (id: number) => {
-    setDeleteId(id);
-  };
+
 
   const handleConfirmDelete = async () => {
-    if (!deleteId && selectedArticles.length === 0) return;
+    if (selectedArticles.length === 0) return;
 
     setDeleting(true);
     setError('');
 
     try {
-      if (deleteId) {
-        // Single delete
-        const response = await fetch(`http://localhost:3001/api/articles/${deleteId}`, {
-          method: 'DELETE',
-        });
+      // Bulk delete
+      const response = await fetch('http://localhost:3001/api/articles/bulk-delete', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ids: selectedArticles }),
+      });
 
-        if (!response.ok) {
-          const data = await response.json();
-          throw new Error(data.message || 'Failed to delete article');
-        }
-      } else if (selectedArticles.length > 0) {
-        // Bulk delete
-        const response = await fetch('http://localhost:3001/api/articles/bulk-delete', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ ids: selectedArticles }),
-        });
-
-        if (!response.ok) {
-          const data = await response.json();
-          throw new Error(data.message || 'Failed to delete articles');
-        }
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.message || 'Failed to delete articles');
       }
 
       await fetchArticles();
-      setDeleteId(null);
       setSelectedArticles([]);
       setShowDeleteConfirm(false);
     } catch (err: any) {
       setError(err.message || 'An error occurred while deleting');
     } finally {
       setDeleting(false);
-      setDeleteId(null);
       setShowDeleteConfirm(false);
     }
   };
@@ -198,7 +182,7 @@ export default function ArticlesPage() {
   // Filter and organize articles
   const filteredArticles = articles.filter(article => {
     return article.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-           article.slug?.toLowerCase().includes(searchTerm.toLowerCase());
+      article.slug?.toLowerCase().includes(searchTerm.toLowerCase());
   });
 
   const organizedArticles = organizeArticles(filteredArticles);
@@ -223,7 +207,7 @@ export default function ArticlesPage() {
           </td>
           <td className="px-6 py-4">
             {hasChildren && (
-              <button 
+              <button
                 onClick={() => toggleRow(article.id)}
                 className="p-1 hover:bg-gray-200 rounded-full transition-colors"
               >
@@ -241,35 +225,24 @@ export default function ArticlesPage() {
             </div>
           </td>
           <td className="px-6 py-4 text-sm text-gray-900">
-            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-              article.status === 1 ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
-            }`}>
+            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${article.status === 1 ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
+              }`}>
               {article.status === 1 ? 'Active' : 'Inactive'}
             </span>
           </td>
           <td className="px-6 py-4 text-sm text-gray-600">{formatDate(article.updatedAt)}</td>
           <td className="px-6 py-4">
-            <div className="flex items-center gap-2">
-              <Button
-                onClick={() => handleEdit(article.id)}
-                variant="ghost"
-                size="sm"
-                className="h-8 w-8 p-0 hover:bg-gray-100"
-              >
-                <Edit className="h-4 w-4 text-gray-600" />
-              </Button>
-              <Button
-                onClick={() => handleDeleteClick(article.id)}
-                variant="ghost"
-                size="sm"
-                className="h-8 w-8 p-0 hover:bg-red-50"
-              >
-                <Trash2 className="h-4 w-4 text-red-600" />
-              </Button>
-            </div>
+            <Button
+              onClick={() => router.push(`/users/edit/${article.id}`)}
+              variant="outline"
+              size="sm"
+              className="h-8 w-8 p-0 border-gray-300 hover:bg-gray-100"
+            >
+              <Edit className="h-4 w-4 text-gray-600" />
+            </Button>
           </td>
         </tr>
-        {isExpanded && article.children?.map((child, childIndex) => 
+        {isExpanded && article.children?.map((child, childIndex) =>
           renderArticleRow(child, childIndex, depth + 1)
         )}
       </>
@@ -384,22 +357,16 @@ export default function ArticlesPage() {
         </div>
 
         {/* Delete Confirmation Dialog */}
-        {(deleteId || showDeleteConfirm) && (
+        {showDeleteConfirm && (
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
             <div className="bg-white rounded-xl shadow-2xl p-6 max-w-md w-full mx-4">
               <h3 className="text-xl font-bold text-gray-900 mb-4">Confirm Delete</h3>
               <p className="text-gray-600 mb-6">
-                {deleteId 
-                  ? 'Are you sure you want to delete this article? This action cannot be undone.'
-                  : `Are you sure you want to delete ${selectedArticles.length} article${selectedArticles.length > 1 ? 's' : ''}? This action cannot be undone.`
-                }
+                {`Are you sure you want to delete ${selectedArticles.length} article${selectedArticles.length > 1 ? 's' : ''}? This action cannot be undone.`}
               </p>
               <div className="flex items-center gap-3 justify-end">
                 <Button
-                  onClick={() => {
-                    setDeleteId(null);
-                    setShowDeleteConfirm(false);
-                  }}
+                  onClick={() => setShowDeleteConfirm(false)}
                   variant="outline"
                   className="px-6 py-2 border-gray-300 text-gray-700 hover:bg-gray-50"
                   disabled={deleting}
