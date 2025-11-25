@@ -117,6 +117,131 @@ app.post('/api/users', async (req, res) => {
   }
 });
 
+// Update user by ID
+app.put('/api/users/:id', async (req, res) => {
+  const { id } = req.params;
+  const { name, email, password, userType, status } = req.body;
+
+  // Validation
+  if (!name || !email || !userType) {
+    return res.status(400).json({ success: false, message: 'Name, email, and user type are required' });
+  }
+
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    return res.status(400).json({ success: false, message: 'Invalid email format' });
+  }
+
+  try {
+    // Check if user exists
+    const existingUser = await getAsync('SELECT * FROM users WHERE id = ?', [id]);
+    if (!existingUser) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+
+    // Check if email is already in use by another user
+    const emailCheck = await getAsync('SELECT * FROM users WHERE LOWER(email) = LOWER(?) AND id != ?', [email, id]);
+    if (emailCheck) {
+      return res.status(400).json({ success: false, message: 'Email already exists' });
+    }
+
+    if (!['super-user', 'admin'].includes(userType)) {
+      return res.status(400).json({ success: false, message: 'Invalid user type. Must be super-user or admin' });
+    }
+
+    // Build update query - only update password if provided
+    let updateSQL = '';
+    let params = [];
+    
+    if (password && password.trim().length > 0) {
+      if (password.length < 6) {
+        return res.status(400).json({ success: false, message: 'Password must be at least 6 characters long' });
+      }
+      updateSQL = `UPDATE users SET name = ?, email = ?, password = ?, userType = ?, status = ?, updatedAt = ? WHERE id = ?`;
+      params = [
+        name.trim(),
+        email.toLowerCase().trim(),
+        password,
+        userType,
+        status === true || status === 'true' ? 1 : 0,
+        new Date().toISOString(),
+        id
+      ];
+    } else {
+      updateSQL = `UPDATE users SET name = ?, email = ?, userType = ?, status = ?, updatedAt = ? WHERE id = ?`;
+      params = [
+        name.trim(),
+        email.toLowerCase().trim(),
+        userType,
+        status === true || status === 'true' ? 1 : 0,
+        new Date().toISOString(),
+        id
+      ];
+    }
+
+    await runAsync(updateSQL, params);
+
+    const updatedUser = {
+      id: parseInt(id),
+      name: name.trim(),
+      email: email.toLowerCase().trim(),
+      userType,
+      status: Boolean(status === true || status === 'true'),
+      updatedAt: new Date().toISOString()
+    };
+
+    res.status(200).json({ success: true, message: 'User updated successfully', user: updatedUser });
+  } catch (err) {
+    console.error('Error updating user:', err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// Delete single user by ID
+app.delete('/api/users/:id', async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    // Check if user exists
+    const existingUser = await getAsync('SELECT * FROM users WHERE id = ?', [id]);
+    if (!existingUser) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+
+    await runAsync('DELETE FROM users WHERE id = ?', [id]);
+    res.status(200).json({ success: true, message: 'User deleted successfully' });
+  } catch (err) {
+    console.error('Error deleting user:', err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// Delete multiple users (bulk delete)
+app.post('/api/users/bulk-delete', async (req, res) => {
+  const { ids } = req.body;
+
+  if (!ids || !Array.isArray(ids) || ids.length === 0) {
+    return res.status(400).json({ success: false, message: 'No user IDs provided' });
+  }
+
+  try {
+    // Create placeholders for SQL query
+    const placeholders = ids.map(() => '?').join(',');
+    const deleteSQL = `DELETE FROM users WHERE id IN (${placeholders})`;
+    
+    const result = await runAsync(deleteSQL, ids);
+    res.status(200).json({ 
+      success: true, 
+      message: `${result.changes} user(s) deleted successfully`,
+      deletedCount: result.changes
+    });
+  } catch (err) {
+    console.error('Error bulk deleting users:', err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+
 app.listen(PORT, async () => {
   console.log(`Server running on http://localhost:${PORT}`);
   // Ensure default admin user exists (id 1) after server start

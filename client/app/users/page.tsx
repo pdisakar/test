@@ -4,7 +4,7 @@ import { Sidebar } from '@/components/Sidebar';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Search } from 'lucide-react';
+import { Search, Edit } from 'lucide-react';
 
 interface User {
   id: number;
@@ -23,6 +23,9 @@ export default function UsersPage() {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [selectedUsers, setSelectedUsers] = useState<number[]>([]);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem('authToken');
@@ -56,6 +59,69 @@ export default function UsersPage() {
     router.push('/users/add');
   };
 
+  const handleToggleUser = (userId: number) => {
+    setSelectedUsers(prev => 
+      prev.includes(userId) 
+        ? prev.filter(id => id !== userId)
+        : [...prev, userId]
+    );
+  };
+
+  const handleToggleAll = () => {
+    if (selectedUsers.length === filteredUsers.length) {
+      setSelectedUsers([]);
+    } else {
+      setSelectedUsers(filteredUsers.map(u => u.id));
+    }
+  };
+
+  const handleDeleteClick = () => {
+    if (selectedUsers.length > 0) {
+      setShowDeleteConfirm(true);
+    }
+  };
+
+  const handleConfirmDelete = async () => {
+    setDeleting(true);
+    setError('');
+    
+    try {
+      if (selectedUsers.length === 1) {
+        // Single delete
+        const response = await fetch(`http://localhost:3001/api/users/${selectedUsers[0]}`, {
+          method: 'DELETE',
+        });
+        
+        if (!response.ok) {
+          const data = await response.json();
+          throw new Error(data.message || 'Failed to delete user');
+        }
+      } else {
+        // Bulk delete
+        const response = await fetch('http://localhost:3001/api/users/bulk-delete', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ids: selectedUsers }),
+        });
+        
+        if (!response.ok) {
+          const data = await response.json();
+          throw new Error(data.message || 'Failed to delete users');
+        }
+      }
+      
+      // Refresh users list
+      await fetchUsers();
+      setSelectedUsers([]);
+      setShowDeleteConfirm(false);
+    } catch (err: any) {
+      setError(err.message || 'An error occurred while deleting users');
+      setShowDeleteConfirm(false);
+    } finally {
+      setDeleting(false);
+    }
+  };
+
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('en-US', {
@@ -83,12 +149,23 @@ export default function UsersPage() {
           {/* Header */}
           <div className="mb-8 flex items-center justify-between">
             <h1 className="text-3xl font-bold text-gray-900">Users</h1>
-            <Button
-              onClick={handleAddUser}
-              className="px-6 py-2 bg-primary hover:bg-primary/90 text-white"
-            >
-              Add User
-            </Button>
+            <div className="flex items-center gap-3">
+              {selectedUsers.length > 0 && (
+                <Button
+                  onClick={handleDeleteClick}
+                  className="px-6 py-2 bg-red-600 hover:bg-red-700 text-white"
+                  disabled={deleting}
+                >
+                  Delete ({selectedUsers.length})
+                </Button>
+              )}
+              <Button
+                onClick={handleAddUser}
+                className="px-6 py-2 bg-primary hover:bg-primary/90 text-white"
+              >
+                Add User
+              </Button>
+            </div>
           </div>
 
           {/* Error Message */}
@@ -148,6 +225,14 @@ export default function UsersPage() {
             <table className="w-full">
               <thead className="bg-gray-50 border-b border-gray-100">
                 <tr>
+                  <th className="px-6 py-4 text-left">
+                    <input
+                      type="checkbox"
+                      checked={filteredUsers.length > 0 && selectedUsers.length === filteredUsers.length}
+                      onChange={handleToggleAll}
+                      className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary cursor-pointer"
+                    />
+                  </th>
                   <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">S.N</th>
                   <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Name</th>
                   <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Email</th>
@@ -155,24 +240,33 @@ export default function UsersPage() {
                   <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Status</th>
                   <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Updated At</th>
                   <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">ID</th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
                 {loading ? (
                   <tr>
-                    <td colSpan={7} className="px-6 py-8 text-center text-gray-500">
+                    <td colSpan={9} className="px-6 py-8 text-center text-gray-500">
                       Loading users...
                     </td>
                   </tr>
                 ) : filteredUsers.length === 0 ? (
                   <tr>
-                    <td colSpan={7} className="px-6 py-8 text-center text-gray-500">
+                    <td colSpan={9} className="px-6 py-8 text-center text-gray-500">
                       No users found
                     </td>
                   </tr>
                 ) : (
                   filteredUsers.map((user, index) => (
                     <tr key={user.id} className="hover:bg-gray-50 transition-colors">
+                      <td className="px-6 py-4">
+                        <input
+                          type="checkbox"
+                          checked={selectedUsers.includes(user.id)}
+                          onChange={() => handleToggleUser(user.id)}
+                          className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary cursor-pointer"
+                        />
+                      </td>
                       <td className="px-6 py-4 text-sm text-gray-900">{index + 1}</td>
                       <td className="px-6 py-4 text-sm text-gray-900">{user.name}</td>
                       <td className="px-6 py-4 text-sm text-gray-600">{user.email}</td>
@@ -190,6 +284,16 @@ export default function UsersPage() {
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-600">{formatDate(user.updatedAt)}</td>
                       <td className="px-6 py-4 text-sm text-gray-900">{user.id}</td>
+                      <td className="px-6 py-4">
+                        <Button
+                          onClick={() => router.push(`/users/edit/${user.id}`)}
+                          variant="outline"
+                          size="sm"
+                          className="h-8 w-8 p-0 border-gray-300 hover:bg-gray-100"
+                        >
+                          <Edit className="h-4 w-4 text-gray-600" />
+                        </Button>
+                      </td>
                     </tr>
                   ))
                 )}
@@ -226,6 +330,36 @@ export default function UsersPage() {
             </div>
           </div>
         </div>
+
+        {/* Delete Confirmation Dialog */}
+        {showDeleteConfirm && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-xl shadow-2xl p-6 max-w-md w-full mx-4">
+              <h3 className="text-xl font-bold text-gray-900 mb-4">Confirm Delete</h3>
+              <p className="text-gray-600 mb-6">
+                Are you sure you want to delete {selectedUsers.length} user{selectedUsers.length > 1 ? 's' : ''}? 
+                This action cannot be undone.
+              </p>
+              <div className="flex items-center gap-3 justify-end">
+                <Button
+                  onClick={() => setShowDeleteConfirm(false)}
+                  variant="outline"
+                  className="px-6 py-2 border-gray-300 text-gray-700 hover:bg-gray-50"
+                  disabled={deleting}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={handleConfirmDelete}
+                  className="px-6 py-2 bg-red-600 hover:bg-red-700 text-white"
+                  disabled={deleting}
+                >
+                  {deleting ? 'Deleting...' : 'Delete'}
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
