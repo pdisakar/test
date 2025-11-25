@@ -18,9 +18,9 @@ const db = new sqlite3.Database(dbPath, (err) => {
   }
 });
 
-// Run migrations – create users table if it doesn't exist
+// Run migrations – create tables if they don't exist
 const init = () => {
-  const createTableSQL = `
+  const createUsersTableSQL = `
     CREATE TABLE IF NOT EXISTS users (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       name TEXT NOT NULL,
@@ -32,9 +32,39 @@ const init = () => {
       updatedAt TEXT NOT NULL
     );
   `;
-  db.run(createTableSQL, (err) => {
+  
+  const createArticlesTableSQL = `
+    CREATE TABLE IF NOT EXISTS articles (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      title TEXT NOT NULL,
+      urlTitle TEXT NOT NULL,
+      slug TEXT NOT NULL UNIQUE,
+      parentId INTEGER,
+      metaTitle TEXT,
+      metaKeywords TEXT,
+      metaDescription TEXT,
+      description TEXT,
+      featuredImage TEXT,
+      featuredImageAlt TEXT,
+      featuredImageCaption TEXT,
+      bannerImage TEXT,
+      bannerImageAlt TEXT,
+      bannerImageCaption TEXT,
+      status INTEGER DEFAULT 0,
+      createdAt TEXT NOT NULL,
+      updatedAt TEXT NOT NULL,
+      FOREIGN KEY (parentId) REFERENCES articles(id)
+    );
+  `;
+  
+  db.run(createUsersTableSQL, (err) => {
     if (err) console.error('Error creating users table:', err);
     else console.log('Users table ready');
+  });
+  
+  db.run(createArticlesTableSQL, (err) => {
+    if (err) console.error('Error creating articles table:', err);
+    else console.log('Articles table ready');
   });
 };
 

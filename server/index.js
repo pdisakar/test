@@ -242,6 +242,259 @@ app.post('/api/users/bulk-delete', async (req, res) => {
 });
 
 
+// ========================
+// ARTICLES API ENDPOINTS
+// ========================
+
+// Get all articles
+app.get('/api/articles', async (req, res) => {
+  try {
+    const rows = await allAsync('SELECT * FROM articles ORDER BY createdAt DESC');
+    // Return articles as-is (they match the database schema)
+    res.status(200).json(rows);
+  } catch (err) {
+    console.error('Error fetching articles:', err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// Get single article by ID
+app.get('/api/articles/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    const article = await getAsync('SELECT * FROM articles WHERE id = ?', [id]);
+    if (!article) {
+      return res.status(404).json({ success: false, message: 'Article not found' });
+    }
+    res.status(200).json({ success: true, article });
+  } catch (err) {
+    console.error('Error fetching article:', err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// Create new article
+app.post('/api/articles', async (req, res) => {
+  const { 
+    title, 
+    urlTitle, 
+    slug, 
+    parentId, 
+    metaTitle, 
+    metaKeywords, 
+    metaDescription, 
+    description, 
+    featuredImage, 
+    featuredImageAlt, 
+    featuredImageCaption,
+    bannerImage,
+    bannerImageAlt,
+    bannerImageCaption
+  } = req.body;
+  
+  // Validation
+  if (!title || !urlTitle) {
+    return res.status(400).json({ success: false, message: 'Title and URL Title are required' });
+  }
+
+  try {
+    // Generate slug from urlTitle if not provided
+    const finalSlug = slug || urlTitle.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+    
+    // Check if slug already exists
+    const existing = await getAsync('SELECT * FROM articles WHERE slug = ?', [finalSlug]);
+    if (existing) {
+      return res.status(400).json({ success: false, message: 'Slug already exists' });
+    }
+
+    const result = await runAsync(
+      `INSERT INTO articles (title, urlTitle, slug, parentId, metaTitle, metaKeywords, metaDescription, description, featuredImage, featuredImageAlt, featuredImageCaption, bannerImage, bannerImageAlt, bannerImageCaption, status, createdAt, updatedAt) 
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        title.trim(),
+        urlTitle.trim(),
+        finalSlug,
+        parentId || null,
+        metaTitle || null,
+        metaKeywords || null,
+        metaDescription || null,
+        description || null,
+        featuredImage || null,
+        featuredImageAlt || null,
+        featuredImageCaption || null,
+        bannerImage || null,
+        bannerImageAlt || null,
+        bannerImageCaption || null,
+        req.body.status || 0,
+        new Date().toISOString(),
+        new Date().toISOString()
+      ]
+    );
+
+    const newArticle = {
+      id: result.lastID,
+      title: title.trim(),
+      urlTitle: urlTitle.trim(),
+      slug: finalSlug,
+      parentId: parentId || null,
+      metaTitle,
+      metaKeywords,
+      metaDescription,
+      description,
+      featuredImage,
+      featuredImageAlt,
+      featuredImageCaption,
+      bannerImage,
+      bannerImageAlt,
+      bannerImageCaption,
+      status: req.body.status || 0,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+
+    res.status(201).json({ success: true, message: 'Article created successfully', article: newArticle });
+  } catch (err) {
+    console.error('Error creating article:', err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// Update article by ID
+app.put('/api/articles/:id', async (req, res) => {
+  const { id } = req.params;
+  const { 
+    title, 
+    urlTitle, 
+    slug, 
+    parentId, 
+    metaTitle, 
+    metaKeywords, 
+    metaDescription, 
+    description, 
+    featuredImage, 
+    featuredImageAlt, 
+    featuredImageCaption,
+    bannerImage,
+    bannerImageAlt,
+    bannerImageCaption,
+    status
+  } = req.body;
+
+  // Validation
+  if (!title || !urlTitle) {
+    return res.status(400).json({ success: false, message: 'Title and URL Title are required' });
+  }
+
+  try {
+    // Check if article exists
+    const existingArticle = await getAsync('SELECT * FROM articles WHERE id = ?', [id]);
+    if (!existingArticle) {
+      return res.status(404).json({ success: false, message: 'Article not found' });
+    }
+
+    // Generate slug from urlTitle if not provided
+    const finalSlug = slug || urlTitle.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+
+    // Check if slug is already in use by another article
+    const slugCheck = await getAsync('SELECT * FROM articles WHERE slug = ? AND id != ?', [finalSlug, id]);
+    if (slugCheck) {
+      return res.status(400).json({ success: false, message: 'Slug already exists' });
+    }
+
+    await runAsync(
+      `UPDATE articles SET title = ?, urlTitle = ?, slug = ?, parentId = ?, metaTitle = ?, metaKeywords = ?, metaDescription = ?, description = ?, featuredImage = ?, featuredImageAlt = ?, featuredImageCaption = ?, bannerImage = ?, bannerImageAlt = ?, bannerImageCaption = ?, status = ?, updatedAt = ? WHERE id = ?`,
+      [
+        title.trim(),
+        urlTitle.trim(),
+        finalSlug,
+        parentId || null,
+        metaTitle || null,
+        metaKeywords || null,
+        metaDescription || null,
+        description || null,
+        featuredImage || null,
+        featuredImageAlt || null,
+        featuredImageCaption || null,
+        bannerImage || null,
+        bannerImageAlt || null,
+        bannerImageCaption || null,
+        status || 0,
+        new Date().toISOString(),
+        id
+      ]
+    );
+
+    const updatedArticle = {
+      id: parseInt(id),
+      title: title.trim(),
+      urlTitle: urlTitle.trim(),
+      slug: finalSlug,
+      parentId: parentId || null,
+      metaTitle,
+      metaKeywords,
+      metaDescription,
+      description,
+      featuredImage,
+      featuredImageAlt,
+      featuredImageCaption,
+      bannerImage,
+      bannerImageAlt,
+      bannerImageCaption,
+      updatedAt: new Date().toISOString()
+    };
+
+    res.status(200).json({ success: true, message: 'Article updated successfully', article: updatedArticle });
+  } catch (err) {
+    console.error('Error updating article:', err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// Delete article by ID
+app.delete('/api/articles/:id', async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    // Check if article exists
+    const existingArticle = await getAsync('SELECT * FROM articles WHERE id = ?', [id]);
+    if (!existingArticle) {
+      return res.status(404).json({ success: false, message: 'Article not found' });
+    }
+
+    await runAsync('DELETE FROM articles WHERE id = ?', [id]);
+    res.status(200).json({ success: true, message: 'Article deleted successfully' });
+  } catch (err) {
+    console.error('Error deleting article:', err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// Delete multiple articles (bulk delete)
+app.post('/api/articles/bulk-delete', async (req, res) => {
+  const { ids } = req.body;
+
+  if (!ids || !Array.isArray(ids) || ids.length === 0) {
+    return res.status(400).json({ success: false, message: 'No article IDs provided' });
+  }
+
+  try {
+    // Create placeholders for SQL query
+    const placeholders = ids.map(() => '?').join(',');
+    const deleteSQL = `DELETE FROM articles WHERE id IN (${placeholders})`;
+    
+    const result = await runAsync(deleteSQL, ids);
+    res.status(200).json({ 
+      success: true, 
+      message: `${result.changes} article(s) deleted successfully`,
+      deletedCount: result.changes
+    });
+  } catch (err) {
+    console.error('Error bulk deleting articles:', err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+
 app.listen(PORT, async () => {
   console.log(`Server running on http://localhost:${PORT}`);
   // Ensure default admin user exists (id 1) after server start
