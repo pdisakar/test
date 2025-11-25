@@ -233,10 +233,10 @@ export default function ArticlesPage() {
           <td className="px-6 py-4 text-sm text-gray-600">{formatDate(article.updatedAt)}</td>
           <td className="px-6 py-4">
             <Button
-              onClick={() => router.push(`/users/edit/${article.id}`)}
-              variant="outline"
+              onClick={() => handleEdit(article.id)}
+              variant="ghost"
               size="sm"
-              className="h-8 w-8 p-0 border-gray-300 hover:bg-gray-100"
+              className="h-8 w-8 p-0 hover:bg-gray-100"
             >
               <Edit className="h-4 w-4 text-gray-600" />
             </Button>

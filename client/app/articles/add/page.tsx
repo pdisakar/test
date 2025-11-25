@@ -5,6 +5,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
+import { ChevronRight, ChevronDown } from 'lucide-react';
 
 // Simple slug generator
 const slugify = (text: string) =>
@@ -14,6 +15,13 @@ const slugify = (text: string) =>
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-+|-+$/g, '');
 
+interface Article {
+  id: number;
+  title: string;
+  parentId: number | null;
+  children?: Article[];
+}
+
 export default function AddArticlePage() {
   const router = useRouter();
   const [formData, setFormData] = useState({
@@ -22,7 +30,7 @@ export default function AddArticlePage() {
     slug: '',
     description: '',
     status: false,
-    parentId: '',
+    parentId: [] as string[],
     metaTitle: '',
     metaInfo: '',
     metaKeywords: '',
@@ -37,7 +45,9 @@ export default function AddArticlePage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
-  const [parentOptions, setParentOptions] = useState<Array<{ id: string; title: string }>>([]);
+  const [parentOptions, setParentOptions] = useState<Article[]>([]);
+  const [expandedParents, setExpandedParents] = useState<Set<number>>(new Set());
+  const [showAccordion, setShowAccordion] = useState(false);
 
   // Redirect if not authenticated
   useEffect(() => {
@@ -45,14 +55,14 @@ export default function AddArticlePage() {
     if (!token) router.push('/login');
   }, [router]);
 
-  // Fetch parent articles for dropdown
+  // Fetch parent articles
   useEffect(() => {
     const fetchParents = async () => {
       try {
         const res = await fetch('http://localhost:3001/api/articles');
         const data = await res.json();
         if (Array.isArray(data)) {
-          setParentOptions(data.map((a: any) => ({ id: a.id, title: a.title })));
+          setParentOptions(data);
         }
       } catch (e) {
         console.error('Failed to fetch parent articles', e);
@@ -60,6 +70,89 @@ export default function AddArticlePage() {
     };
     fetchParents();
   }, []);
+
+  // Organize articles into tree structure
+  const organizeArticles = (articles: Article[]): Article[] => {
+    const articleMap = new Map<number, Article>();
+    const roots: Article[] = [];
+
+    articles.forEach(article => {
+      articleMap.set(article.id, { ...article, children: [] });
+    });
+
+    articles.forEach(article => {
+      const node = articleMap.get(article.id)!;
+      if (article.parentId && articleMap.has(article.parentId)) {
+        const parent = articleMap.get(article.parentId)!;
+        parent.children?.push(node);
+      } else {
+        roots.push(node);
+      }
+    });
+
+    return roots;
+  };
+
+  const toggleParent = (id: number) => {
+    const newExpanded = new Set(expandedParents);
+    if (newExpanded.has(id)) {
+      newExpanded.delete(id);
+    } else {
+      newExpanded.add(id);
+    }
+    setExpandedParents(newExpanded);
+  };
+
+  const renderParentOption = (article: Article, depth: number = 0): React.JSX.Element => {
+    const hasChildren = article.children && article.children.length > 0;
+    const isExpanded = expandedParents.has(article.id);
+    const isSelected = formData.parentId.includes(String(article.id));
+
+    return (
+      <>
+        <div
+          key={article.id}
+          className={`flex items-center gap-2 py-2 px-3 rounded-lg cursor-pointer transition-colors ${
+            isSelected ? 'bg-primary/10 border border-primary' : 'hover:bg-gray-50'
+          }`}
+          style={{ paddingLeft: `${depth * 24 + 12}px` }}
+        >
+          {hasChildren ? (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                toggleParent(article.id);
+              }}
+              className="p-1 hover:bg-gray-200 rounded-full transition-colors"
+            >
+              {isExpanded ? (
+                <ChevronDown className="h-4 w-4 text-gray-500" />
+              ) : (
+                <ChevronRight className="h-4 w-4 text-gray-500" />
+              )}
+            </button>
+          ) : (
+            <div className="w-6" />
+          )}
+          <div
+            className="flex-1"
+            onClick={() => {
+              const articleIdStr = String(article.id);
+              if (formData.parentId.includes(articleIdStr)) {
+                setFormData({ ...formData, parentId: formData.parentId.filter((id: string) => id !== articleIdStr) });
+              } else {
+                setFormData({ ...formData, parentId: [...formData.parentId, articleIdStr] });
+              }
+            }}
+          >
+            <span className="text-sm text-gray-900">{article.title}</span>
+          </div>
+        </div>
+        {isExpanded && article.children?.map((child) => renderParentOption(child, depth + 1))}
+      </>
+    );
+  };
 
   // Generate slug when URL title changes
   useEffect(() => {
@@ -75,7 +168,7 @@ export default function AddArticlePage() {
       slug: '',
       description: '',
       status: false,
-      parentId: '',
+      parentId: [] as string[],
       metaTitle: '',
       metaInfo: '',
       metaKeywords: '',
@@ -108,7 +201,7 @@ export default function AddArticlePage() {
         title: formData.title,
         urlTitle: formData.urlTitle,
         slug: formData.slug,
-        parentId: formData.parentId || null,
+        parentId: formData.parentId.length > 0 ? parseInt(formData.parentId[0]) : null,
         metaTitle: formData.metaTitle,
         metaKeywords: formData.metaKeywords,
         metaDescription: formData.metaDescription,
@@ -186,13 +279,39 @@ export default function AddArticlePage() {
                   </div>
                   {/* Parent Article */}
                   <div className="md:col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Parent Article</label>
-                    <select value={formData.parentId} onChange={e => setFormData({ ...formData, parentId: e.target.value })} className="w-full px-4 py-2.5 rounded-lg border border-gray-200 bg-white focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all" disabled={loading}>
-                      <option value="">None</option>
-                      {parentOptions.map(p => (
-                        <option key={p.id} value={p.id}>{p.title}</option>
-                      ))}
-                    </select>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Parent Article(s)</label>
+                    <div 
+                      className="border border-gray-200 rounded-lg bg-white cursor-pointer"
+                      onClick={() => setShowAccordion(!showAccordion)}
+                    >
+                      <div className="py-2.5 px-4 flex items-center justify-between">
+                        <span className="text-sm text-gray-900">
+                          {formData.parentId.length === 0 ? (
+                            <span className="text-gray-500">None (Top Level)</span>
+                          ) : (
+                            <span>{formData.parentId.length} parent(s) selected</span>
+                          )}
+                        </span>
+                        {showAccordion ? (
+                          <ChevronDown className="h-4 w-4 text-gray-500" />
+                        ) : (
+                          <ChevronRight className="h-4 w-4 text-gray-500" />
+                        )}
+                      </div>
+                      {showAccordion && (
+                        <div className="border-t border-gray-200 max-h-64 overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+                          <div
+                            className={`py-2 px-3 cursor-pointer transition-colors ${
+                              formData.parentId.length === 0 ? 'bg-primary/10 border-t border-b border-primary' : 'hover:bg-gray-50'
+                            }`}
+                            onClick={() => setFormData({ ...formData, parentId: [] })}
+                          >
+                            <span className="text-sm text-gray-900 font-medium">None (Top Level)</span>
+                          </div>
+                          {organizeArticles(parentOptions).map((article) => renderParentOption(article))}
+                        </div>
+                      )}
+                    </div>
                   </div>
 
 
