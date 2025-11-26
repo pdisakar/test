@@ -140,6 +140,7 @@ export const ImageCrop = ({
     children,
     onChange,
     onComplete,
+    aspect = 7 / 5,
     ...reactCropProps
 }: ImageCropProps) => {
     const imgRef = useRef<HTMLImageElement | null>(null);
@@ -159,11 +160,11 @@ export const ImageCrop = ({
     const onImageLoad = useCallback(
         (e: SyntheticEvent<HTMLImageElement>) => {
             const { width, height } = e.currentTarget;
-            const newCrop = centerAspectCrop(width, height, reactCropProps.aspect);
+            const newCrop = centerAspectCrop(width, height, aspect);
             setCrop(newCrop);
             setInitialCrop(newCrop);
         },
-        [reactCropProps.aspect]
+        [aspect]
     );
 
     const handleChange = (pixelCrop: PixelCrop, percentCrop: PercentCrop) => {
@@ -207,7 +208,7 @@ export const ImageCrop = ({
         completedCrop,
         imgRef,
         onCrop,
-        reactCropProps,
+        reactCropProps: { aspect, ...reactCropProps },
         handleChange,
         handleComplete,
         onImageLoad,

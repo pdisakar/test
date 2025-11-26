@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import RichTextEditor from '@/components/RichTextEditor';
 import { X, ChevronRight, ChevronDown, Check, Image as ImageIcon, Plus, Trash2 } from 'lucide-react';
+import { ImageCrop, ImageCropContent, ImageCropApply, ImageCropReset } from '@/components/ImageCrop';
 
 interface GroupPrice {
   id: string;
@@ -75,6 +76,10 @@ export default function AddPackagePage() {
   const [featured, setFeatured] = useState(false);
 
   const [error, setError] = useState('');
+
+  // Image Crop State
+  const [showImageCrop, setShowImageCrop] = useState(false);
+  const [selectedImageFile, setSelectedImageFile] = useState<File | null>(null);
 
   // Refs for file inputs
   const featuredInputRef = useRef<HTMLInputElement>(null);
@@ -239,15 +244,23 @@ export default function AddPackagePage() {
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>, type: 'featured' | 'banner') => {
     const file = e.target.files?.[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setFormData(prev => ({
-          ...prev,
-          [`${type}Image`]: file,
-          [`${type}ImagePreview`]: reader.result as string
-        }));
-      };
-      reader.readAsDataURL(file);
+      if (type === 'featured') {
+        setSelectedImageFile(file);
+        setShowImageCrop(true);
+        // Reset input so same file can be selected again if needed
+        if (featuredInputRef.current) featuredInputRef.current.value = '';
+      } else {
+        // Banner image (no crop for now, or maybe add later)
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setFormData(prev => ({
+            ...prev,
+            bannerImage: file,
+            bannerImagePreview: reader.result as string
+          }));
+        };
+        reader.readAsDataURL(file);
+      }
     }
   };
 
@@ -957,6 +970,53 @@ export default function AddPackagePage() {
           </form>
         </div>
       </div>
+
+      {/* Image Crop Modal */}
+      {showImageCrop && selectedImageFile && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg max-w-2xl w-full p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold">Crop Image</h3>
+              <button
+                onClick={() => {
+                  setShowImageCrop(false);
+                  setSelectedImageFile(null);
+                }}
+                className="p-1 hover:bg-gray-100 rounded"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            <ImageCrop
+              file={selectedImageFile}
+              onCrop={(croppedImage) => {
+                setFormData(prev => ({
+                  ...prev,
+                  featuredImage: selectedImageFile, // Keep original file object for upload
+                  featuredImagePreview: croppedImage // Use cropped base64 for preview
+                }));
+                setShowImageCrop(false);
+                setSelectedImageFile(null);
+              }}
+            >
+              <div className="space-y-4">
+                <ImageCropContent className="border border-gray-200 rounded" />
+                <div className="flex gap-2 justify-end">
+                  <ImageCropReset asChild>
+                    <Button variant="outline" type="button">
+                      Reset
+                    </Button>
+                  </ImageCropReset>
+                  <ImageCropApply asChild>
+                    <Button type="button">Apply Crop</Button>
+                  </ImageCropApply>
+                </div>
+              </div>
+            </ImageCrop>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

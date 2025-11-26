@@ -5,7 +5,7 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
-import { ChevronRight, ChevronDown, X } from 'lucide-react';
+import { ChevronRight, ChevronDown, X, Trash2 } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { ImageCrop, ImageCropContent, ImageCropApply, ImageCropReset } from '@/components/ImageCrop';
 
@@ -399,21 +399,19 @@ export default function AddArticlePage() {
                   <label className="block text-sm font-medium text-gray-700 mb-2">Featured Image</label>
                   <div className="space-y-3">
                     {formData.featuredImage ? (
-                      <div className="relative">
+                      <div className="relative w-full max-w-md rounded-lg overflow-hidden border border-gray-200">
                         <img
                           src={`http://localhost:3001${formData.featuredImage}`}
                           alt="Featured preview"
-                          className="max-w-full h-auto rounded-lg border border-gray-200"
+                          className="w-full h-auto"
                         />
-                        <Button
+                        <button
                           type="button"
-                          variant="outline"
-                          size="sm"
                           onClick={() => setFormData({ ...formData, featuredImage: '' })}
-                          className="mt-2"
+                          className="absolute top-2 right-2 p-1.5 bg-white/90 rounded-full hover:bg-white text-red-500 transition-colors shadow-sm"
                         >
-                          Remove Image
-                        </Button>
+                          <Trash2 className="h-4 w-4" />
+                        </button>
                       </div>
                     ) : (
                       <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-primary transition-colors">
@@ -459,21 +457,19 @@ export default function AddArticlePage() {
                   <label className="block text-sm font-medium text-gray-700 mb-2">Banner Image</label>
                   <div className="space-y-3">
                     {formData.bannerImageUrl ? (
-                      <div className="relative">
+                      <div className="relative w-full rounded-lg overflow-hidden border border-gray-200">
                         <img
                           src={`http://localhost:3001${formData.bannerImageUrl}`}
                           alt="Banner preview"
-                          className="max-w-full h-auto rounded-lg border border-gray-200"
+                          className="w-full h-auto"
                         />
-                        <Button
+                        <button
                           type="button"
-                          variant="outline"
-                          size="sm"
                           onClick={() => setFormData({ ...formData, bannerImageUrl: '' })}
-                          className="mt-2"
+                          className="absolute top-2 right-2 p-1.5 bg-white/90 rounded-full hover:bg-white text-red-500 transition-colors shadow-sm"
                         >
-                          Remove Image
-                        </Button>
+                          <Trash2 className="h-4 w-4" />
+                        </button>
                       </div>
                     ) : (
                       <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-primary transition-colors">
@@ -561,7 +557,6 @@ export default function AddArticlePage() {
             </div>
             <ImageCrop
               file={selectedImageFile}
-              aspect={9 / 12}
               onCrop={async (croppedImage) => {
                 try {
                   // Upload image to server
