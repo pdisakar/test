@@ -1,7 +1,7 @@
 'use client';
 
 import { Sidebar } from '@/components/Sidebar';
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Search, Edit, ChevronRight, ChevronDown } from 'lucide-react';
@@ -234,17 +234,19 @@ export default function ArticlesPage() {
           <td className="px-6 py-4">
             <Button
               onClick={() => handleEdit(article.id)}
-              variant="ghost"
+              variant="outline"
               size="sm"
-              className="h-8 w-8 p-0 hover:bg-gray-100"
+              className="h-8 w-8 p-0 border-gray-300 hover:bg-gray-100"
             >
               <Edit className="h-4 w-4 text-gray-600" />
             </Button>
           </td>
         </tr>
-        {isExpanded && article.children?.map((child, childIndex) =>
-          renderArticleRow(child, childIndex, depth + 1)
-        )}
+        {isExpanded && article.children?.map((child, childIndex) => (
+          <React.Fragment key={child.id}>
+            {renderArticleRow(child, childIndex, depth + 1)}
+          </React.Fragment>
+        ))}
       </>
     );
   };
