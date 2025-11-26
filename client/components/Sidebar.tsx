@@ -37,7 +37,7 @@ import {
   CollapsibleTrigger,
 } from '@/components/ui/collapsible';
 
-interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {}
+interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> { }
 
 export function Sidebar({ className }: SidebarProps) {
   const [isCollapsed, setIsCollapsed] = React.useState(false);
@@ -61,12 +61,12 @@ export function Sidebar({ className }: SidebarProps) {
           ]
         },
         {
-          title: "Categories",
+          title: "Places",
           icon: LayoutGrid,
           sub: [
-            { label: "Add New", href: "/categories/add" },
-            { label: "All Categories", href: "/categories" },
-            { label: "Deleted Categories", href: "/categories/deleted" }
+            { label: "Add New", href: "/places/add" },
+            { label: "All Places", href: "/places" },
+            { label: "Deleted Places", href: "/places/trash" }
           ]
         },
         {
@@ -109,7 +109,7 @@ export function Sidebar({ className }: SidebarProps) {
             { label: "Deleted Testimonials", href: "/testimonials/deleted" }
           ]
         },
-       
+
       ]
     },
     {
@@ -132,7 +132,7 @@ export function Sidebar({ className }: SidebarProps) {
             { label: "All Blogs", href: "/blogs" },
             { label: "Deleted Blogs", href: "/blogs/deleted" }
           ]
-        },       
+        },
       ]
     },
     {
@@ -147,7 +147,7 @@ export function Sidebar({ className }: SidebarProps) {
             { label: "Deleted Packages", href: "/packages/deleted" }
           ]
         },
-       
+
       ]
     }
   ];
@@ -166,13 +166,13 @@ export function Sidebar({ className }: SidebarProps) {
 
       {/* Mobile Overlay */}
       {isMobileOpen && (
-        <div 
+        <div
           className="fixed inset-0 bg-black/50 z-40 md:hidden"
           onClick={() => setIsMobileOpen(false)}
         />
       )}
 
-      <div 
+      <div
         className={cn(
           "fixed inset-y-0 left-0 z-50 flex flex-col h-screen bg-white border-r border-gray-100 transition-all duration-300 ease-in-out md:sticky md:top-0",
           isCollapsed ? "md:w-20" : "md:w-72",
@@ -206,7 +206,7 @@ export function Sidebar({ className }: SidebarProps) {
         <div className={cn("h-20 flex items-center px-6", isCollapsed ? "md:justify-center md:px-0" : "")}>
           <div className="flex items-center gap-3">
             <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-               <div className="h-4 w-4 rounded-full border-2 border-primary"></div>
+              <div className="h-4 w-4 rounded-full border-2 border-primary"></div>
             </div>
             {(!isCollapsed || isMobileOpen) && (
               <span className="font-bold text-xl text-gray-900 md:block">Flup</span>
@@ -237,8 +237,8 @@ export function Sidebar({ className }: SidebarProps) {
                           className={cn(
                             "w-full justify-start h-11 rounded-xl transition-all duration-200 group",
                             isCollapsed ? "md:justify-center md:px-0" : "px-3",
-                            openItem === item.title 
-                              ? "bg-primary/5 text-primary" 
+                            openItem === item.title
+                              ? "bg-primary/5 text-primary"
                               : "text-gray-500 hover:bg-gray-50 hover:text-gray-900"
                           )}
                         >
@@ -289,7 +289,7 @@ export function Sidebar({ className }: SidebarProps) {
         <div className="p-4 border-t border-gray-50 space-y-4">
           <div className={cn("flex items-center gap-3", isCollapsed ? "md:justify-center" : "")}>
             <div className="h-10 w-10 rounded-full bg-gray-200 overflow-hidden shrink-0">
-               <img src="https://github.com/shadcn.png" alt="User" className="h-full w-full object-cover" />
+              <img src="https://github.com/shadcn.png" alt="User" className="h-full w-full object-cover" />
             </div>
             {(!isCollapsed || isMobileOpen) && (
               <div className="flex-1 min-w-0">
@@ -299,15 +299,15 @@ export function Sidebar({ className }: SidebarProps) {
             )}
           </div>
 
-          <Button 
-            variant="ghost" 
+          <Button
+            variant="ghost"
             onClick={() => {
               localStorage.removeItem('authToken');
               window.location.href = '/login';
             }}
             className={cn(
               "w-full justify-start text-gray-500 hover:text-red-600 hover:bg-red-50",
-               isCollapsed ? "md:justify-center md:px-0" : ""
+              isCollapsed ? "md:justify-center md:px-0" : ""
             )}
           >
             <LogOut className={cn("h-5 w-5 shrink-0", (!isCollapsed || isMobileOpen) && "mr-3")} />

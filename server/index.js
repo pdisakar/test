@@ -637,6 +637,340 @@ app.post('/api/articles/bulk-restore', async (req, res) => {
   }
 });
 
+// ========================
+// PLACES API ENDPOINTS
+// ========================
+
+// Helper to recursively get all descendant place IDs
+const getPlaceDescendantIds = async (parentId) => {
+  try {
+    const children = await allAsync('SELECT id FROM places WHERE parentId = ?', [parentId]);
+    let ids = children.map(c => c.id);
+    for (const child of children) {
+      const grandChildren = await getPlaceDescendantIds(child.id);
+      ids = [...ids, ...grandChildren];
+    }
+    return ids;
+  } catch (err) {
+    console.error('Error getting place descendants:', err);
+    return [];
+  }
+};
+
+// Get all active places (not deleted)
+app.get('/api/places', async (req, res) => {
+  try {
+    const places = await allAsync('SELECT * FROM places WHERE deletedAt IS NULL ORDER BY createdAt DESC');
+    res.json(places);
+  } catch (err) {
+    console.error('Error fetching places:', err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// Get deleted places (Trash)
+app.get('/api/places/trash', async (req, res) => {
+  try {
+    const places = await allAsync('SELECT * FROM places WHERE deletedAt IS NOT NULL ORDER BY deletedAt DESC');
+    res.json(places);
+  } catch (err) {
+    console.error('Error fetching trash:', err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// Get single place
+app.get('/api/places/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    const place = await getAsync('SELECT * FROM places WHERE id = ?', [id]);
+    if (!place) {
+      return res.status(404).json({ success: false, message: 'Place not found' });
+    }
+    res.json({ success: true, place });
+  } catch (err) {
+    console.error('Error fetching place:', err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// Create new place
+app.post('/api/places', async (req, res) => {
+  const { 
+    title, urlTitle, slug, parentId, 
+    metaTitle, metaKeywords, metaDescription, 
+    description, featuredImage, featuredImageAlt, featuredImageCaption,
+    bannerImage, bannerImageAlt, bannerImageCaption,
+    status 
+  } = req.body;
+
+  // Basic validation
+  if (!title || !urlTitle || !slug) {
+    return res.status(400).json({ success: false, message: 'Title, URL Title, and Slug are required' });
+  }
+
+  try {
+    // Check if slug exists
+    const existing = await getAsync('SELECT id FROM places WHERE slug = ?', [slug]);
+    if (existing) {
+      return res.status(400).json({ success: false, message: 'Slug already exists' });
+    }
+
+    const now = new Date().toISOString();
+    const result = await runAsync(
+      `INSERT INTO places (
+        title, urlTitle, slug, parentId, 
+        metaTitle, metaKeywords, metaDescription, 
+        description, featuredImage, featuredImageAlt, featuredImageCaption,
+        bannerImage, bannerImageAlt, bannerImageCaption,
+        status, createdAt, updatedAt
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        title, urlTitle, slug, parentId || null, 
+        metaTitle, metaKeywords, metaDescription, 
+        description, featuredImage, featuredImageAlt, featuredImageCaption,
+        bannerImage, bannerImageAlt, bannerImageCaption,
+        status ? 1 : 0, now, now
+      ]
+    );
+
+    res.status(201).json({ 
+      success: true, 
+      message: 'Place created successfully',
+      placeId: result.lastID 
+    });
+  } catch (err) {
+    console.error('Error creating place:', err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// Update place
+app.put('/api/places/:id', async (req, res) => {
+  const { id } = req.params;
+  const { 
+    title, urlTitle, slug, parentId, 
+    metaTitle, metaKeywords, metaDescription, 
+    description, featuredImage, featuredImageAlt, featuredImageCaption,
+    bannerImage, bannerImageAlt, bannerImageCaption,
+    status 
+  } = req.body;
+
+  try {
+    // Check if place exists
+    const existingPlace = await getAsync('SELECT * FROM places WHERE id = ?', [id]);
+    if (!existingPlace) {
+      return res.status(404).json({ success: false, message: 'Place not found' });
+    }
+
+    // Check slug uniqueness if changed
+    if (slug !== existingPlace.slug) {
+      const slugCheck = await getAsync('SELECT id FROM places WHERE slug = ? AND id != ?', [slug, id]);
+      if (slugCheck) {
+        return res.status(400).json({ success: false, message: 'Slug already exists' });
+      }
+    }
+
+    // Delete old images if they are being replaced
+    if (featuredImage && featuredImage !== existingPlace.featuredImage) {
+      deleteImageFile(existingPlace.featuredImage);
+    }
+    if (bannerImage && bannerImage !== existingPlace.bannerImage) {
+      deleteImageFile(existingPlace.bannerImage);
+    }
+
+    const now = new Date().toISOString();
+    await runAsync(
+      `UPDATE places SET 
+        title = ?, urlTitle = ?, slug = ?, parentId = ?, 
+        metaTitle = ?, metaKeywords = ?, metaDescription = ?, 
+        description = ?, featuredImage = ?, featuredImageAlt = ?, featuredImageCaption = ?,
+        bannerImage = ?, bannerImageAlt = ?, bannerImageCaption = ?,
+        status = ?, updatedAt = ?
+       WHERE id = ?`,
+      [
+        title, urlTitle, slug, parentId || null, 
+        metaTitle, metaKeywords, metaDescription, 
+        description, featuredImage, featuredImageAlt, featuredImageCaption,
+        bannerImage, bannerImageAlt, bannerImageCaption,
+        status ? 1 : 0, now, id
+      ]
+    );
+
+    res.status(200).json({ success: true, message: 'Place updated successfully' });
+  } catch (err) {
+    console.error('Error updating place:', err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// Soft Delete place by ID (Cascading)
+app.delete('/api/places/:id', async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const existingPlace = await getAsync('SELECT * FROM places WHERE id = ?', [id]);
+    if (!existingPlace) {
+      return res.status(404).json({ success: false, message: 'Place not found' });
+    }
+
+    const descendantIds = await getPlaceDescendantIds(id);
+    const idsToDelete = [id, ...descendantIds];
+    const now = new Date().toISOString();
+
+    const placeholders = idsToDelete.map(() => '?').join(',');
+    await runAsync(`UPDATE places SET deletedAt = ? WHERE id IN (${placeholders})`, [now, ...idsToDelete]);
+    
+    res.status(200).json({ 
+      success: true, 
+      message: `Place and ${descendantIds.length} descendants moved to trash`,
+      deletedCount: idsToDelete.length 
+    });
+  } catch (err) {
+    console.error('Error deleting place:', err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// Permanent Delete place by ID (Cascading)
+app.delete('/api/places/:id/permanent', async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const existingPlace = await getAsync('SELECT * FROM places WHERE id = ?', [id]);
+    if (!existingPlace) {
+      return res.status(404).json({ success: false, message: 'Place not found' });
+    }
+
+    const descendantIds = await getPlaceDescendantIds(id);
+    const idsToDelete = [id, ...descendantIds];
+
+    const placeholders = idsToDelete.map(() => '?').join(',');
+
+    // Delete associated images
+    const placesToDelete = await allAsync(`SELECT featuredImage, bannerImage FROM places WHERE id IN (${placeholders})`, idsToDelete);
+    placesToDelete.forEach(place => {
+      deleteImageFile(place.featuredImage);
+      deleteImageFile(place.bannerImage);
+    });
+
+    await runAsync(`DELETE FROM places WHERE id IN (${placeholders})`, idsToDelete);
+    
+    res.status(200).json({ 
+      success: true, 
+      message: `Place and ${descendantIds.length} descendants permanently deleted`,
+      deletedCount: idsToDelete.length 
+    });
+  } catch (err) {
+    console.error('Error permanently deleting place:', err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// Restore place by ID (Cascading)
+app.post('/api/places/:id/restore', async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const existingPlace = await getAsync('SELECT * FROM places WHERE id = ?', [id]);
+    if (!existingPlace) {
+      return res.status(404).json({ success: false, message: 'Place not found' });
+    }
+
+    const descendantIds = await getPlaceDescendantIds(id);
+    const idsToRestore = [id, ...descendantIds];
+
+    const placeholders = idsToRestore.map(() => '?').join(',');
+    await runAsync(`UPDATE places SET deletedAt = NULL WHERE id IN (${placeholders})`, idsToRestore);
+    
+    res.status(200).json({ 
+      success: true, 
+      message: `Place and ${descendantIds.length} descendants restored`,
+      restoredCount: idsToRestore.length 
+    });
+  } catch (err) {
+    console.error('Error restoring place:', err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// Bulk Soft Delete
+app.post('/api/places/bulk-delete', async (req, res) => {
+  const { ids } = req.body;
+  if (!ids || !Array.isArray(ids) || ids.length === 0) return res.status(400).json({ success: false, message: 'No IDs provided' });
+
+  try {
+    let allIdsToDelete = new Set(ids);
+    for (const id of ids) {
+      const descendants = await getPlaceDescendantIds(id);
+      descendants.forEach(dId => allIdsToDelete.add(dId));
+    }
+    
+    const finalIds = Array.from(allIdsToDelete);
+    const now = new Date().toISOString();
+    const placeholders = finalIds.map(() => '?').join(',');
+    
+    const result = await runAsync(`UPDATE places SET deletedAt = ? WHERE id IN (${placeholders})`, [now, ...finalIds]);
+    res.status(200).json({ success: true, message: `${result.changes} places moved to trash` });
+  } catch (err) {
+    console.error('Error bulk deleting:', err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// Bulk Permanent Delete
+app.post('/api/places/bulk-delete-permanent', async (req, res) => {
+  const { ids } = req.body;
+  if (!ids || !Array.isArray(ids) || ids.length === 0) return res.status(400).json({ success: false, message: 'No IDs provided' });
+
+  try {
+    let allIdsToDelete = new Set(ids);
+    for (const id of ids) {
+      const descendants = await getPlaceDescendantIds(id);
+      descendants.forEach(dId => allIdsToDelete.add(dId));
+    }
+    
+    const finalIds = Array.from(allIdsToDelete);
+    const placeholders = finalIds.map(() => '?').join(',');
+    
+    // Delete associated images
+    const placesToDelete = await allAsync(`SELECT featuredImage, bannerImage FROM places WHERE id IN (${placeholders})`, finalIds);
+    placesToDelete.forEach(place => {
+      deleteImageFile(place.featuredImage);
+      deleteImageFile(place.bannerImage);
+    });
+
+    const result = await runAsync(`DELETE FROM places WHERE id IN (${placeholders})`, finalIds);
+    res.status(200).json({ success: true, message: `${result.changes} places permanently deleted` });
+  } catch (err) {
+    console.error('Error bulk permanent deleting:', err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// Bulk Restore
+app.post('/api/places/bulk-restore', async (req, res) => {
+  const { ids } = req.body;
+  if (!ids || !Array.isArray(ids) || ids.length === 0) return res.status(400).json({ success: false, message: 'No IDs provided' });
+
+  try {
+    let allIdsToRestore = new Set(ids);
+    for (const id of ids) {
+      const descendants = await getPlaceDescendantIds(id);
+      descendants.forEach(dId => allIdsToRestore.add(dId));
+    }
+    
+    const finalIds = Array.from(allIdsToRestore);
+    const placeholders = finalIds.map(() => '?').join(',');
+    
+    const result = await runAsync(`UPDATE places SET deletedAt = NULL WHERE id IN (${placeholders})`, finalIds);
+    res.status(200).json({ success: true, message: `${result.changes} places restored` });
+  } catch (err) {
+    console.error('Error bulk restoring:', err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
 app.listen(PORT, async () => {
   console.log(`Server running on http://localhost:${PORT}`);
   // Ensure default admin user exists (id 1) after server start

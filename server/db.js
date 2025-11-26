@@ -58,6 +58,31 @@ const init = () => {
     );
   `;
   
+  const createPlacesTableSQL = `
+    CREATE TABLE IF NOT EXISTS places (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      title TEXT NOT NULL,
+      urlTitle TEXT NOT NULL,
+      slug TEXT NOT NULL UNIQUE,
+      parentId INTEGER,
+      metaTitle TEXT,
+      metaKeywords TEXT,
+      metaDescription TEXT,
+      description TEXT,
+      featuredImage TEXT,
+      featuredImageAlt TEXT,
+      featuredImageCaption TEXT,
+      bannerImage TEXT,
+      bannerImageAlt TEXT,
+      bannerImageCaption TEXT,
+      status INTEGER DEFAULT 0,
+      deletedAt TEXT,
+      createdAt TEXT NOT NULL,
+      updatedAt TEXT NOT NULL,
+      FOREIGN KEY (parentId) REFERENCES places(id)
+    );
+  `;
+  
   db.run(createUsersTableSQL, (err) => {
     if (err) console.error('Error creating users table:', err);
     else console.log('Users table ready');
@@ -66,6 +91,11 @@ const init = () => {
   db.run(createArticlesTableSQL, (err) => {
     if (err) console.error('Error creating articles table:', err);
     else console.log('Articles table ready');
+  });
+  
+  db.run(createPlacesTableSQL, (err) => {
+    if (err) console.error('Error creating places table:', err);
+    else console.log('Places table ready');
   });
 };
 
