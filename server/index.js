@@ -14,6 +14,17 @@ app.use(cors());
 app.use(bodyParser.json({ limit: '10mb' })); // Increase limit for base64 images
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
+// Helper to delete image file
+const deleteImageFile = (imageUrl) => {
+  if (!imageUrl || !imageUrl.includes('/uploads/')) return;
+  const filename = imageUrl.split('/uploads/')[1];
+  if (!filename) return;
+  const filePath = path.join(__dirname, 'uploads', filename);
+  fs.unlink(filePath, (err) => {
+    if (err && err.code !== 'ENOENT') console.error(`Failed to delete ${filePath}:`, err);
+  });
+};
+
 // Admin creation moved to after server start
 
 // Login endpoint
@@ -294,19 +305,29 @@ app.post('/api/upload/image', async (req, res) => {
 // ARTICLES API ENDPOINTS
 // ========================
 
-// Get all articles
+// Get all active articles (not deleted)
 app.get('/api/articles', async (req, res) => {
   try {
-    const rows = await allAsync('SELECT * FROM articles ORDER BY createdAt DESC');
-    // Return articles as-is (they match the database schema)
-    res.status(200).json(rows);
+    const articles = await allAsync('SELECT * FROM articles WHERE deletedAt IS NULL ORDER BY createdAt DESC');
+    res.json(articles);
   } catch (err) {
     console.error('Error fetching articles:', err);
     res.status(500).json({ success: false, message: 'Server error' });
   }
 });
 
-// Get single article by ID
+// Get deleted articles (Trash)
+app.get('/api/articles/trash', async (req, res) => {
+  try {
+    const articles = await allAsync('SELECT * FROM articles WHERE deletedAt IS NOT NULL ORDER BY deletedAt DESC');
+    res.json(articles);
+  } catch (err) {
+    console.error('Error fetching trash:', err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// Get single article
 app.get('/api/articles/:id', async (req, res) => {
   const { id } = req.params;
   try {
@@ -314,7 +335,7 @@ app.get('/api/articles/:id', async (req, res) => {
     if (!article) {
       return res.status(404).json({ success: false, message: 'Article not found' });
     }
-    res.status(200).json({ success: true, article });
+    res.json({ success: true, article });
   } catch (err) {
     console.error('Error fetching article:', err);
     res.status(500).json({ success: false, message: 'Server error' });
@@ -324,114 +345,64 @@ app.get('/api/articles/:id', async (req, res) => {
 // Create new article
 app.post('/api/articles', async (req, res) => {
   const { 
-    title, 
-    urlTitle, 
-    slug, 
-    parentId, 
-    metaTitle, 
-    metaKeywords, 
-    metaDescription, 
-    description, 
-    featuredImage, 
-    featuredImageAlt, 
-    featuredImageCaption,
-    bannerImage,
-    bannerImageAlt,
-    bannerImageCaption
+    title, urlTitle, slug, parentId, 
+    metaTitle, metaKeywords, metaDescription, 
+    description, featuredImage, featuredImageAlt, featuredImageCaption,
+    bannerImage, bannerImageAlt, bannerImageCaption,
+    status 
   } = req.body;
-  
-  // Validation
-  if (!title || !urlTitle) {
-    return res.status(400).json({ success: false, message: 'Title and URL Title are required' });
+
+  // Basic validation
+  if (!title || !urlTitle || !slug) {
+    return res.status(400).json({ success: false, message: 'Title, URL Title, and Slug are required' });
   }
 
   try {
-    // Generate slug from urlTitle if not provided
-    const finalSlug = slug || urlTitle.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
-    
-    // Check if slug already exists
-    const existing = await getAsync('SELECT * FROM articles WHERE slug = ?', [finalSlug]);
+    // Check if slug exists
+    const existing = await getAsync('SELECT id FROM articles WHERE slug = ?', [slug]);
     if (existing) {
       return res.status(400).json({ success: false, message: 'Slug already exists' });
     }
 
+    const now = new Date().toISOString();
     const result = await runAsync(
-      `INSERT INTO articles (title, urlTitle, slug, parentId, metaTitle, metaKeywords, metaDescription, description, featuredImage, featuredImageAlt, featuredImageCaption, bannerImage, bannerImageAlt, bannerImageCaption, status, createdAt, updatedAt) 
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO articles (
+        title, urlTitle, slug, parentId, 
+        metaTitle, metaKeywords, metaDescription, 
+        description, featuredImage, featuredImageAlt, featuredImageCaption,
+        bannerImage, bannerImageAlt, bannerImageCaption,
+        status, createdAt, updatedAt
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
-        title.trim(),
-        urlTitle.trim(),
-        finalSlug,
-        parentId || null,
-        metaTitle || null,
-        metaKeywords || null,
-        metaDescription || null,
-        description || null,
-        featuredImage || null,
-        featuredImageAlt || null,
-        featuredImageCaption || null,
-        bannerImage || null,
-        bannerImageAlt || null,
-        bannerImageCaption || null,
-        req.body.status || 0,
-        new Date().toISOString(),
-        new Date().toISOString()
+        title, urlTitle, slug, parentId || null, 
+        metaTitle, metaKeywords, metaDescription, 
+        description, featuredImage, featuredImageAlt, featuredImageCaption,
+        bannerImage, bannerImageAlt, bannerImageCaption,
+        status ? 1 : 0, now, now
       ]
     );
 
-    const newArticle = {
-      id: result.lastID,
-      title: title.trim(),
-      urlTitle: urlTitle.trim(),
-      slug: finalSlug,
-      parentId: parentId || null,
-      metaTitle,
-      metaKeywords,
-      metaDescription,
-      description,
-      featuredImage,
-      featuredImageAlt,
-      featuredImageCaption,
-      bannerImage,
-      bannerImageAlt,
-      bannerImageCaption,
-      status: req.body.status || 0,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    };
-
-    res.status(201).json({ success: true, message: 'Article created successfully', article: newArticle });
+    res.status(201).json({ 
+      success: true, 
+      message: 'Article created successfully',
+      articleId: result.lastID 
+    });
   } catch (err) {
     console.error('Error creating article:', err);
     res.status(500).json({ success: false, message: 'Server error' });
   }
 });
 
-// Update article by ID
+// Update article
 app.put('/api/articles/:id', async (req, res) => {
   const { id } = req.params;
   const { 
-    title, 
-    urlTitle, 
-    slug, 
-    parentId, 
-    metaTitle, 
-    metaKeywords, 
-    metaDescription, 
-    description, 
-    featuredImage, 
-    featuredImageAlt, 
-    featuredImageCaption,
-    bannerImage,
-    bannerImageAlt,
-    bannerImageCaption,
-    status
+    title, urlTitle, slug, parentId, 
+    metaTitle, metaKeywords, metaDescription, 
+    description, featuredImage, featuredImageAlt, featuredImageCaption,
+    bannerImage, bannerImageAlt, bannerImageCaption,
+    status 
   } = req.body;
-
-  // Validation
-  if (!title || !urlTitle) {
-    return res.status(400).json({ success: false, message: 'Title and URL Title are required' });
-  }
 
   try {
     // Check if article exists
@@ -440,65 +411,47 @@ app.put('/api/articles/:id', async (req, res) => {
       return res.status(404).json({ success: false, message: 'Article not found' });
     }
 
-    // Generate slug from urlTitle if not provided
-    const finalSlug = slug || urlTitle.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
-
-    // Check if slug is already in use by another article
-    const slugCheck = await getAsync('SELECT * FROM articles WHERE slug = ? AND id != ?', [finalSlug, id]);
-    if (slugCheck) {
-      return res.status(400).json({ success: false, message: 'Slug already exists' });
+    // Check slug uniqueness if changed
+    if (slug !== existingArticle.slug) {
+      const slugCheck = await getAsync('SELECT id FROM articles WHERE slug = ? AND id != ?', [slug, id]);
+      if (slugCheck) {
+        return res.status(400).json({ success: false, message: 'Slug already exists' });
+      }
     }
 
+    // Delete old images if they are being replaced
+    if (featuredImage && featuredImage !== existingArticle.featuredImage) {
+      deleteImageFile(existingArticle.featuredImage);
+    }
+    if (bannerImage && bannerImage !== existingArticle.bannerImage) {
+      deleteImageFile(existingArticle.bannerImage);
+    }
+
+    const now = new Date().toISOString();
     await runAsync(
-      `UPDATE articles SET title = ?, urlTitle = ?, slug = ?, parentId = ?, metaTitle = ?, metaKeywords = ?, metaDescription = ?, description = ?, featuredImage = ?, featuredImageAlt = ?, featuredImageCaption = ?, bannerImage = ?, bannerImageAlt = ?, bannerImageCaption = ?, status = ?, updatedAt = ? WHERE id = ?`,
+      `UPDATE articles SET 
+        title = ?, urlTitle = ?, slug = ?, parentId = ?, 
+        metaTitle = ?, metaKeywords = ?, metaDescription = ?, 
+        description = ?, featuredImage = ?, featuredImageAlt = ?, featuredImageCaption = ?,
+        bannerImage = ?, bannerImageAlt = ?, bannerImageCaption = ?,
+        status = ?, updatedAt = ?
+       WHERE id = ?`,
       [
-        title.trim(),
-        urlTitle.trim(),
-        finalSlug,
-        parentId || null,
-        metaTitle || null,
-        metaKeywords || null,
-        metaDescription || null,
-        description || null,
-        featuredImage || null,
-        featuredImageAlt || null,
-        featuredImageCaption || null,
-        bannerImage || null,
-        bannerImageAlt || null,
-        bannerImageCaption || null,
-        status || 0,
-        new Date().toISOString(),
-        id
+        title, urlTitle, slug, parentId || null, 
+        metaTitle, metaKeywords, metaDescription, 
+        description, featuredImage, featuredImageAlt, featuredImageCaption,
+        bannerImage, bannerImageAlt, bannerImageCaption,
+        status ? 1 : 0, now, id
       ]
     );
 
-    const updatedArticle = {
-      id: parseInt(id),
-      title: title.trim(),
-      urlTitle: urlTitle.trim(),
-      slug: finalSlug,
-      parentId: parentId || null,
-      metaTitle,
-      metaKeywords,
-      metaDescription,
-      description,
-      featuredImage,
-      featuredImageAlt,
-      featuredImageCaption,
-      bannerImage,
-      bannerImageAlt,
-      bannerImageCaption,
-      updatedAt: new Date().toISOString()
-    };
-
-    res.status(200).json({ success: true, message: 'Article updated successfully', article: updatedArticle });
+    res.status(200).json({ success: true, message: 'Article updated successfully' });
   } catch (err) {
     console.error('Error updating article:', err);
     res.status(500).json({ success: false, message: 'Server error' });
   }
 });
 
-// Delete article by ID
 // Helper to recursively get all descendant IDs
 const getDescendantIds = async (parentId) => {
   try {
@@ -515,28 +468,26 @@ const getDescendantIds = async (parentId) => {
   }
 };
 
-// Delete article by ID (Cascading)
+// Soft Delete article by ID (Cascading)
 app.delete('/api/articles/:id', async (req, res) => {
   const { id } = req.params;
 
   try {
-    // Check if article exists
     const existingArticle = await getAsync('SELECT * FROM articles WHERE id = ?', [id]);
     if (!existingArticle) {
       return res.status(404).json({ success: false, message: 'Article not found' });
     }
 
-    // Get all descendants
     const descendantIds = await getDescendantIds(id);
     const idsToDelete = [id, ...descendantIds];
+    const now = new Date().toISOString();
 
-    // Delete all
     const placeholders = idsToDelete.map(() => '?').join(',');
-    await runAsync(`DELETE FROM articles WHERE id IN (${placeholders})`, idsToDelete);
+    await runAsync(`UPDATE articles SET deletedAt = ? WHERE id IN (${placeholders})`, [now, ...idsToDelete]);
     
     res.status(200).json({ 
       success: true, 
-      message: `Article and ${descendantIds.length} descendants deleted successfully`,
+      message: `Article and ${descendantIds.length} descendants moved to trash`,
       deletedCount: idsToDelete.length 
     });
   } catch (err) {
@@ -545,18 +496,101 @@ app.delete('/api/articles/:id', async (req, res) => {
   }
 });
 
-// Delete multiple articles (bulk delete)
-app.post('/api/articles/bulk-delete', async (req, res) => {
-  const { ids } = req.body;
 
-  if (!ids || !Array.isArray(ids) || ids.length === 0) {
-    return res.status(400).json({ success: false, message: 'No article IDs provided' });
-  }
+
+// Permanent Delete article by ID (Cascading)
+app.delete('/api/articles/:id/permanent', async (req, res) => {
+  const { id } = req.params;
 
   try {
-    // Collect all IDs to delete including descendants
-    let allIdsToDelete = new Set(ids);
+    const existingArticle = await getAsync('SELECT * FROM articles WHERE id = ?', [id]);
+    if (!existingArticle) {
+      return res.status(404).json({ success: false, message: 'Article not found' });
+    }
+
+    const descendantIds = await getDescendantIds(id);
+    const idsToDelete = [id, ...descendantIds];
+
+    const placeholders = idsToDelete.map(() => '?').join(',');
+
+    // Delete associated images
+    const articlesToDelete = await allAsync(`SELECT featuredImage, bannerImage FROM articles WHERE id IN (${placeholders})`, idsToDelete);
+    articlesToDelete.forEach(article => {
+      deleteImageFile(article.featuredImage);
+      deleteImageFile(article.bannerImage);
+    });
+
+    await runAsync(`DELETE FROM articles WHERE id IN (${placeholders})`, idsToDelete);
     
+    res.status(200).json({ 
+      success: true, 
+      message: `Article and ${descendantIds.length} descendants permanently deleted`,
+      deletedCount: idsToDelete.length 
+    });
+  } catch (err) {
+    console.error('Error permanently deleting article:', err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// Restore article by ID (Cascading)
+app.post('/api/articles/:id/restore', async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const existingArticle = await getAsync('SELECT * FROM articles WHERE id = ?', [id]);
+    if (!existingArticle) {
+      return res.status(404).json({ success: false, message: 'Article not found' });
+    }
+
+    const descendantIds = await getDescendantIds(id);
+    const idsToRestore = [id, ...descendantIds];
+
+    const placeholders = idsToRestore.map(() => '?').join(',');
+    await runAsync(`UPDATE articles SET deletedAt = NULL WHERE id IN (${placeholders})`, idsToRestore);
+    
+    res.status(200).json({ 
+      success: true, 
+      message: `Article and ${descendantIds.length} descendants restored`,
+      restoredCount: idsToRestore.length 
+    });
+  } catch (err) {
+    console.error('Error restoring article:', err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// Bulk Soft Delete
+app.post('/api/articles/bulk-delete', async (req, res) => {
+  const { ids } = req.body;
+  if (!ids || !Array.isArray(ids) || ids.length === 0) return res.status(400).json({ success: false, message: 'No IDs provided' });
+
+  try {
+    let allIdsToDelete = new Set(ids);
+    for (const id of ids) {
+      const descendants = await getDescendantIds(id);
+      descendants.forEach(dId => allIdsToDelete.add(dId));
+    }
+    
+    const finalIds = Array.from(allIdsToDelete);
+    const now = new Date().toISOString();
+    const placeholders = finalIds.map(() => '?').join(',');
+    
+    const result = await runAsync(`UPDATE articles SET deletedAt = ? WHERE id IN (${placeholders})`, [now, ...finalIds]);
+    res.status(200).json({ success: true, message: `${result.changes} articles moved to trash` });
+  } catch (err) {
+    console.error('Error bulk deleting:', err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// Bulk Permanent Delete
+app.post('/api/articles/bulk-delete-permanent', async (req, res) => {
+  const { ids } = req.body;
+  if (!ids || !Array.isArray(ids) || ids.length === 0) return res.status(400).json({ success: false, message: 'No IDs provided' });
+
+  try {
+    let allIdsToDelete = new Set(ids);
     for (const id of ids) {
       const descendants = await getDescendantIds(id);
       descendants.forEach(dId => allIdsToDelete.add(dId));
@@ -564,20 +598,44 @@ app.post('/api/articles/bulk-delete', async (req, res) => {
     
     const finalIds = Array.from(allIdsToDelete);
     const placeholders = finalIds.map(() => '?').join(',');
-    const deleteSQL = `DELETE FROM articles WHERE id IN (${placeholders})`;
     
-    const result = await runAsync(deleteSQL, finalIds);
-    res.status(200).json({ 
-      success: true, 
-      message: `${result.changes} article(s) deleted successfully`,
-      deletedCount: result.changes
+    // Delete associated images
+    const articlesToDelete = await allAsync(`SELECT featuredImage, bannerImage FROM articles WHERE id IN (${placeholders})`, finalIds);
+    articlesToDelete.forEach(article => {
+      deleteImageFile(article.featuredImage);
+      deleteImageFile(article.bannerImage);
     });
+
+    const result = await runAsync(`DELETE FROM articles WHERE id IN (${placeholders})`, finalIds);
+    res.status(200).json({ success: true, message: `${result.changes} articles permanently deleted` });
   } catch (err) {
-    console.error('Error bulk deleting articles:', err);
+    console.error('Error bulk permanent deleting:', err);
     res.status(500).json({ success: false, message: 'Server error' });
   }
 });
 
+// Bulk Restore
+app.post('/api/articles/bulk-restore', async (req, res) => {
+  const { ids } = req.body;
+  if (!ids || !Array.isArray(ids) || ids.length === 0) return res.status(400).json({ success: false, message: 'No IDs provided' });
+
+  try {
+    let allIdsToRestore = new Set(ids);
+    for (const id of ids) {
+      const descendants = await getDescendantIds(id);
+      descendants.forEach(dId => allIdsToRestore.add(dId));
+    }
+    
+    const finalIds = Array.from(allIdsToRestore);
+    const placeholders = finalIds.map(() => '?').join(',');
+    
+    const result = await runAsync(`UPDATE articles SET deletedAt = NULL WHERE id IN (${placeholders})`, finalIds);
+    res.status(200).json({ success: true, message: `${result.changes} articles restored` });
+  } catch (err) {
+    console.error('Error bulk restoring:', err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
 
 app.listen(PORT, async () => {
   console.log(`Server running on http://localhost:${PORT}`);

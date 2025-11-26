@@ -270,6 +270,13 @@ export default function ArticlesPage() {
                 </Button>
               )}
               <Button
+                onClick={() => router.push('/articles/trash')}
+                variant="outline"
+                className="px-6 py-2 border-gray-300 text-gray-700 hover:bg-gray-50"
+              >
+                Trash
+              </Button>
+              <Button
                 onClick={handleAddArticle}
                 className="px-6 py-2 bg-primary hover:bg-primary/90 text-white"
               >

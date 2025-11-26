@@ -22,7 +22,6 @@ import {
   Heading3,
   Heading4,
   Heading5,
-  Code,
   FileCode,
 } from 'lucide-react';
 import { useCallback, useState } from 'react';
@@ -129,7 +128,7 @@ const RichTextEditor = ({ content, onChange, placeholder = 'Write something...' 
     const newContent = e.target.value;
     onChange(newContent);
     if (editor) {
-      editor.commands.setContent(newContent, false);
+      editor.commands.setContent(newContent, { emitUpdate: false });
     }
   };
 

@@ -379,9 +379,9 @@ export default function AddArticlePage() {
                   <div className="space-y-3">
                     {formData.featuredImage ? (
                       <div className="relative">
-                        <img 
+                        <img
                           src={`http://localhost:3001${formData.featuredImage}`}
-                          alt="Featured preview" 
+                          alt="Featured preview"
                           className="max-w-full h-auto rounded-lg border border-gray-200"
                         />
                         <Button
@@ -410,8 +410,8 @@ export default function AddArticlePage() {
                           }}
                           disabled={loading}
                         />
-                        <label 
-                          htmlFor="featured-image-upload" 
+                        <label
+                          htmlFor="featured-image-upload"
                           className="cursor-pointer flex flex-col items-center gap-2"
                         >
                           <svg className="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -432,16 +432,16 @@ export default function AddArticlePage() {
                   <label className="block text-sm font-medium text-gray-700 mb-2">Featured Image Caption</label>
                   <input type="text" value={formData.featuredImageCaption} onChange={e => setFormData({ ...formData, featuredImageCaption: e.target.value })} placeholder="Caption for image" className="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition" disabled={loading} />
                 </div>
-                
+
                 {/* Banner Image */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Banner Image</label>
                   <div className="space-y-3">
                     {formData.bannerImageUrl ? (
                       <div className="relative">
-                        <img 
+                        <img
                           src={`http://localhost:3001${formData.bannerImageUrl}`}
-                          alt="Banner preview" 
+                          alt="Banner preview"
                           className="max-w-full h-auto rounded-lg border border-gray-200"
                         />
                         <Button
@@ -494,8 +494,8 @@ export default function AddArticlePage() {
                           }}
                           disabled={loading}
                         />
-                        <label 
-                          htmlFor="banner-image-upload" 
+                        <label
+                          htmlFor="banner-image-upload"
                           className="cursor-pointer flex flex-col items-center gap-2"
                         >
                           <svg className="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -516,7 +516,7 @@ export default function AddArticlePage() {
                   <label className="block text-sm font-medium text-gray-700 mb-2">Banner Image Caption</label>
                   <input type="text" value={formData.bannerImageCaption} onChange={e => setFormData({ ...formData, bannerImageCaption: e.target.value })} placeholder="Caption for banner image" className="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all" disabled={loading} />
                 </div>
-                
+
                 {/* Meta Information */}
                 <div className="border-t border-gray-200 pt-8">
                   <h3 className="text-lg font-semibold text-gray-900 mb-6">Meta Information</h3>

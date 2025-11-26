@@ -51,6 +51,7 @@ const init = () => {
       bannerImageAlt TEXT,
       bannerImageCaption TEXT,
       status INTEGER DEFAULT 0,
+      deletedAt TEXT,
       createdAt TEXT NOT NULL,
       updatedAt TEXT NOT NULL,
       FOREIGN KEY (parentId) REFERENCES articles(id)

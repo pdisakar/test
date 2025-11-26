@@ -74,7 +74,7 @@ export function Sidebar({ className }: SidebarProps) {
           sub: [
             { label: "Add New", href: "/articles/add" },
             { label: "All Articles", href: "/articles" },
-            { label: "Deleted Articles", href: "/articles/deleted" }
+            { label: "Deleted Articles", href: "/articles/trash" }
           ]
         },
       ]
