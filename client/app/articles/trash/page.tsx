@@ -274,7 +274,7 @@ export default function TrashPage() {
     );
   };
 
-  const filteredArticles = organizeArticles(articles).filter(article => 
+  const filteredArticles = organizeArticles(articles).filter(article =>
     article.title.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -282,7 +282,7 @@ export default function TrashPage() {
     <div className="min-h-screen bg-gray-50 flex">
       <Sidebar />
       <div className="flex-1 transition-all duration-300">
-        <div className="p-8 max-w-7xl mx-auto">
+        <div className="py-12 px-6 max-w-7xl mx-auto">
           {/* Header */}
           <div className="mb-8 flex items-center justify-between">
             <div className="flex items-center gap-4">
@@ -398,8 +398,8 @@ export default function TrashPage() {
                 {bulkDeleteStep === 1 ? 'Confirm Permanent Delete' : 'Are you absolutely sure?'}
               </h3>
               <p className="text-gray-600 mb-6">
-                {bulkDeleteStep === 1 
-                  ? `Permanently delete ${selectedArticles.length} article(s)? This action CANNOT be undone.` 
+                {bulkDeleteStep === 1
+                  ? `Permanently delete ${selectedArticles.length} article(s)? This action CANNOT be undone.`
                   : 'This will permanently remove these articles and all their images. There is no going back. Confirm?'}
               </p>
               <div className="flex gap-3 justify-end">
@@ -422,8 +422,8 @@ export default function TrashPage() {
                 {deleteStep === 1 ? 'Confirm Permanent Delete' : 'Are you absolutely sure?'}
               </h3>
               <p className="text-gray-600 mb-6">
-                {deleteStep === 1 
-                  ? 'Permanently delete this article? This action CANNOT be undone.' 
+                {deleteStep === 1
+                  ? 'Permanently delete this article? This action CANNOT be undone.'
                   : 'This will permanently remove the article and all its images. There is no going back. Confirm?'}
               </p>
               <div className="flex gap-3 justify-end">

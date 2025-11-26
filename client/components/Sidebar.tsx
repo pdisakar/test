@@ -42,6 +42,7 @@ interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {}
 export function Sidebar({ className }: SidebarProps) {
   const [isCollapsed, setIsCollapsed] = React.useState(false);
   const [openItem, setOpenItem] = React.useState<string | null>(null);
+  const [isMobileOpen, setIsMobileOpen] = React.useState(false);
 
   const toggleItem = (title: string) => {
     setOpenItem((prev) => prev === title ? null : title);
@@ -152,135 +153,168 @@ export function Sidebar({ className }: SidebarProps) {
   ];
 
   return (
-    <div 
-      className={cn(
-        "sticky top-0 flex flex-col h-screen bg-white border-r border-gray-100 transition-all duration-300 ease-in-out z-50",
-        isCollapsed ? "w-20" : "w-72",
-        className
-      )}
-    >
-      {/* Toggle Button */}
+    <>
+      {/* Mobile Menu Trigger */}
       <Button
         variant="ghost"
         size="icon"
-        onClick={() => setIsCollapsed(!isCollapsed)}
-        className="absolute -right-3 top-8 h-6 w-6 rounded-full bg-white border border-gray-100 shadow-sm hover:bg-gray-50 z-50"
+        className="fixed top-4 left-4 z-40 md:hidden"
+        onClick={() => setIsMobileOpen(true)}
       >
-        {isCollapsed ? <ChevronRight className="h-3 w-3" /> : <ChevronLeft className="h-3 w-3" />}
+        <MenuIcon className="h-6 w-6" />
       </Button>
 
-      {/* Header */}
-      <div className={cn("h-20 flex items-center px-6", isCollapsed ? "justify-center px-0" : "")}>
-        <div className="flex items-center gap-3">
-          <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-             <div className="h-4 w-4 rounded-full border-2 border-primary"></div>
-          </div>
-          {!isCollapsed && (
-            <span className="font-bold text-xl text-gray-900">Flup</span>
-          )}
-        </div>
-      </div>
+      {/* Mobile Overlay */}
+      {isMobileOpen && (
+        <div 
+          className="fixed inset-0 bg-black/50 z-40 md:hidden"
+          onClick={() => setIsMobileOpen(false)}
+        />
+      )}
 
-      {/* Menu */}
-      <ScrollArea className="flex-1 overflow-hidden">
-        <div className="px-4 py-4 space-y-6">
-          {menuItems.map((section, idx) => (
-            <div key={idx}>
-              {!isCollapsed && (
-                <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 px-2">
-                  {section.title}
-                </h3>
-              )}
-              <div className="space-y-1">
-                {section.items.map((item) => (
-                  <Collapsible
-                    key={item.title}
-                    open={!isCollapsed && openItem === item.title}
-                    onOpenChange={() => toggleItem(item.title)}
-                  >
-                    <CollapsibleTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        className={cn(
-                          "w-full justify-start h-11 rounded-xl transition-all duration-200 group",
-                          isCollapsed ? "justify-center px-0" : "px-3",
-                          openItem === item.title 
-                            ? "bg-primary/5 text-primary" 
-                            : "text-gray-500 hover:bg-gray-50 hover:text-gray-900"
-                        )}
-                      >
-                        <item.icon className={cn("h-5 w-5 shrink-0 transition-colors", !isCollapsed && "mr-3", openItem === item.title ? "text-primary" : "text-gray-400 group-hover:text-gray-600")} />
-                        {!isCollapsed && (
-                          <div className="flex-1 flex items-center justify-between">
-                            <span className="font-medium">{item.title}</span>
-                            <ChevronDown className={cn("h-4 w-4 text-gray-400 transition-transform duration-200", openItem === item.title && "transform rotate-180")} />
+      <div 
+        className={cn(
+          "fixed inset-y-0 left-0 z-50 flex flex-col h-screen bg-white border-r border-gray-100 transition-all duration-300 ease-in-out md:sticky md:top-0",
+          isCollapsed ? "md:w-20" : "md:w-72",
+          // Mobile styles
+          "w-72",
+          !isMobileOpen && "-translate-x-full md:translate-x-0",
+          className
+        )}
+      >
+        {/* Toggle Button (Desktop only) */}
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => setIsCollapsed(!isCollapsed)}
+          className="hidden md:flex absolute -right-3 top-8 h-6 w-6 rounded-full bg-white border border-gray-100 shadow-sm hover:bg-gray-50 z-50"
+        >
+          {isCollapsed ? <ChevronRight className="h-3 w-3" /> : <ChevronLeft className="h-3 w-3" />}
+        </Button>
+
+        {/* Close Button (Mobile only) */}
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => setIsMobileOpen(false)}
+          className="absolute right-4 top-4 md:hidden"
+        >
+          <ChevronLeft className="h-6 w-6" />
+        </Button>
+
+        {/* Header */}
+        <div className={cn("h-20 flex items-center px-6", isCollapsed ? "md:justify-center md:px-0" : "")}>
+          <div className="flex items-center gap-3">
+            <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+               <div className="h-4 w-4 rounded-full border-2 border-primary"></div>
+            </div>
+            {(!isCollapsed || isMobileOpen) && (
+              <span className="font-bold text-xl text-gray-900 md:block">Flup</span>
+            )}
+          </div>
+        </div>
+
+        {/* Menu */}
+        <ScrollArea className="flex-1 overflow-hidden">
+          <div className="px-4 py-4 space-y-6">
+            {menuItems.map((section, idx) => (
+              <div key={idx}>
+                {(!isCollapsed || isMobileOpen) && (
+                  <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 px-2">
+                    {section.title}
+                  </h3>
+                )}
+                <div className="space-y-1">
+                  {section.items.map((item) => (
+                    <Collapsible
+                      key={item.title}
+                      open={(!isCollapsed || isMobileOpen) && openItem === item.title}
+                      onOpenChange={() => toggleItem(item.title)}
+                    >
+                      <CollapsibleTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          className={cn(
+                            "w-full justify-start h-11 rounded-xl transition-all duration-200 group",
+                            isCollapsed ? "md:justify-center md:px-0" : "px-3",
+                            openItem === item.title 
+                              ? "bg-primary/5 text-primary" 
+                              : "text-gray-500 hover:bg-gray-50 hover:text-gray-900"
+                          )}
+                        >
+                          <item.icon className={cn("h-5 w-5 shrink-0 transition-colors", (!isCollapsed || isMobileOpen) && "mr-3", openItem === item.title ? "text-primary" : "text-gray-400 group-hover:text-gray-600")} />
+                          {(!isCollapsed || isMobileOpen) && (
+                            <div className="flex-1 flex items-center justify-between">
+                              <span className="font-medium">{item.title}</span>
+                              <ChevronDown className={cn("h-4 w-4 text-gray-400 transition-transform duration-200", openItem === item.title && "transform rotate-180")} />
+                            </div>
+                          )}
+                        </Button>
+                      </CollapsibleTrigger>
+                      <CollapsibleContent>
+                        {(!isCollapsed || isMobileOpen) && (
+                          <div className="mt-1 ml-4 pl-4 border-l border-gray-100 space-y-1">
+                            {item.sub.map((subItem) => (
+                              <Link
+                                key={subItem.label}
+                                href={subItem.href}
+                                className="flex items-center w-full h-9 px-3 text-sm text-gray-500 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-colors"
+                              >
+                                {subItem.label}
+                              </Link>
+                            ))}
                           </div>
                         )}
-                      </Button>
-                    </CollapsibleTrigger>
-                    <CollapsibleContent>
-                      {!isCollapsed && (
-                        <div className="mt-1 ml-4 pl-4 border-l border-gray-100 space-y-1">
-                          {item.sub.map((subItem) => (
-                            <Link
-                              key={subItem.label}
-                              href={subItem.href}
-                              className="flex items-center w-full h-9 px-3 text-sm text-gray-500 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-colors"
-                            >
-                              {subItem.label}
-                            </Link>
-                          ))}
-                        </div>
-                      )}
-                    </CollapsibleContent>
-                  </Collapsible>
-                ))}
+                      </CollapsibleContent>
+                    </Collapsible>
+                  ))}
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
 
-          {/* Dark Mode Toggle */}
-          <div className={cn("flex items-center mt-4", isCollapsed ? "justify-center" : "justify-between px-2")}>
-            {!isCollapsed && (
-              <div className="flex items-center gap-3 text-gray-500 font-medium">
-                <Moon className="h-5 w-5" />
-                <span>Dark mode</span>
+            {/* Dark Mode Toggle */}
+            <div className={cn("flex items-center mt-4", isCollapsed ? "md:justify-center" : "justify-between px-2")}>
+              {(!isCollapsed || isMobileOpen) && (
+                <div className="flex items-center gap-3 text-gray-500 font-medium">
+                  <Moon className="h-5 w-5" />
+                  <span>Dark mode</span>
+                </div>
+              )}
+              {isCollapsed && !isMobileOpen ? <Moon className="h-5 w-5 text-gray-400" /> : <Switch />}
+            </div>
+          </div>
+        </ScrollArea>
+
+        {/* Footer */}
+        <div className="p-4 border-t border-gray-50 space-y-4">
+          <div className={cn("flex items-center gap-3", isCollapsed ? "md:justify-center" : "")}>
+            <div className="h-10 w-10 rounded-full bg-gray-200 overflow-hidden shrink-0">
+               <img src="https://github.com/shadcn.png" alt="User" className="h-full w-full object-cover" />
+            </div>
+            {(!isCollapsed || isMobileOpen) && (
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold text-gray-900 truncate">Harper Nelson</p>
+                <p className="text-xs text-gray-500 truncate">Admin Manager</p>
               </div>
             )}
-            {isCollapsed ? <Moon className="h-5 w-5 text-gray-400" /> : <Switch />}
           </div>
-        </div>
-      </ScrollArea>
 
-      {/* Footer */}
-      <div className="p-4 border-t border-gray-50 space-y-4">
-        <div className={cn("flex items-center gap-3", isCollapsed ? "justify-center" : "")}>
-          <div className="h-10 w-10 rounded-full bg-gray-200 overflow-hidden shrink-0">
-             <img src="https://github.com/shadcn.png" alt="User" className="h-full w-full object-cover" />
-          </div>
-          {!isCollapsed && (
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-semibold text-gray-900 truncate">Harper Nelson</p>
-              <p className="text-xs text-gray-500 truncate">Admin Manager</p>
-            </div>
-          )}
+          <Button 
+            variant="ghost" 
+            onClick={() => {
+              localStorage.removeItem('authToken');
+              window.location.href = '/login';
+            }}
+            className={cn(
+              "w-full justify-start text-gray-500 hover:text-red-600 hover:bg-red-50",
+               isCollapsed ? "md:justify-center md:px-0" : ""
+            )}
+          >
+            <LogOut className={cn("h-5 w-5 shrink-0", (!isCollapsed || isMobileOpen) && "mr-3")} />
+            {(!isCollapsed || isMobileOpen) && <span>Log out</span>}
+          </Button>
         </div>
-
-        <Button 
-          variant="ghost" 
-          onClick={() => {
-            localStorage.removeItem('authToken');
-            window.location.href = '/login';
-          }}
-          className={cn(
-            "w-full justify-start text-gray-500 hover:text-red-600 hover:bg-red-50",
-             isCollapsed ? "justify-center px-0" : ""
-          )}
-        >
-          <LogOut className={cn("h-5 w-5 shrink-0", !isCollapsed && "mr-3")} />
-          {!isCollapsed && <span>Log out</span>}
-        </Button>
       </div>
-    </div>
+    </>
   );
 }

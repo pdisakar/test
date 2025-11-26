@@ -60,8 +60,8 @@ export default function UsersPage() {
   };
 
   const handleToggleUser = (userId: number) => {
-    setSelectedUsers(prev => 
-      prev.includes(userId) 
+    setSelectedUsers(prev =>
+      prev.includes(userId)
         ? prev.filter(id => id !== userId)
         : [...prev, userId]
     );
@@ -84,14 +84,14 @@ export default function UsersPage() {
   const handleConfirmDelete = async () => {
     setDeleting(true);
     setError('');
-    
+
     try {
       if (selectedUsers.length === 1) {
         // Single delete
         const response = await fetch(`http://localhost:3001/api/users/${selectedUsers[0]}`, {
           method: 'DELETE',
         });
-        
+
         if (!response.ok) {
           const data = await response.json();
           throw new Error(data.message || 'Failed to delete user');
@@ -103,13 +103,13 @@ export default function UsersPage() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ ids: selectedUsers }),
         });
-        
+
         if (!response.ok) {
           const data = await response.json();
           throw new Error(data.message || 'Failed to delete users');
         }
       }
-      
+
       // Refresh users list
       await fetchUsers();
       setSelectedUsers([]);
@@ -136,7 +136,7 @@ export default function UsersPage() {
   // Filter users based on search term and user type
   const filteredUsers = users.filter(user => {
     const matchesSearch = user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         user.email.toLowerCase().includes(searchTerm.toLowerCase());
+      user.email.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesType = !userType || user.userType === userType;
     return matchesSearch && matchesType;
   });
@@ -145,7 +145,7 @@ export default function UsersPage() {
     <div className="min-h-screen bg-gray-50 flex">
       <Sidebar />
       <div className="flex-1 transition-all duration-300">
-        <div className="p-8 max-w-7xl mx-auto">
+        <div className="py-12 px-6 max-w-7xl mx-auto">
           {/* Header */}
           <div className="mb-8 flex items-center justify-between">
             <h1 className="text-3xl font-bold text-gray-900">Users</h1>
@@ -276,9 +276,8 @@ export default function UsersPage() {
                         </span>
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-900">
-                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                          user.status ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
-                        }`}>
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${user.status ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
+                          }`}>
                           {user.status ? 'Active' : 'Inactive'}
                         </span>
                       </td>
@@ -337,7 +336,7 @@ export default function UsersPage() {
             <div className="bg-white rounded-xl shadow-2xl p-6 max-w-md w-full mx-4">
               <h3 className="text-xl font-bold text-gray-900 mb-4">Confirm Delete</h3>
               <p className="text-gray-600 mb-6">
-                Are you sure you want to delete {selectedUsers.length} user{selectedUsers.length > 1 ? 's' : ''}? 
+                Are you sure you want to delete {selectedUsers.length} user{selectedUsers.length > 1 ? 's' : ''}?
                 This action cannot be undone.
               </p>
               <div className="flex items-center gap-3 justify-end">
