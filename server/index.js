@@ -1,6 +1,8 @@
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
+const fs = require('fs');
+const path = require('path');
 
 // SQLite helper (db.js provides runAsync, getAsync, allAsync)
 const { runAsync, getAsync, allAsync } = require('./db');
@@ -9,7 +11,8 @@ const app = express();
 const PORT = 3001;
 
 app.use(cors());
-app.use(bodyParser.json());
+app.use(bodyParser.json({ limit: '10mb' })); // Increase limit for base64 images
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Admin creation moved to after server start
 
@@ -238,6 +241,51 @@ app.post('/api/users/bulk-delete', async (req, res) => {
   } catch (err) {
     console.error('Error bulk deleting users:', err);
     res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+
+// ========================
+// IMAGE UPLOAD ENDPOINT
+// ========================
+
+// Upload image (converts base64 to file)
+app.post('/api/upload/image', async (req, res) => {
+  const { image, type = 'featured' } = req.body;
+
+  if (!image) {
+    return res.status(400).json({ success: false, message: 'No image data provided' });
+  }
+
+  try {
+    // Extract base64 data (remove data:image/png;base64, prefix if present)
+    const base64Data = image.replace(/^data:image\/\w+;base64,/, '');
+    const buffer = Buffer.from(base64Data, 'base64');
+
+    // Generate unique filename
+    const timestamp = Date.now();
+    const filename = `${type}-${timestamp}.png`;
+    const filepath = path.join(__dirname, 'uploads', filename);
+
+    // Ensure uploads directory exists
+    const uploadsDir = path.join(__dirname, 'uploads');
+    if (!fs.existsSync(uploadsDir)) {
+      fs.mkdirSync(uploadsDir, { recursive: true });
+    }
+
+    // Write file to disk
+    fs.writeFileSync(filepath, buffer);
+
+    // Return the public URL path
+    const publicPath = `/uploads/${filename}`;
+    res.status(200).json({ 
+      success: true, 
+      message: 'Image uploaded successfully',
+      path: publicPath 
+    });
+  } catch (err) {
+    console.error('Error uploading image:', err);
+    res.status(500).json({ success: false, message: 'Failed to upload image' });
   }
 });
 

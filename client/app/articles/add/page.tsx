@@ -1,11 +1,15 @@
 'use client';
 
 import { Sidebar } from '@/components/Sidebar';
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
-import { ChevronRight, ChevronDown } from 'lucide-react';
+import { ChevronRight, ChevronDown, X } from 'lucide-react';
+import dynamic from 'next/dynamic';
+import { ImageCrop, ImageCropContent, ImageCropApply, ImageCropReset } from '@/components/ImageCrop';
+
+const RichTextEditor = dynamic(() => import('@/components/RichTextEditor'), { ssr: false });
 
 // Simple slug generator
 const slugify = (text: string) =>
@@ -45,9 +49,11 @@ export default function AddArticlePage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
-  const [parentOptions, setParentOptions] = useState<Article[]>([]);
-  const [expandedParents, setExpandedParents] = useState<Set<number>>(new Set());
+  const [selectedImageFile, setSelectedImageFile] = useState<File | null>(null);
+  const [showImageCrop, setShowImageCrop] = useState(false);
   const [showAccordion, setShowAccordion] = useState(false);
+  const [expandedParents, setExpandedParents] = useState<Set<number>>(new Set());
+  const [parentOptions, setParentOptions] = useState<Article[]>([]);
 
   // Redirect if not authenticated
   useEffect(() => {
@@ -109,12 +115,10 @@ export default function AddArticlePage() {
     const isSelected = formData.parentId.includes(String(article.id));
 
     return (
-      <>
+      <React.Fragment key={article.id}>
         <div
-          key={article.id}
-          className={`flex items-center gap-2 py-2 px-3 rounded-lg cursor-pointer transition-colors ${
-            isSelected ? 'bg-primary/10 border border-primary' : 'hover:bg-gray-50'
-          }`}
+          className={`flex items-center gap-2 py-2 px-3 rounded-lg cursor-pointer transition-colors ${isSelected ? 'bg-primary/10 border border-primary' : 'hover:bg-gray-50'
+            }`}
           style={{ paddingLeft: `${depth * 24 + 12}px` }}
         >
           {hasChildren ? (
@@ -150,7 +154,7 @@ export default function AddArticlePage() {
           </div>
         </div>
         {isExpanded && article.children?.map((child) => renderParentOption(child, depth + 1))}
-      </>
+      </React.Fragment>
     );
   };
 
@@ -230,6 +234,22 @@ export default function AddArticlePage() {
     }
   };
 
+  const uploadImage = async (base64Image: string): Promise<string> => {
+    try {
+      const response = await fetch('http://localhost:3001/api/upload/image', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ image: base64Image, type: 'featured' }),
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message || 'Failed to upload image');
+      return data.path; // Returns /uploads/featured-123456.png
+    } catch (err: any) {
+      console.error('Image upload error:', err);
+      throw err;
+    }
+  };
+
   const handleDiscard = () => router.push('/articles');
 
   return (
@@ -280,7 +300,7 @@ export default function AddArticlePage() {
                   {/* Parent Article */}
                   <div className="md:col-span-2">
                     <label className="block text-sm font-medium text-gray-700 mb-2">Parent Article(s)</label>
-                    <div 
+                    <div
                       className="border border-gray-200 rounded-lg bg-white cursor-pointer"
                       onClick={() => setShowAccordion(!showAccordion)}
                     >
@@ -289,7 +309,22 @@ export default function AddArticlePage() {
                           {formData.parentId.length === 0 ? (
                             <span className="text-gray-500">None (Top Level)</span>
                           ) : (
-                            <span>{formData.parentId.length} parent(s) selected</span>
+                            <span>
+                              {formData.parentId.map((id) => {
+                                const findArticle = (articles: any[]): any => {
+                                  for (const article of articles) {
+                                    if (String(article.id) === id) return article;
+                                    if (article.children) {
+                                      const found = findArticle(article.children);
+                                      if (found) return found;
+                                    }
+                                  }
+                                  return null;
+                                };
+                                const article = findArticle(organizeArticles(parentOptions));
+                                return article?.title || id;
+                              }).join(', ')}
+                            </span>
                           )}
                         </span>
                         {showAccordion ? (
@@ -301,9 +336,8 @@ export default function AddArticlePage() {
                       {showAccordion && (
                         <div className="border-t border-gray-200 max-h-64 overflow-y-auto" onClick={(e) => e.stopPropagation()}>
                           <div
-                            className={`py-2 px-3 cursor-pointer transition-colors ${
-                              formData.parentId.length === 0 ? 'bg-primary/10 border-t border-b border-primary' : 'hover:bg-gray-50'
-                            }`}
+                            className={`py-2 px-3 cursor-pointer transition-colors ${formData.parentId.length === 0 ? 'bg-primary/10 border-t border-b border-primary' : 'hover:bg-gray-50'
+                              }`}
                             onClick={() => setFormData({ ...formData, parentId: [] })}
                           >
                             <span className="text-sm text-gray-900 font-medium">None (Top Level)</span>
@@ -333,12 +367,62 @@ export default function AddArticlePage() {
                 {/* Description */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
-                  <textarea value={formData.description} onChange={e => setFormData({ ...formData, description: e.target.value })} placeholder="Article content..." rows={6} className="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all resize-none" disabled={loading} />
+                  <RichTextEditor
+                    content={formData.description}
+                    onChange={(content) => setFormData({ ...formData, description: content })}
+                    placeholder="Article content..."
+                  />
                 </div>
                 {/* Featured Image */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Featured Image URL</label>
-                  <input type="text" value={formData.featuredImage} onChange={e => setFormData({ ...formData, featuredImage: e.target.value })} placeholder="https://example.com/image.jpg" className="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all" disabled={loading} />
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Featured Image</label>
+                  <div className="space-y-3">
+                    {formData.featuredImage ? (
+                      <div className="relative">
+                        <img 
+                          src={`http://localhost:3001${formData.featuredImage}`}
+                          alt="Featured preview" 
+                          className="max-w-full h-auto rounded-lg border border-gray-200"
+                        />
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setFormData({ ...formData, featuredImage: '' })}
+                          className="mt-2"
+                        >
+                          Remove Image
+                        </Button>
+                      </div>
+                    ) : (
+                      <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-primary transition-colors">
+                        <input
+                          type="file"
+                          id="featured-image-upload"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) {
+                              setSelectedImageFile(file);
+                              setShowImageCrop(true);
+                            }
+                          }}
+                          disabled={loading}
+                        />
+                        <label 
+                          htmlFor="featured-image-upload" 
+                          className="cursor-pointer flex flex-col items-center gap-2"
+                        >
+                          <svg className="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                          </svg>
+                          <span className="text-sm text-gray-600">Click to upload image</span>
+                          <span className="text-xs text-gray-500">PNG, JPG up to 5MB</span>
+                        </label>
+                      </div>
+                    )}
+                  </div>
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Featured Image Alt Text</label>
@@ -348,6 +432,91 @@ export default function AddArticlePage() {
                   <label className="block text-sm font-medium text-gray-700 mb-2">Featured Image Caption</label>
                   <input type="text" value={formData.featuredImageCaption} onChange={e => setFormData({ ...formData, featuredImageCaption: e.target.value })} placeholder="Caption for image" className="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition" disabled={loading} />
                 </div>
+                
+                {/* Banner Image */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Banner Image</label>
+                  <div className="space-y-3">
+                    {formData.bannerImageUrl ? (
+                      <div className="relative">
+                        <img 
+                          src={`http://localhost:3001${formData.bannerImageUrl}`}
+                          alt="Banner preview" 
+                          className="max-w-full h-auto rounded-lg border border-gray-200"
+                        />
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setFormData({ ...formData, bannerImageUrl: '' })}
+                          className="mt-2"
+                        >
+                          Remove Image
+                        </Button>
+                      </div>
+                    ) : (
+                      <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-primary transition-colors">
+                        <input
+                          type="file"
+                          id="banner-image-upload"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={async (e) => {
+                            const file = e.target.files?.[0];
+                            if (file) {
+                              try {
+                                // Convert to base64
+                                const reader = new FileReader();
+                                reader.onload = async (event) => {
+                                  const base64 = event.target?.result as string;
+                                  try {
+                                    // Upload to server
+                                    const response = await fetch('http://localhost:3001/api/upload/image', {
+                                      method: 'POST',
+                                      headers: { 'Content-Type': 'application/json' },
+                                      body: JSON.stringify({ image: base64, type: 'banner' }),
+                                    });
+                                    const data = await response.json();
+                                    if (response.ok) {
+                                      setFormData({ ...formData, bannerImageUrl: data.path });
+                                    } else {
+                                      setError('Failed to upload banner image');
+                                    }
+                                  } catch (err) {
+                                    setError('Failed to upload banner image');
+                                  }
+                                };
+                                reader.readAsDataURL(file);
+                              } catch (err) {
+                                setError('Failed to process banner image');
+                              }
+                            }
+                          }}
+                          disabled={loading}
+                        />
+                        <label 
+                          htmlFor="banner-image-upload" 
+                          className="cursor-pointer flex flex-col items-center gap-2"
+                        >
+                          <svg className="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                          </svg>
+                          <span className="text-sm text-gray-600">Click to upload banner image</span>
+                          <span className="text-xs text-gray-500">PNG, JPG up to 5MB (no cropping)</span>
+                        </label>
+                      </div>
+                    )}
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Banner Image Alt Text</label>
+                  <input type="text" value={formData.bannerImageAlt} onChange={e => setFormData({ ...formData, bannerImageAlt: e.target.value })} placeholder="Alt text for banner image" className="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all" disabled={loading} />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Banner Image Caption</label>
+                  <input type="text" value={formData.bannerImageCaption} onChange={e => setFormData({ ...formData, bannerImageCaption: e.target.value })} placeholder="Caption for banner image" className="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all" disabled={loading} />
+                </div>
+                
                 {/* Meta Information */}
                 <div className="border-t border-gray-200 pt-8">
                   <h3 className="text-lg font-semibold text-gray-900 mb-6">Meta Information</h3>
@@ -374,29 +543,62 @@ export default function AddArticlePage() {
                     </div>
                   </div>
                 </div>
-                {/* Banner Image */}
-                <div className="mt-4">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">Banner Image</h3>
-                  <div className="space-y-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Banner Image URL</label>
-                      <input type="text" value={formData.bannerImageUrl} onChange={e => setFormData({ ...formData, bannerImageUrl: e.target.value })} placeholder="https://example.com/banner.jpg" className="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all" disabled={loading} />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Banner Image Alt Text</label>
-                      <input type="text" value={formData.bannerImageAlt} onChange={e => setFormData({ ...formData, bannerImageAlt: e.target.value })} placeholder="Alt text for banner" className="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all" disabled={loading} />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Banner Image Caption</label>
-                      <input type="text" value={formData.bannerImageCaption} onChange={e => setFormData({ ...formData, bannerImageCaption: e.target.value })} placeholder="Caption for banner" className="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all" disabled={loading} />
-                    </div>
-                  </div>
-                </div>
               </div>
             </form>
           </div>
         </div>
       </div>
+
+      {/* Image Crop Modal */}
+      {showImageCrop && selectedImageFile && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg max-w-2xl w-full p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold">Crop Image</h3>
+              <button
+                onClick={() => {
+                  setShowImageCrop(false);
+                  setSelectedImageFile(null);
+                }}
+                className="p-1 hover:bg-gray-100 rounded"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            <ImageCrop
+              file={selectedImageFile}
+              aspect={9 / 12}
+              onCrop={async (croppedImage) => {
+                try {
+                  // Upload image to server
+                  const imagePath = await uploadImage(croppedImage);
+                  setFormData({ ...formData, featuredImage: imagePath });
+                  setShowImageCrop(false);
+                  setSelectedImageFile(null);
+                } catch (err) {
+                  setError('Failed to upload image. Please try again.');
+                  setShowImageCrop(false);
+                  setSelectedImageFile(null);
+                }
+              }}
+            >
+              <div className="space-y-4">
+                <ImageCropContent className="border border-gray-200 rounded" />
+                <div className="flex gap-2 justify-end">
+                  <ImageCropReset asChild>
+                    <Button variant="outline" type="button">
+                      Reset
+                    </Button>
+                  </ImageCropReset>
+                  <ImageCropApply asChild>
+                    <Button type="button">Apply Crop</Button>
+                  </ImageCropApply>
+                </div>
+              </div>
+            </ImageCrop>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
