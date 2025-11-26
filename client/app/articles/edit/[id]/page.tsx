@@ -433,6 +433,27 @@ export default function EditArticlePage() {
                     </div>
                   </div>
                 </div>
+                {/* Meta Information */}
+                <div className="border-t border-gray-200 pt-8">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-6">Meta Information</h3>
+                  <div className="space-y-6">
+                    {/* Meta Title */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Meta Title</label>
+                      <input type="text" value={formData.metaTitle} onChange={e => setFormData({ ...formData, metaTitle: e.target.value })} placeholder="Meta title for SEO" className="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all" disabled={saving} />
+                    </div>
+                    {/* Meta Keywords */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Meta Keywords</label>
+                      <input type="text" value={formData.metaKeywords} onChange={e => setFormData({ ...formData, metaKeywords: e.target.value })} placeholder="keyword1, keyword2, keyword3" className="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all" disabled={saving} />
+                    </div>
+                    {/* Meta Description */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Meta Description</label>
+                      <textarea value={formData.metaDescription} onChange={e => setFormData({ ...formData, metaDescription: e.target.value })} placeholder="Meta description for SEO..." rows={3} className="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all resize-none" disabled={saving} />
+                    </div>
+                  </div>
+                </div>
                 {/* Description */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
@@ -575,32 +596,7 @@ export default function EditArticlePage() {
                   <input type="text" value={formData.bannerImageCaption} onChange={e => setFormData({ ...formData, bannerImageCaption: e.target.value })} placeholder="Caption for banner image" className="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all" disabled={saving} />
                 </div>
 
-                {/* Meta Information */}
-                <div className="border-t border-gray-200 pt-8">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-6">Meta Information</h3>
-                  <div className="space-y-6">
-                    {/* Meta Title */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Meta Title</label>
-                      <input type="text" value={formData.metaTitle} onChange={e => setFormData({ ...formData, metaTitle: e.target.value })} placeholder="Meta title for SEO" className="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all" disabled={saving} />
-                    </div>
-                    {/* Meta Info */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Meta Info</label>
-                      <input type="text" value={formData.metaInfo} onChange={e => setFormData({ ...formData, metaInfo: e.target.value })} placeholder="Meta info..." className="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all" disabled={saving} />
-                    </div>
-                    {/* Meta Keywords */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Meta Keywords</label>
-                      <input type="text" value={formData.metaKeywords} onChange={e => setFormData({ ...formData, metaKeywords: e.target.value })} placeholder="keyword1, keyword2, keyword3" className="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all" disabled={saving} />
-                    </div>
-                    {/* Meta Description */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Meta Description</label>
-                      <textarea value={formData.metaDescription} onChange={e => setFormData({ ...formData, metaDescription: e.target.value })} placeholder="Meta description for SEO..." rows={3} className="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all resize-none" disabled={saving} />
-                    </div>
-                  </div>
-                </div>
+
               </div>
             </form>
           </div>
