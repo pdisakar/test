@@ -499,6 +499,23 @@ app.put('/api/articles/:id', async (req, res) => {
 });
 
 // Delete article by ID
+// Helper to recursively get all descendant IDs
+const getDescendantIds = async (parentId) => {
+  try {
+    const children = await allAsync('SELECT id FROM articles WHERE parentId = ?', [parentId]);
+    let ids = children.map(c => c.id);
+    for (const child of children) {
+      const grandChildren = await getDescendantIds(child.id);
+      ids = [...ids, ...grandChildren];
+    }
+    return ids;
+  } catch (err) {
+    console.error('Error getting descendants:', err);
+    return [];
+  }
+};
+
+// Delete article by ID (Cascading)
 app.delete('/api/articles/:id', async (req, res) => {
   const { id } = req.params;
 
@@ -509,8 +526,19 @@ app.delete('/api/articles/:id', async (req, res) => {
       return res.status(404).json({ success: false, message: 'Article not found' });
     }
 
-    await runAsync('DELETE FROM articles WHERE id = ?', [id]);
-    res.status(200).json({ success: true, message: 'Article deleted successfully' });
+    // Get all descendants
+    const descendantIds = await getDescendantIds(id);
+    const idsToDelete = [id, ...descendantIds];
+
+    // Delete all
+    const placeholders = idsToDelete.map(() => '?').join(',');
+    await runAsync(`DELETE FROM articles WHERE id IN (${placeholders})`, idsToDelete);
+    
+    res.status(200).json({ 
+      success: true, 
+      message: `Article and ${descendantIds.length} descendants deleted successfully`,
+      deletedCount: idsToDelete.length 
+    });
   } catch (err) {
     console.error('Error deleting article:', err);
     res.status(500).json({ success: false, message: 'Server error' });
@@ -526,11 +554,19 @@ app.post('/api/articles/bulk-delete', async (req, res) => {
   }
 
   try {
-    // Create placeholders for SQL query
-    const placeholders = ids.map(() => '?').join(',');
+    // Collect all IDs to delete including descendants
+    let allIdsToDelete = new Set(ids);
+    
+    for (const id of ids) {
+      const descendants = await getDescendantIds(id);
+      descendants.forEach(dId => allIdsToDelete.add(dId));
+    }
+    
+    const finalIds = Array.from(allIdsToDelete);
+    const placeholders = finalIds.map(() => '?').join(',');
     const deleteSQL = `DELETE FROM articles WHERE id IN (${placeholders})`;
     
-    const result = await runAsync(deleteSQL, ids);
+    const result = await runAsync(deleteSQL, finalIds);
     res.status(200).json({ 
       success: true, 
       message: `${result.changes} article(s) deleted successfully`,

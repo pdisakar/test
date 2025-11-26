@@ -192,8 +192,8 @@ export default function ArticlesPage() {
     const isExpanded = expandedRows.has(article.id);
 
     return (
-      <>
-        <tr key={article.id} className={`hover:bg-gray-50 transition-colors ${depth > 0 ? 'bg-gray-50/50' : ''}`}>
+      <React.Fragment key={article.id}>
+        <tr className={`hover:bg-gray-50 transition-colors ${depth > 0 ? 'bg-gray-50/50' : ''}`}>
           <td className="px-6 py-4">
             <input
               type="checkbox"
@@ -247,7 +247,7 @@ export default function ArticlesPage() {
             {renderArticleRow(child, childIndex, depth + 1)}
           </React.Fragment>
         ))}
-      </>
+      </React.Fragment>
     );
   };
 
