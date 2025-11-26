@@ -325,11 +325,11 @@ export default function EditArticlePage() {
   return (
     <div className="min-h-screen bg-gray-50 flex">
       <Sidebar />
-      <div className="flex-1 transition-all duration-300">
-        <div className="py-12 px-6 max-w-7xl mx-auto">
-          <div className="mb-8 flex items-center justify-between">
+      <div className="flex-1 transition-all duration-300 w-full">
+        <div className="pt-16 pb-6 px-4 md:py-12 md:px-6 max-w-7xl mx-auto">
+          <div className="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-0">
             <h1 className="text-3xl font-bold text-gray-900">Edit Article</h1>
-            <div className="flex items-center gap-3">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
               <Button onClick={handleDiscard} variant="outline" className="px-6 py-2 border-gray-300 text-gray-700 hover:bg-gray-50" disabled={saving}>Discard</Button>
               <Button onClick={handleSubmit} className="px-6 py-2 bg-primary hover:bg-primary/90 text-white" disabled={saving}>
                 {saving ? 'Updating...' : 'Update'}

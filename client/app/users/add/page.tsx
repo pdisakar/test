@@ -114,8 +114,8 @@ export default function AddUserPage() {
   return (
     <div className="min-h-screen bg-gray-50 flex">
       <Sidebar />
-      <div className="flex-1 transition-all duration-300">
-        <div className="py-12 px-6 max-w-7xl mx-auto">
+      <div className="flex-1 transition-all duration-300 w-full">
+        <div className="pt-16 pb-6 px-4 md:py-12 md:px-6 max-w-7xl mx-auto">
           {/* Header */}
           <div className="mb-8 flex items-center justify-between">
             <h1 className="text-3xl font-bold text-gray-900">Add User</h1>

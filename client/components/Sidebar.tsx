@@ -158,7 +158,7 @@ export function Sidebar({ className }: SidebarProps) {
       <Button
         variant="ghost"
         size="icon"
-        className="fixed top-4 left-4 z-40 md:hidden"
+        className="fixed top-4 left-4 z-50 md:hidden bg-white shadow-md hover:bg-gray-100"
         onClick={() => setIsMobileOpen(true)}
       >
         <MenuIcon className="h-6 w-6" />
