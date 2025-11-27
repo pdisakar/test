@@ -300,6 +300,23 @@ app.post('/api/upload/image', async (req, res) => {
   }
 });
 
+// Delete image
+app.delete('/api/upload/image', (req, res) => {
+  const { path: imagePath } = req.body;
+  
+  if (!imagePath) {
+    return res.status(400).json({ success: false, message: 'No image path provided' });
+  }
+
+  // Security check: ensure path is within uploads directory
+  if (!imagePath.includes('/uploads/')) {
+    return res.status(400).json({ success: false, message: 'Invalid image path' });
+  }
+
+  deleteImageFile(imagePath);
+  res.status(200).json({ success: true, message: 'Image deleted successfully' });
+});
+
 
 // ========================
 // ARTICLES API ENDPOINTS

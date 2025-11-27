@@ -5,9 +5,11 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
-import { ChevronRight, ChevronDown, X, Trash2 } from 'lucide-react';
+import { ChevronRight, ChevronDown, X } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { ImageCrop, ImageCropContent, ImageCropApply, ImageCropReset } from '@/components/ImageCrop';
+import { FeaturedImage } from '@/components/FeaturedImage';
+import { BannerImage } from '@/components/BannerImage';
 
 const RichTextEditor = dynamic(() => import('@/components/RichTextEditor'), { ssr: false });
 
@@ -193,6 +195,37 @@ export default function AddArticlePage() {
     return true;
   };
 
+  // Function to delete image from backend
+  const deleteImage = async (imagePath: string) => {
+    if (!imagePath) return;
+    try {
+      await fetch('http://localhost:3001/api/upload/image', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ path: imagePath }),
+      });
+    } catch (err) {
+      console.error('Failed to delete image:', err);
+    }
+  };
+
+  // Function to upload image to backend
+  const uploadImage = async (base64Image: string, type: string = 'featured'): Promise<string> => {
+    try {
+      const response = await fetch('http://localhost:3001/api/upload/image', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ image: base64Image, type }),
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message || 'Failed to upload image');
+      return data.path;
+    } catch (err: any) {
+      console.error('Image upload error:', err);
+      throw err;
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
@@ -231,22 +264,6 @@ export default function AddArticlePage() {
       setError(err.message || 'An error occurred while creating the article');
     } finally {
       setLoading(false);
-    }
-  };
-
-  const uploadImage = async (base64Image: string): Promise<string> => {
-    try {
-      const response = await fetch('http://localhost:3001/api/upload/image', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ image: base64Image, type: 'featured' }),
-      });
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.message || 'Failed to upload image');
-      return data.path; // Returns /uploads/featured-123456.png
-    } catch (err: any) {
-      console.error('Image upload error:', err);
-      throw err;
     }
   };
 
@@ -395,151 +412,77 @@ export default function AddArticlePage() {
                   />
                 </div>
                 {/* Featured Image */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Featured Image</label>
-                  <div className="space-y-3">
-                    {formData.featuredImage ? (
-                      <div className="relative w-full max-w-md rounded-lg overflow-hidden border border-gray-200">
-                        <img
-                          src={`http://localhost:3001${formData.featuredImage}`}
-                          alt="Featured preview"
-                          className="w-full h-auto"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => setFormData({ ...formData, featuredImage: '' })}
-                          className="absolute top-2 right-2 p-1.5 bg-white/90 rounded-full hover:bg-white text-red-500 transition-colors shadow-sm"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </button>
-                      </div>
-                    ) : (
-                      <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-primary transition-colors">
-                        <input
-                          type="file"
-                          id="featured-image-upload"
-                          accept="image/*"
-                          className="hidden"
-                          onChange={(e) => {
-                            const file = e.target.files?.[0];
-                            if (file) {
-                              setSelectedImageFile(file);
-                              setShowImageCrop(true);
-                            }
-                          }}
-                          disabled={loading}
-                        />
-                        <label
-                          htmlFor="featured-image-upload"
-                          className="cursor-pointer flex flex-col items-center gap-2"
-                        >
-                          <svg className="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                          </svg>
-                          <span className="text-sm text-gray-600">Click to upload image</span>
-                          <span className="text-xs text-gray-500">PNG, JPG up to 5MB</span>
-                        </label>
-                      </div>
-                    )}
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Featured Image Alt Text</label>
-                  <input type="text" value={formData.featuredImageAlt} onChange={e => setFormData({ ...formData, featuredImageAlt: e.target.value })} placeholder="Alt text for image" className="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all" disabled={loading} />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Featured Image Caption</label>
-                  <input type="text" value={formData.featuredImageCaption} onChange={e => setFormData({ ...formData, featuredImageCaption: e.target.value })} placeholder="Caption for image" className="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition" disabled={loading} />
-                </div>
+                <FeaturedImage
+                  label="Featured Image"
+                  imageUrl={formData.featuredImage}
+                  imageAlt={formData.featuredImageAlt}
+                  imageCaption={formData.featuredImageCaption}
+                  onImageSelect={(file) => {
+                    setSelectedImageFile(file);
+                    setShowImageCrop(true);
+                  }}
+                  onImageRemove={async () => {
+                    console.log('Removing featured image:', formData.featuredImage);
+                    await deleteImage(formData.featuredImage);
+                    setFormData({ ...formData, featuredImage: '' });
+                  }}
+                  onAltChange={(value) => setFormData({ ...formData, featuredImageAlt: value })}
+                  onCaptionChange={(value) => setFormData({ ...formData, featuredImageCaption: value })}
+                  helperText="PNG, JPG up to 5MB"
+                  disabled={loading}
+                />
 
                 {/* Banner Image */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Banner Image</label>
-                  <div className="space-y-3">
-                    {formData.bannerImageUrl ? (
-                      <div className="relative w-full rounded-lg overflow-hidden border border-gray-200">
-                        <img
-                          src={`http://localhost:3001${formData.bannerImageUrl}`}
-                          alt="Banner preview"
-                          className="w-full h-auto"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => setFormData({ ...formData, bannerImageUrl: '' })}
-                          className="absolute top-2 right-2 p-1.5 bg-white/90 rounded-full hover:bg-white text-red-500 transition-colors shadow-sm"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </button>
-                      </div>
-                    ) : (
-                      <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-primary transition-colors">
-                        <input
-                          type="file"
-                          id="banner-image-upload"
-                          accept="image/*"
-                          className="hidden"
-                          onChange={async (e) => {
-                            const file = e.target.files?.[0];
-                            if (file) {
-                              try {
-                                // Convert to base64
-                                const reader = new FileReader();
-                                reader.onload = async (event) => {
-                                  const base64 = event.target?.result as string;
-                                  try {
-                                    // Upload to server
-                                    const response = await fetch('http://localhost:3001/api/upload/image', {
-                                      method: 'POST',
-                                      headers: { 'Content-Type': 'application/json' },
-                                      body: JSON.stringify({ image: base64, type: 'banner' }),
-                                    });
-                                    const data = await response.json();
-                                    if (response.ok) {
-                                      setFormData({ ...formData, bannerImageUrl: data.path });
-                                    } else {
-                                      setError('Failed to upload banner image');
-                                    }
-                                  } catch (err) {
-                                    setError('Failed to upload banner image');
-                                  }
-                                };
-                                reader.readAsDataURL(file);
-                              } catch (err) {
-                                setError('Failed to process banner image');
-                              }
-                            }
-                          }}
-                          disabled={loading}
-                        />
-                        <label
-                          htmlFor="banner-image-upload"
-                          className="cursor-pointer flex flex-col items-center gap-2"
-                        >
-                          <svg className="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                          </svg>
-                          <span className="text-sm text-gray-600">Click to upload banner image</span>
-                          <span className="text-xs text-gray-500">PNG, JPG up to 5MB (no cropping)</span>
-                        </label>
-                      </div>
-                    )}
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Banner Image Alt Text</label>
-                  <input type="text" value={formData.bannerImageAlt} onChange={e => setFormData({ ...formData, bannerImageAlt: e.target.value })} placeholder="Alt text for banner image" className="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all" disabled={loading} />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Banner Image Caption</label>
-                  <input type="text" value={formData.bannerImageCaption} onChange={e => setFormData({ ...formData, bannerImageCaption: e.target.value })} placeholder="Caption for banner image" className="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all" disabled={loading} />
-                </div>
+                <BannerImage
+                  label="Banner Image"
+                  imageUrl={formData.bannerImageUrl}
+                  imageAlt={formData.bannerImageAlt}
+                  imageCaption={formData.bannerImageCaption}
+                  onImageSelect={async (file) => {
+                    try {
+                      // Delete old banner image if exists
+                      if (formData.bannerImageUrl) {
+                        await deleteImage(formData.bannerImageUrl);
+                      }
+                      const reader = new FileReader();
+                      reader.onload = async (event) => {
+                        const base64 = event.target?.result as string;
+                        try {
+                          const response = await fetch('http://localhost:3001/api/upload/image', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ image: base64, type: 'banner' }),
+                          });
+                          const data = await response.json();
+                          if (response.ok) {
+                            setFormData({ ...formData, bannerImageUrl: data.path });
+                          } else {
+                            setError('Failed to upload banner image');
+                          }
+                        } catch (err) {
+                          setError('Failed to upload banner image');
+                        }
+                      };
+                      reader.readAsDataURL(file);
+                    } catch (err) {
+                      setError('Failed to process banner image');
+                    }
+                  }}
+                  onImageRemove={async () => {
+                    await deleteImage(formData.bannerImageUrl);
+                    setFormData({ ...formData, bannerImageUrl: '' });
+                  }}
+                  onAltChange={(value) => setFormData({ ...formData, bannerImageAlt: value })}
+                  onCaptionChange={(value) => setFormData({ ...formData, bannerImageCaption: value })}
+                  helperText="PNG, JPG up to 5MB (no aspect ratio)"
+                  disabled={loading}
+                />
               </div>
             </form>
           </div>
         </div>
       </div>
 
-      {/* Image Crop Modal */}
       {showImageCrop && selectedImageFile && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg max-w-2xl w-full p-6">
@@ -557,8 +500,13 @@ export default function AddArticlePage() {
             </div>
             <ImageCrop
               file={selectedImageFile}
+              aspect={5 / 7}
               onCrop={async (croppedImage) => {
                 try {
+                  // Delete old featured image if exists
+                  if (formData.featuredImage) {
+                    await deleteImage(formData.featuredImage);
+                  }
                   // Upload image to server
                   const imagePath = await uploadImage(croppedImage);
                   setFormData({ ...formData, featuredImage: imagePath });
