@@ -28,6 +28,13 @@ export function BannerImage({
 }: BannerImageProps) {
     const inputId = `${label.toLowerCase().replace(/\s+/g, '-')}-upload`;
 
+    const getSrc = (url: string) => {
+        if (url.startsWith('data:') || url.startsWith('blob:') || url.startsWith('http')) {
+            return url;
+        }
+        return `http://localhost:3001${url}`;
+    };
+
     return (
         <div className="space-y-6 p-6 bg-white/50 backdrop-blur-sm rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300">
             {/* Image Upload/Preview - No aspect ratio constraint */}
@@ -41,7 +48,7 @@ export function BannerImage({
                         <div className="group relative w-full rounded-2xl overflow-hidden shadow-lg transition-transform duration-300 hover:scale-[1.01]">
                             <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10" />
                             <img
-                                src={`http://localhost:3001${imageUrl}`}
+                                src={getSrc(imageUrl)}
                                 alt={imageAlt || `${label} preview`}
                                 className="w-full h-auto object-cover max-h-[400px]"
                             />

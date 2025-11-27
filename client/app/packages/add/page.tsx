@@ -8,6 +8,8 @@ import { Switch } from '@/components/ui/switch';
 import RichTextEditor from '@/components/RichTextEditor';
 import { X, ChevronRight, ChevronDown, Check, Image as ImageIcon, Plus, Trash2 } from 'lucide-react';
 import { ImageCrop, ImageCropContent, ImageCropApply, ImageCropReset } from '@/components/ImageCrop';
+import { FeaturedImage } from '@/components/FeaturedImage';
+import { BannerImage } from '@/components/BannerImage';
 
 interface GroupPrice {
   id: string;
@@ -123,8 +125,6 @@ export default function AddPackagePage() {
   const [imageCropType, setImageCropType] = useState<'featured' | 'tripMap'>('featured');
 
   // Refs for file inputs
-  const featuredInputRef = useRef<HTMLInputElement>(null);
-  const bannerInputRef = useRef<HTMLInputElement>(null);
   const tripMapInputRef = useRef<HTMLInputElement>(null);
   const galleryInputRef = useRef<HTMLInputElement>(null);
 
@@ -283,27 +283,14 @@ export default function AddPackagePage() {
   };
 
   // Image Handling
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>, type: 'featured' | 'banner' | 'tripMap') => {
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>, type: 'tripMap') => {
     const file = e.target.files?.[0];
     if (file) {
-      if (type === 'featured' || type === 'tripMap') {
+      if (type === 'tripMap') {
         setSelectedImageFile(file);
-        setImageCropType(type);
+        setImageCropType('tripMap');
         setShowImageCrop(true);
-        // Reset input so same file can be selected again if needed
-        if (type === 'featured' && featuredInputRef.current) featuredInputRef.current.value = '';
-        if (type === 'tripMap' && tripMapInputRef.current) tripMapInputRef.current.value = '';
-      } else {
-        // Banner image (no crop for now, or maybe add later)
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          setFormData(prev => ({
-            ...prev,
-            bannerImage: file,
-            bannerImagePreview: reader.result as string
-          }));
-        };
-        reader.readAsDataURL(file);
+        if (tripMapInputRef.current) tripMapInputRef.current.value = '';
       }
     }
   };
@@ -314,8 +301,6 @@ export default function AddPackagePage() {
       [`${type}Image`]: null,
       [`${type}ImagePreview`]: ''
     }));
-    if (type === 'featured' && featuredInputRef.current) featuredInputRef.current.value = '';
-    if (type === 'banner' && bannerInputRef.current) bannerInputRef.current.value = '';
     if (type === 'tripMap' && tripMapInputRef.current) tripMapInputRef.current.value = '';
   };
 
@@ -911,143 +896,50 @@ export default function AddPackagePage() {
               </>
             )}
 
+
+
             {/* Step 3 Content: Images & Gallery */}
             {currentStep === 3 && (
               <>
                 {/* Featured Image */}
-                <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-                  <h2 className="text-xl font-semibold text-gray-900 mb-6">Featured</h2>
-                  <div className="space-y-6">
-                    <div className="relative">
-                      {formData.featuredImagePreview ? (
-                        <div className="relative w-full max-w-md aspect-video rounded-lg overflow-hidden border border-gray-200">
-                          <img
-                            src={formData.featuredImagePreview}
-                            alt="Featured preview"
-                            className="w-full h-full object-cover"
-                          />
-                          <button
-                            type="button"
-                            onClick={() => removeImage('featured')}
-                            className="absolute top-2 right-2 p-1.5 bg-white/90 rounded-full hover:bg-white text-red-500 transition-colors shadow-sm"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </button>
-                        </div>
-                      ) : (
-                        <div
-                          onClick={() => featuredInputRef.current?.click()}
-                          className="w-full max-w-md aspect-video rounded-lg border-2 border-dashed border-gray-300 hover:border-primary/50 hover:bg-gray-50 transition-all cursor-pointer flex flex-col items-center justify-center gap-2 text-gray-500"
-                        >
-                          <ImageIcon className="h-8 w-8" />
-                          <span className="text-sm font-medium">Click to upload featured image</span>
-                        </div>
-                      )}
-                      <input
-                        ref={featuredInputRef}
-                        type="file"
-                        accept="image/*"
-                        className="hidden"
-                        onChange={(e) => handleImageUpload(e, 'featured')}
-                      />
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Alt Text
-                        </label>
-                        <input
-                          type="text"
-                          name="featuredImageAlt"
-                          value={formData.featuredImageAlt}
-                          onChange={handleInputChange}
-                          className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Caption
-                        </label>
-                        <input
-                          type="text"
-                          name="featuredImageCaption"
-                          value={formData.featuredImageCaption}
-                          onChange={handleInputChange}
-                          className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                <FeaturedImage
+                  label="Featured Image"
+                  imageUrl={formData.featuredImagePreview}
+                  imageAlt={formData.featuredImageAlt}
+                  imageCaption={formData.featuredImageCaption}
+                  onImageSelect={(file) => {
+                    setSelectedImageFile(file);
+                    setImageCropType('featured');
+                    setShowImageCrop(true);
+                  }}
+                  onImageRemove={() => removeImage('featured')}
+                  onAltChange={(value) => setFormData(prev => ({ ...prev, featuredImageAlt: value }))}
+                  onCaptionChange={(value) => setFormData(prev => ({ ...prev, featuredImageCaption: value }))}
+                  helperText="Upload a featured image (Aspect Ratio 1:1)"
+                />
 
                 {/* Banner Image */}
-                <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-                  <h2 className="text-xl font-semibold text-gray-900 mb-6">Banner Image</h2>
-                  <div className="space-y-6">
-                    <div className="relative">
-                      {formData.bannerImagePreview ? (
-                        <div className="relative w-full aspect-[21/9] rounded-lg overflow-hidden border border-gray-200">
-                          <img
-                            src={formData.bannerImagePreview}
-                            alt="Banner preview"
-                            className="w-full h-full object-cover"
-                          />
-                          <button
-                            type="button"
-                            onClick={() => removeImage('banner')}
-                            className="absolute top-2 right-2 p-1.5 bg-white/90 rounded-full hover:bg-white text-red-500 transition-colors shadow-sm"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </button>
-                        </div>
-                      ) : (
-                        <div
-                          onClick={() => bannerInputRef.current?.click()}
-                          className="w-full aspect-[21/9] rounded-lg border-2 border-dashed border-gray-300 hover:border-primary/50 hover:bg-gray-50 transition-all cursor-pointer flex flex-col items-center justify-center gap-2 text-gray-500"
-                        >
-                          <ImageIcon className="h-8 w-8" />
-                          <span className="text-sm font-medium">Click to upload banner image</span>
-                        </div>
-                      )}
-                      <input
-                        ref={bannerInputRef}
-                        type="file"
-                        accept="image/*"
-                        className="hidden"
-                        onChange={(e) => handleImageUpload(e, 'banner')}
-                      />
-                      <p className="text-sm text-gray-500 mt-2">Size should be 1920x750</p>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Banner Alt
-                        </label>
-                        <input
-                          type="text"
-                          name="bannerImageAlt"
-                          value={formData.bannerImageAlt}
-                          onChange={handleInputChange}
-                          className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Banner Caption
-                        </label>
-                        <input
-                          type="text"
-                          name="bannerImageCaption"
-                          value={formData.bannerImageCaption}
-                          onChange={handleInputChange}
-                          className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                <BannerImage
+                  label="Banner Image"
+                  imageUrl={formData.bannerImagePreview}
+                  imageAlt={formData.bannerImageAlt}
+                  imageCaption={formData.bannerImageCaption}
+                  onImageSelect={(file) => {
+                    const reader = new FileReader();
+                    reader.onloadend = () => {
+                      setFormData(prev => ({
+                        ...prev,
+                        bannerImage: file,
+                        bannerImagePreview: reader.result as string
+                      }));
+                    };
+                    reader.readAsDataURL(file);
+                  }}
+                  onImageRemove={() => removeImage('banner')}
+                  onAltChange={(value) => setFormData(prev => ({ ...prev, bannerImageAlt: value }))}
+                  onCaptionChange={(value) => setFormData(prev => ({ ...prev, bannerImageCaption: value }))}
+                  helperText="Upload a banner image (Size 1920x750)"
+                />
 
                 {/* Trip Map */}
                 <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
