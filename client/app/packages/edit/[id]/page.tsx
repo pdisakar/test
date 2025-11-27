@@ -832,6 +832,18 @@ export default function EditPackagePage() {
               >
                 Discard
               </Button>
+              
+              {currentStep > 1 && (
+                <Button
+                  type="button"
+                  onClick={handleBack}
+                  variant="outline"
+                  className="px-6 py-2 border-gray-300 text-gray-700 hover:bg-gray-50"
+                >
+                  Back
+                </Button>
+              )}
+
               {currentStep < 7 ? (
                 <Button
                   type="button"
@@ -841,23 +853,13 @@ export default function EditPackagePage() {
                   Next
                 </Button>
               ) : (
-                <>
-                  <Button
-                    type="button"
-                    onClick={handleBack}
-                    variant="outline"
-                    className="px-6 py-2 border-gray-300 text-gray-700 hover:bg-gray-50"
-                  >
-                    Back
-                  </Button>
-                  <Button
-                    type="submit"
-                    form="package-form"
-                    className="px-6 py-2 bg-primary hover:bg-primary/90 text-white"
-                  >
-                    Update Package
-                  </Button>
-                </>
+                <Button
+                  type="submit"
+                  form="package-form"
+                  className="px-6 py-2 bg-primary hover:bg-primary/90 text-white"
+                >
+                  Update Package
+                </Button>
               )}
             </div>
           </div>
@@ -1796,6 +1798,36 @@ export default function EditPackagePage() {
                 </div>
               </div>
             )}
+            {/* Navigation Buttons */}
+            <div className="flex justify-between pt-6 border-t border-gray-100 mt-8">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleBack}
+                disabled={currentStep === 1}
+                className="w-32"
+              >
+                Back
+              </Button>
+              
+              {currentStep < 7 ? (
+                <Button
+                  type="button"
+                  onClick={handleNext}
+                  className="w-32"
+                >
+                  Next
+                </Button>
+              ) : (
+                <Button
+                  type="submit"
+                  disabled={loading}
+                  className="w-32"
+                >
+                  {loading ? 'Updating...' : 'Update Package'}
+                </Button>
+              )}
+            </div>
           </form>
         </div>
       </div>

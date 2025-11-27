@@ -165,6 +165,7 @@ export default function AddPackagePage() {
   const [featured, setFeatured] = useState(false);
 
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
   // Image Crop State
   const [showImageCrop, setShowImageCrop] = useState(false);
@@ -529,6 +530,7 @@ export default function AddPackagePage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setLoading(true);
 
     // Validation
     if (!formData.packageTitle) {
@@ -648,12 +650,14 @@ export default function AddPackagePage() {
       } else {
         setError(data.message || `Failed to create package: ${res.status} ${res.statusText}`);
       }
-
     } catch (err: any) {
       console.error('Error creating package:', err);
-      setError(`An error occurred: ${err.message || 'Unknown error'}. Check console for details.`);
+      setError(err.message || 'Failed to create package');
+    } finally {
+      setLoading(false);
     }
   };
+
 
   const handleNext = () => {
     // Validation for Step 1
@@ -1659,6 +1663,36 @@ export default function AddPackagePage() {
                 </div>
               </div>
             )}
+            {/* Navigation Buttons */}
+            <div className="flex justify-between pt-6 border-t border-gray-100 mt-8">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleBack}
+                disabled={currentStep === 1}
+                className="w-32"
+              >
+                Back
+              </Button>
+              
+              {currentStep < 7 ? (
+                <Button
+                  type="button"
+                  onClick={handleNext}
+                  className="w-32"
+                >
+                  Next
+                </Button>
+              ) : (
+                <Button
+                  type="submit"
+                  disabled={loading}
+                  className="w-32"
+                >
+                  {loading ? 'Creating...' : 'Create Package'}
+                </Button>
+              )}
+            </div>
           </form>
         </div>
       </div>
