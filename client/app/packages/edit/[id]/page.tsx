@@ -2,7 +2,7 @@
 
 import { Sidebar } from '@/components/Sidebar';
 import React, { useState, useEffect, useRef } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import RichTextEditor from '@/components/RichTextEditor';
@@ -99,8 +99,11 @@ interface FormData {
   [key: string]: any;
 }
 
-export default function AddPackagePage() {
+export default function EditPackagePage() {
   const router = useRouter();
+  const params = useParams();
+  const packageId = params.id as string;
+  const [loading, setLoading] = useState(true);
 
   // Form state
   const [formData, setFormData] = useState<FormData>({
@@ -220,6 +223,119 @@ export default function AddPackagePage() {
 
     fetchPlaces();
   }, []);
+
+  // Fetch package data on mount
+  useEffect(() => {
+    if (packageId) {
+      fetchPackageData();
+    }
+  }, [packageId]);
+
+  const fetchPackageData = async () => {
+    try {
+      const response = await fetch(`http://localhost:3001/api/packages/${packageId}`);
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to fetch package');
+      }
+
+      const pkg = data.package;
+
+      // Pre-fill form data
+      setFormData(prev => ({
+        ...prev,
+        packageTitle: pkg.title || '',
+        urlTitle: pkg.urlTitle || '',
+        slug: pkg.slug || '',
+        durationValue: pkg.duration?.toString() || '',
+        durationUnit: pkg.durationUnit || 'days',
+        placeIds: pkg.places?.map((p: any) => String(p.id)) || [],
+        metaTitle: pkg.metaTitle || '',
+        metaKeywords: pkg.metaKeywords || '',
+        metaDescription: pkg.metaDescription || '',
+        abstract: pkg.abstract || '',
+        details: pkg.details || '',
+        price: pkg.defaultPrice?.toString() || '',
+        costInclude: pkg.costInclude || '',
+        costExclude: pkg.costExclude || '',
+        featuredImagePreview: pkg.featuredImage || '',
+        featuredImageAlt: pkg.featuredImageAlt || '',
+        featuredImageCaption: pkg.featuredImageCaption || '',
+        bannerImagePreview: pkg.bannerImage || '',
+        bannerImageAlt: pkg.bannerImageAlt || '',
+        bannerImageCaption: pkg.bannerImageCaption || '',
+        tripMapImagePreview: pkg.tripMapImage || '',
+        tripMapImageAlt: pkg.tripMapImageAlt || '',
+        tripMapImageCaption: pkg.tripMapImageCaption || '',
+        statusRibbon: pkg.statusRibbon || '',
+        groupSize: pkg.groupSize || '',
+        maxAltitude: pkg.maxAltitude || '',
+        tripHighlights: pkg.tripHighlights || '',
+        departureNote: pkg.departureNote || '',
+        goodToKnow: pkg.goodToKnow || '',
+        extraFAQs: pkg.extraFAQs || '',
+        relatedTrip: pkg.relatedTrip || '',
+        itineraryTitle: pkg.itineraryTitle || '',
+      }));
+
+      // Load trip facts
+      if (pkg.tripFacts && Object.keys(attributeOptions).length > 0) {
+        const tripFactUpdates: Record<string, string> = {};
+        Object.entries(pkg.tripFacts).forEach(([slug, attrId]) => {
+          const options = attributeOptions[slug];
+          if (options) {
+            const attr = options.find((a: any) => a.id === attrId);
+            if (attr) {
+              tripFactUpdates[slug] = attr.name;
+            }
+          }
+        });
+        setFormData(prev => ({ ...prev, ...tripFactUpdates }));
+      }
+
+      // Load group pricing
+      setGroupPriceEnabled(pkg.groupPriceEnabled === 1);
+      if (pkg.groupPrices && pkg.groupPrices.length > 0) {
+        setGroupPrices(pkg.groupPrices.map((gp: any) => ({
+          id: gp.id.toString(),
+          minPerson: gp.minPerson.toString(),
+          maxPerson: gp.maxPerson.toString(),
+          price: gp.price.toString(),
+          isDefault: gp.isDefault || false
+        })));
+      }
+
+      // Load itinerary
+      if (pkg.itinerary && pkg.itinerary.length > 0) {
+        setItinerary(pkg.itinerary.map((day: any) => ({
+          id: day.id.toString(),
+          dayNumber: day.dayNumber,
+          title: day.title || '',
+          description: day.description || '',
+          meals: day.meals || '',
+          accommodation: day.accommodation || '',
+          distance: '',
+          origin: '',
+          destination: '',
+          originElevation: '',
+          destinationElevation: day.altitude || '',
+          duration: day.walkingHours || '',
+          transportation: ''
+        })));
+      }
+
+      // Set status toggles
+      setStatus(pkg.status === 1 || pkg.status === true);
+      setFeatured(pkg.featured === 1 || pkg.featured === true);
+
+      setLoading(false);
+    } catch (err: any) {
+      console.error('Error fetching package:', err);
+      setError(err.message || 'Failed to load package');
+      setLoading(false);
+    }
+  };
 
   // Organize places into tree structure
   const organizePlaces = (places: Place[]): Place[] => {
@@ -488,7 +604,7 @@ export default function AddPackagePage() {
   const uploadImage = async (file: File): Promise<string> => {
     try {
       const base64 = await fileToBase64(file);
-      
+
       const res = await fetch('http://localhost:3001/api/upload/image', {
         method: 'POST',
         headers: {
@@ -501,7 +617,7 @@ export default function AddPackagePage() {
         const errorData = await res.json();
         throw new Error(errorData.message || 'Failed to upload image');
       }
-      
+
       const data = await res.json();
       return data.path; // Server returns 'path' not 'url'
     } catch (error) {
@@ -611,8 +727,8 @@ export default function AddPackagePage() {
         }))
       };
 
-      const res = await fetch('http://localhost:3001/api/packages', {
-        method: 'POST',
+      const res = await fetch(`http://localhost:3001/api/packages/${packageId}`, {
+        method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
@@ -622,10 +738,10 @@ export default function AddPackagePage() {
       const data = await res.json();
 
       if (res.ok) {
-        alert('Package created successfully!');
+        alert('Package updated successfully!');
         router.push('/packages');
       } else {
-        setError(data.message || `Failed to create package: ${res.status} ${res.statusText}`);
+        setError(data.message || `Failed to update package: ${res.status} ${res.statusText}`);
       }
 
     } catch (err: any) {
@@ -657,6 +773,17 @@ export default function AddPackagePage() {
     }
   };
 
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex">
+        <Sidebar />
+        <div className="flex-1 transition-all duration-300 flex items-center justify-center">
+          <p className="text-gray-600">Loading package...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gray-50 flex">
       <Sidebar />
@@ -664,7 +791,7 @@ export default function AddPackagePage() {
         <div className="pt-16 pb-6 px-4 md:py-12 md:px-6 max-w-7xl mx-auto">
           {/* Header */}
           <div className="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-0">
-            <h1 className="text-3xl font-bold text-gray-900">Add Package</h1>
+            <h1 className="text-3xl font-bold text-gray-900">Edit Package</h1>
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
               <Button
                 type="button"
@@ -697,7 +824,7 @@ export default function AddPackagePage() {
                     form="package-form"
                     className="px-6 py-2 bg-primary hover:bg-primary/90 text-white"
                   >
-                    Make Available Package
+                    Update Package
                   </Button>
                 </>
               )}

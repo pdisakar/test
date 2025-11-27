@@ -1139,6 +1139,385 @@ app.post('/api/places/bulk-restore', async (req, res) => {
   }
 });
 
+// Create new package
+app.post('/api/packages', async (req, res) => {
+  const {
+    packageTitle, urlTitle, slug, durationValue, durationUnit,
+    placeIds, metaTitle, metaKeywords, metaDescription,
+    abstract, details, defaultPrice, groupPriceEnabled, groupPrices,
+    costInclude, costExclude,
+    featuredImage, featuredImageAlt, featuredImageCaption,
+    bannerImage, bannerImageAlt, bannerImageCaption,
+    tripMapImage, tripMapImageAlt, tripMapImageCaption,
+    statusRibbon, groupSize, maxAltitude,
+    tripHighlights, departureNote, goodToKnow, extraFAQs,
+    relatedTrip, itineraryTitle, status, featured,
+    tripFacts, itinerary
+  } = req.body;
+
+  // Basic validation
+  if (!packageTitle || !urlTitle || !slug) {
+    return res.status(400).json({ success: false, message: 'Title, URL Title, and Slug are required' });
+  }
+
+  try {
+    // Check if slug exists
+    const existing = await getAsync('SELECT id FROM packages WHERE slug = ?', [slug]);
+    if (existing) {
+      return res.status(400).json({ success: false, message: 'Slug already exists' });
+    }
+
+    const now = new Date().toISOString();
+    
+    // Insert package
+    const result = await runAsync(
+      `INSERT INTO packages (
+        title, urlTitle, slug, duration, durationUnit,
+        metaTitle, metaKeywords, metaDescription,
+        abstract, details, defaultPrice, groupPriceEnabled,
+        costInclude, costExclude,
+        featuredImage, featuredImageAlt, featuredImageCaption,
+        bannerImage, bannerImageAlt, bannerImageCaption,
+        tripMapImage, tripMapImageAlt, tripMapImageCaption,
+        statusRibbon, groupSize, maxAltitude,
+        tripHighlights, departureNote, goodToKnow, extraFAQs,
+        relatedTrip, itineraryTitle, status, featured,
+        createdAt, updatedAt
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        packageTitle, urlTitle, slug, durationValue || 0, durationUnit || 'days',
+        metaTitle, metaKeywords, metaDescription,
+        abstract, details, defaultPrice || 0, groupPriceEnabled ? 1 : 0,
+        costInclude, costExclude,
+        featuredImage, featuredImageAlt, featuredImageCaption,
+        bannerImage, bannerImageAlt, bannerImageCaption,
+        tripMapImage, tripMapImageAlt, tripMapImageCaption,
+        statusRibbon, groupSize, maxAltitude,
+        tripHighlights, departureNote, goodToKnow, extraFAQs,
+        relatedTrip, itineraryTitle, status ? 1 : 0, featured ? 1 : 0,
+        now, now
+      ]
+    );
+
+    const packageId = result.lastID;
+
+    // Insert Places
+    if (placeIds && Array.isArray(placeIds)) {
+      for (const placeId of placeIds) {
+        await runAsync(
+          `INSERT INTO package_places (packageId, placeId) VALUES (?, ?)`,
+          [packageId, placeId]
+        );
+      }
+    }
+
+    // Insert Trip Facts
+    if (tripFacts && typeof tripFacts === 'object') {
+      for (const [categorySlug, attributeId] of Object.entries(tripFacts)) {
+        if (attributeId) {
+          await runAsync(
+            `INSERT INTO package_trip_facts (packageId, categorySlug, attributeId) VALUES (?, ?, ?)`,
+            [packageId, categorySlug, attributeId]
+          );
+        }
+      }
+    }
+
+    // Insert Itinerary
+    if (itinerary && Array.isArray(itinerary)) {
+      for (const day of itinerary) {
+        await runAsync(
+          `INSERT INTO package_itinerary (
+            packageId, dayNumber, title, description,
+            meals, accommodation, walkingHours, altitude
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+          [
+            packageId, day.dayNumber, day.title, day.description,
+            day.meals, day.accommodation, day.walkingHours, day.altitude
+          ]
+        );
+      }
+    }
+
+    // Insert Group Prices
+    if (groupPriceEnabled && groupPrices && Array.isArray(groupPrices)) {
+      for (const gp of groupPrices) {
+        await runAsync(
+          `INSERT INTO package_group_pricing (packageId, minPerson, maxPerson, price) VALUES (?, ?, ?, ?)`,
+          [packageId, gp.minPerson, gp.maxPerson, gp.price]
+        );
+      }
+    }
+
+    res.status(201).json({
+      success: true,
+      message: 'Package created successfully',
+      packageId: packageId
+    });
+
+  } catch (err) {
+    console.error('Error creating package:', err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// Get all packages (paginated)
+app.get('/api/packages', async (req, res) => {
+  const { page = 1, limit = 10, search, status } = req.query;
+  const offset = (page - 1) * limit;
+
+  try {
+    let query = 'SELECT * FROM packages WHERE deletedAt IS NULL';
+    let countQuery = 'SELECT COUNT(*) as count FROM packages WHERE deletedAt IS NULL';
+    const params = [];
+
+    if (search) {
+      query += ' AND (title LIKE ? OR slug LIKE ?)';
+      countQuery += ' AND (title LIKE ? OR slug LIKE ?)';
+      params.push(`%${search}%`, `%${search}%`);
+    }
+
+    if (status !== undefined) {
+      query += ' AND status = ?';
+      countQuery += ' AND status = ?';
+      params.push(status);
+    }
+
+    query += ' ORDER BY createdAt DESC LIMIT ? OFFSET ?';
+    params.push(limit, offset);
+
+    const packages = await allAsync(query, params);
+    const countResult = await getAsync(countQuery, params.slice(0, params.length - 2));
+    const total = countResult.count;
+
+    res.status(200).json({
+      success: true,
+      packages,
+      total,
+      page: parseInt(page),
+      totalPages: Math.ceil(total / limit)
+    });
+  } catch (err) {
+    console.error('Error fetching packages:', err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// Get single package by ID or Slug
+app.get('/api/packages/:idOrSlug', async (req, res) => {
+  const { idOrSlug } = req.params;
+  
+  try {
+    let packageData;
+    if (!isNaN(idOrSlug)) {
+      packageData = await getAsync('SELECT * FROM packages WHERE id = ? AND deletedAt IS NULL', [idOrSlug]);
+    } else {
+      packageData = await getAsync('SELECT * FROM packages WHERE slug = ? AND deletedAt IS NULL', [idOrSlug]);
+    }
+
+    if (!packageData) {
+      return res.status(404).json({ success: false, message: 'Package not found' });
+    }
+
+    const packageId = packageData.id;
+
+    // Fetch relationships
+    const places = await allAsync(
+      `SELECT p.* FROM places p 
+       JOIN package_places pp ON p.id = pp.placeId 
+       WHERE pp.packageId = ?`, 
+      [packageId]
+    );
+
+    const tripFacts = await allAsync(
+      `SELECT categorySlug, attributeId FROM package_trip_facts WHERE packageId = ?`,
+      [packageId]
+    );
+
+    const itinerary = await allAsync(
+      `SELECT * FROM package_itinerary WHERE packageId = ? ORDER BY dayNumber ASC`,
+      [packageId]
+    );
+
+    const groupPrices = await allAsync(
+      `SELECT * FROM package_group_pricing WHERE packageId = ? ORDER BY minPerson ASC`,
+      [packageId]
+    );
+
+    // Format trip facts as object { categorySlug: attributeId }
+    const tripFactsObj = {};
+    tripFacts.forEach(tf => {
+      tripFactsObj[tf.categorySlug] = tf.attributeId;
+    });
+
+    res.status(200).json({
+      success: true,
+      package: {
+        ...packageData,
+        places,
+        tripFacts: tripFactsObj,
+        itinerary,
+        groupPrices
+      }
+    });
+
+  } catch (err) {
+    console.error('Error fetching package details:', err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// Update package
+app.put('/api/packages/:id', async (req, res) => {
+  const { id } = req.params;
+  const {
+    packageTitle, urlTitle, slug, durationValue, durationUnit,
+    placeIds, metaTitle, metaKeywords, metaDescription,
+    abstract, details, defaultPrice, groupPriceEnabled, groupPrices,
+    costInclude, costExclude,
+    featuredImage, featuredImageAlt, featuredImageCaption,
+    bannerImage, bannerImageAlt, bannerImageCaption,
+    tripMapImage, tripMapImageAlt, tripMapImageCaption,
+    statusRibbon, groupSize, maxAltitude,
+    tripHighlights, departureNote, goodToKnow, extraFAQs,
+    relatedTrip, itineraryTitle, status, featured,
+    tripFacts, itinerary
+  } = req.body;
+
+  // Basic validation
+  if (!packageTitle || !urlTitle || !slug) {
+    return res.status(400).json({ success: false, message: 'Title, URL Title, and Slug are required' });
+  }
+
+  try {
+    // Check if package exists
+    const existingPackage = await getAsync('SELECT * FROM packages WHERE id = ?', [id]);
+    if (!existingPackage) {
+      return res.status(404).json({ success: false, message: 'Package not found' });
+    }
+
+    // Check if slug exists (excluding current package)
+    const slugCheck = await getAsync('SELECT id FROM packages WHERE slug = ? AND id != ?', [slug, id]);
+    if (slugCheck) {
+      return res.status(400).json({ success: false, message: 'Slug already exists' });
+    }
+
+    // Handle image cleanup (if new image provided, delete old)
+    if (featuredImage && featuredImage !== existingPackage.featuredImage) {
+      deleteImageFile(existingPackage.featuredImage);
+    }
+    if (bannerImage && bannerImage !== existingPackage.bannerImage) {
+      deleteImageFile(existingPackage.bannerImage);
+    }
+    if (tripMapImage && tripMapImage !== existingPackage.tripMapImage) {
+      deleteImageFile(existingPackage.tripMapImage);
+    }
+
+    const now = new Date().toISOString();
+
+    // Update package
+    await runAsync(
+      `UPDATE packages SET
+        title = ?, urlTitle = ?, slug = ?, duration = ?, durationUnit = ?,
+        metaTitle = ?, metaKeywords = ?, metaDescription = ?,
+        abstract = ?, details = ?, defaultPrice = ?, groupPriceEnabled = ?,
+        costInclude = ?, costExclude = ?,
+        featuredImage = ?, featuredImageAlt = ?, featuredImageCaption = ?,
+        bannerImage = ?, bannerImageAlt = ?, bannerImageCaption = ?,
+        tripMapImage = ?, tripMapImageAlt = ?, tripMapImageCaption = ?,
+        statusRibbon = ?, groupSize = ?, maxAltitude = ?,
+        tripHighlights = ?, departureNote = ?, goodToKnow = ?, extraFAQs = ?,
+        relatedTrip = ?, itineraryTitle = ?, status = ?, featured = ?,
+        updatedAt = ?
+      WHERE id = ?`,
+      [
+        packageTitle, urlTitle, slug, durationValue || 0, durationUnit || 'days',
+        metaTitle, metaKeywords, metaDescription,
+        abstract, details, defaultPrice || 0, groupPriceEnabled ? 1 : 0,
+        costInclude, costExclude,
+        featuredImage, featuredImageAlt, featuredImageCaption,
+        bannerImage, bannerImageAlt, bannerImageCaption,
+        tripMapImage, tripMapImageAlt, tripMapImageCaption,
+        statusRibbon, groupSize, maxAltitude,
+        tripHighlights, departureNote, goodToKnow, extraFAQs,
+        relatedTrip, itineraryTitle, status ? 1 : 0, featured ? 1 : 0,
+        now, id
+      ]
+    );
+
+    // Update Places (Delete all and re-insert)
+    await runAsync('DELETE FROM package_places WHERE packageId = ?', [id]);
+    if (placeIds && Array.isArray(placeIds)) {
+      for (const placeId of placeIds) {
+        await runAsync(
+          `INSERT INTO package_places (packageId, placeId) VALUES (?, ?)`,
+          [id, placeId]
+        );
+      }
+    }
+
+    // Update Trip Facts (Delete all and re-insert)
+    await runAsync('DELETE FROM package_trip_facts WHERE packageId = ?', [id]);
+    if (tripFacts && typeof tripFacts === 'object') {
+      for (const [categorySlug, attributeId] of Object.entries(tripFacts)) {
+        if (attributeId) {
+          await runAsync(
+            `INSERT INTO package_trip_facts (packageId, categorySlug, attributeId) VALUES (?, ?, ?)`,
+            [id, categorySlug, attributeId]
+          );
+        }
+      }
+    }
+
+    // Update Itinerary (Delete all and re-insert)
+    await runAsync('DELETE FROM package_itinerary WHERE packageId = ?', [id]);
+    if (itinerary && Array.isArray(itinerary)) {
+      for (const day of itinerary) {
+        await runAsync(
+          `INSERT INTO package_itinerary (
+            packageId, dayNumber, title, description,
+            meals, accommodation, walkingHours, altitude
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+          [
+            id, day.dayNumber, day.title, day.description,
+            day.meals, day.accommodation, day.walkingHours, day.altitude
+          ]
+        );
+      }
+    }
+
+    // Update Group Prices (Delete all and re-insert)
+    await runAsync('DELETE FROM package_group_pricing WHERE packageId = ?', [id]);
+    if (groupPriceEnabled && groupPrices && Array.isArray(groupPrices)) {
+      for (const gp of groupPrices) {
+        await runAsync(
+          `INSERT INTO package_group_pricing (packageId, minPerson, maxPerson, price) VALUES (?, ?, ?, ?)`,
+          [id, gp.minPerson, gp.maxPerson, gp.price]
+        );
+      }
+    }
+
+    res.status(200).json({ success: true, message: 'Package updated successfully' });
+
+  } catch (err) {
+    console.error('Error updating package:', err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// Delete package (Soft delete)
+app.delete('/api/packages/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    const now = new Date().toISOString();
+    await runAsync('UPDATE packages SET deletedAt = ? WHERE id = ?', [now, id]);
+    res.status(200).json({ success: true, message: 'Package deleted successfully' });
+  } catch (err) {
+    console.error('Error deleting package:', err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
 app.listen(PORT, async () => {
   console.log(`Server running on http://localhost:${PORT}`);
   // Ensure default admin user exists (id 1) after server start
