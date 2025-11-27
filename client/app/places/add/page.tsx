@@ -501,7 +501,7 @@ export default function AddplacePage() {
             </div>
             <ImageCrop
               file={selectedImageFile}
-              aspect={9 / 12}
+
               onCrop={async (croppedImage) => {
                 try {
                   // Delete old featured image if exists

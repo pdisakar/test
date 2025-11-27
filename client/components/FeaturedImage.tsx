@@ -1,5 +1,6 @@
 import React from 'react';
 import { Trash2, UploadCloud, Image as ImageIcon } from 'lucide-react';
+import { DEFAULT_ASPECT_RATIO } from './ImageCrop';
 
 interface FeaturedImageProps {
     label: string;
@@ -37,7 +38,7 @@ export function FeaturedImage({
 
     return (
         <div className="space-y-6 p-6 bg-white/50 backdrop-blur-sm rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300">
-            {/* Image Upload/Preview with 5:7 aspect ratio */}
+            {/* Image Upload/Preview with 7:5 aspect ratio */}
             <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
                     <ImageIcon className="w-4 h-4 text-primary" />
@@ -45,7 +46,7 @@ export function FeaturedImage({
                 </label>
                 <div className="space-y-3">
                     {imageUrl ? (
-                        <div className="group relative w-full max-w-md mx-auto rounded-2xl overflow-hidden shadow-lg transition-transform duration-300 hover:scale-[1.02]" style={{ aspectRatio: '1/1' }}>
+                        <div className="group relative w-full max-w-md mx-auto rounded-2xl overflow-hidden shadow-lg transition-transform duration-300 hover:scale-[1.02]" style={{ aspectRatio: DEFAULT_ASPECT_RATIO }}>
                             <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10" />
                             <img
                                 src={getSrc(imageUrl)}
@@ -62,7 +63,7 @@ export function FeaturedImage({
                             </button>
                         </div>
                     ) : (
-                        <div className="relative group w-full max-w-md mx-auto" style={{ aspectRatio: '1/1' }}>
+                        <div className="relative group w-full max-w-md mx-auto" style={{ aspectRatio: DEFAULT_ASPECT_RATIO }}>
                             <div className="absolute -inset-0.5 bg-gradient-to-r from-primary/30 to-purple-400/30 rounded-2xl blur opacity-30 group-hover:opacity-75 transition duration-500" />
                             <div className="relative h-full bg-white rounded-xl border-2 border-dashed border-gray-200 group-hover:border-transparent transition-all duration-300 overflow-hidden">
                                 <input

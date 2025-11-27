@@ -915,7 +915,7 @@ export default function AddPackagePage() {
                   onImageRemove={() => removeImage('featured')}
                   onAltChange={(value) => setFormData(prev => ({ ...prev, featuredImageAlt: value }))}
                   onCaptionChange={(value) => setFormData(prev => ({ ...prev, featuredImageCaption: value }))}
-                  helperText="Upload a featured image (Aspect Ratio 1:1)"
+                  helperText="Upload a featured image"
                 />
 
                 {/* Banner Image */}

@@ -500,7 +500,7 @@ export default function AddArticlePage() {
             </div>
             <ImageCrop
               file={selectedImageFile}
-              aspect={5 / 7}
+
               onCrop={async (croppedImage) => {
                 try {
                   // Delete old featured image if exists

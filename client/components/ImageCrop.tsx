@@ -133,6 +133,8 @@ export type ImageCropProps = {
     onComplete?: ReactCropProps['onComplete'];
 } & Omit<ReactCropProps, 'onChange' | 'onComplete' | 'children'>;
 
+export const DEFAULT_ASPECT_RATIO = 7 / 5;
+
 export const ImageCrop = ({
     file,
     maxImageSize = 1024 * 1024 * 5,
@@ -140,7 +142,7 @@ export const ImageCrop = ({
     children,
     onChange,
     onComplete,
-    aspect = 7 / 5,
+    aspect = DEFAULT_ASPECT_RATIO,
     ...reactCropProps
 }: ImageCropProps) => {
     const imgRef = useRef<HTMLImageElement | null>(null);
