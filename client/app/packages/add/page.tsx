@@ -30,6 +30,22 @@ interface GalleryImage {
   preview: string;
 }
 
+interface ItineraryDay {
+  id: string;
+  dayNumber: number;
+  title: string;
+  description: string;
+  meals: string;
+  accommodation: string;
+  distance: string;
+  origin: string;
+  destination: string;
+  originElevation: string;
+  destinationElevation: string;
+  duration: string;
+  transportation: string;
+}
+
 export default function AddPackagePage() {
   const router = useRouter();
 
@@ -57,9 +73,33 @@ export default function AddPackagePage() {
     bannerImagePreview: '',
     bannerImageAlt: '',
     bannerImageCaption: '',
+    tripMapImage: null as File | null,
+    tripMapImagePreview: '',
+    tripMapImageAlt: '',
+    tripMapImageCaption: '',
+    // Step 4 Fields
+    tripGrade: '',
+    tripStyle: '',
+    statusRibbon: '',
+    transportation: '',
+    accommodation: '',
+    meals: '',
+    groupSize: '',
+    maxAltitude: '',
+    tripHighlights: '',
+    // Step 5 Fields
+    departureNote: '',
+    goodToKnow: '',
+    // Step 6 Fields
+    extraFAQs: '',
+    relatedTrip: '',
+    // Step 7 Fields
+    itineraryTitle: '',
   });
 
   const [galleryImages, setGalleryImages] = useState<GalleryImage[]>([]);
+  const [itinerary, setItinerary] = useState<ItineraryDay[]>([]);
+  const [expandedDayId, setExpandedDayId] = useState<string | null>(null);
 
   const [currentStep, setCurrentStep] = useState(1);
 
@@ -80,10 +120,12 @@ export default function AddPackagePage() {
   // Image Crop State
   const [showImageCrop, setShowImageCrop] = useState(false);
   const [selectedImageFile, setSelectedImageFile] = useState<File | null>(null);
+  const [imageCropType, setImageCropType] = useState<'featured' | 'tripMap'>('featured');
 
   // Refs for file inputs
   const featuredInputRef = useRef<HTMLInputElement>(null);
   const bannerInputRef = useRef<HTMLInputElement>(null);
+  const tripMapInputRef = useRef<HTMLInputElement>(null);
   const galleryInputRef = useRef<HTMLInputElement>(null);
 
   // Fetch places on mount
@@ -241,14 +283,16 @@ export default function AddPackagePage() {
   };
 
   // Image Handling
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>, type: 'featured' | 'banner') => {
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>, type: 'featured' | 'banner' | 'tripMap') => {
     const file = e.target.files?.[0];
     if (file) {
-      if (type === 'featured') {
+      if (type === 'featured' || type === 'tripMap') {
         setSelectedImageFile(file);
+        setImageCropType(type);
         setShowImageCrop(true);
         // Reset input so same file can be selected again if needed
-        if (featuredInputRef.current) featuredInputRef.current.value = '';
+        if (type === 'featured' && featuredInputRef.current) featuredInputRef.current.value = '';
+        if (type === 'tripMap' && tripMapInputRef.current) tripMapInputRef.current.value = '';
       } else {
         // Banner image (no crop for now, or maybe add later)
         const reader = new FileReader();
@@ -264,7 +308,7 @@ export default function AddPackagePage() {
     }
   };
 
-  const removeImage = (type: 'featured' | 'banner') => {
+  const removeImage = (type: 'featured' | 'banner' | 'tripMap') => {
     setFormData(prev => ({
       ...prev,
       [`${type}Image`]: null,
@@ -272,6 +316,7 @@ export default function AddPackagePage() {
     }));
     if (type === 'featured' && featuredInputRef.current) featuredInputRef.current.value = '';
     if (type === 'banner' && bannerInputRef.current) bannerInputRef.current.value = '';
+    if (type === 'tripMap' && tripMapInputRef.current) tripMapInputRef.current.value = '';
   };
 
   const handleGalleryUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -292,6 +337,84 @@ export default function AddPackagePage() {
 
   const removeGalleryImage = (id: string) => {
     setGalleryImages(prev => prev.filter(img => img.id !== id));
+  };
+
+  // Itinerary Management
+  const addDay = () => {
+    const newId = Date.now().toString();
+    setItinerary(prev => [
+      ...prev,
+      {
+        id: newId,
+        dayNumber: prev.length + 1,
+        title: '',
+        description: '',
+        meals: '',
+        accommodation: '',
+        distance: '',
+        origin: '',
+        destination: '',
+        originElevation: '',
+        destinationElevation: '',
+        duration: '',
+        transportation: ''
+      }
+    ]);
+    setExpandedDayId(newId);
+  };
+
+  const deleteDay = (id: string) => {
+    setItinerary(prev => {
+      const filtered = prev.filter(day => day.id !== id);
+      // Recalculate day numbers
+      return filtered.map((day, index) => ({
+        ...day,
+        dayNumber: index + 1
+      }));
+    });
+    if (expandedDayId === id) setExpandedDayId(null);
+  };
+
+  const addDayBetween = (index: number) => {
+    const newId = Date.now().toString();
+    setItinerary(prev => {
+      const newDay = {
+        id: newId,
+        dayNumber: 0, // Will be recalculated
+        title: '',
+        description: '',
+        meals: '',
+        accommodation: '',
+        distance: '',
+        origin: '',
+        destination: '',
+        originElevation: '',
+        destinationElevation: '',
+        duration: '',
+        transportation: ''
+      };
+      const newItinerary = [
+        ...prev.slice(0, index + 1),
+        newDay,
+        ...prev.slice(index + 1)
+      ];
+      // Recalculate day numbers
+      return newItinerary.map((day, idx) => ({
+        ...day,
+        dayNumber: idx + 1
+      }));
+    });
+    setExpandedDayId(newId);
+  };
+
+  const toggleDay = (id: string) => {
+    setExpandedDayId(prev => prev === id ? null : id);
+  };
+
+  const updateDay = (id: string, field: keyof ItineraryDay, value: string) => {
+    setItinerary(prev => prev.map(day =>
+      day.id === id ? { ...day, [field]: value } : day
+    ));
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -357,7 +480,7 @@ export default function AddPackagePage() {
               >
                 Discard
               </Button>
-              {currentStep < 3 ? (
+              {currentStep < 7 ? (
                 <Button
                   type="button"
                   onClick={handleNext}
@@ -760,8 +883,8 @@ export default function AddPackagePage() {
                 <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
                   <h2 className="text-xl font-semibold text-gray-900 mb-6 uppercase">Cost Include</h2>
                   <div>
-                    <label className="block text-sm font-bold text-gray-700 mb-2 uppercase">
-                      COST INCLUDES - DEFAULT DESIGN
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Cost Includes - Default Design
                     </label>
                     <RichTextEditor
                       content={formData.costInclude}
@@ -775,8 +898,8 @@ export default function AddPackagePage() {
                 <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
                   <h2 className="text-xl font-semibold text-gray-900 mb-6 uppercase">Cost Exclude</h2>
                   <div>
-                    <label className="block text-sm font-bold text-gray-700 mb-2 uppercase">
-                      COST EXCLUDE
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Cost Exclude
                     </label>
                     <RichTextEditor
                       content={formData.costExclude}
@@ -831,8 +954,8 @@ export default function AddPackagePage() {
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div>
-                        <label className="block text-sm font-bold text-gray-700 mb-2 uppercase">
-                          ALT TEXT
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Alt Text
                         </label>
                         <input
                           type="text"
@@ -843,8 +966,8 @@ export default function AddPackagePage() {
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-bold text-gray-700 mb-2 uppercase">
-                          CAPTION
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Caption
                         </label>
                         <input
                           type="text"
@@ -899,8 +1022,8 @@ export default function AddPackagePage() {
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div>
-                        <label className="block text-sm font-bold text-gray-700 mb-2 uppercase">
-                          BANNER ALT
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Banner Alt
                         </label>
                         <input
                           type="text"
@@ -911,13 +1034,80 @@ export default function AddPackagePage() {
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-bold text-gray-700 mb-2 uppercase">
-                          BANNER CAPTION
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Banner Caption
                         </label>
                         <input
                           type="text"
                           name="bannerImageCaption"
                           value={formData.bannerImageCaption}
+                          onChange={handleInputChange}
+                          className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Trip Map */}
+                <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                  <h2 className="text-xl font-semibold text-gray-900 mb-6">Trip Map</h2>
+                  <div className="space-y-6">
+                    <div className="relative">
+                      {formData.tripMapImagePreview ? (
+                        <div className="relative w-full max-w-md aspect-video rounded-lg overflow-hidden border border-gray-200">
+                          <img
+                            src={formData.tripMapImagePreview}
+                            alt="Trip Map preview"
+                            className="w-full h-full object-cover"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => removeImage('tripMap')}
+                            className="absolute top-2 right-2 p-1.5 bg-white/90 rounded-full hover:bg-white text-red-500 transition-colors shadow-sm"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                        </div>
+                      ) : (
+                        <div
+                          onClick={() => tripMapInputRef.current?.click()}
+                          className="w-full max-w-md aspect-video rounded-lg border-2 border-dashed border-gray-300 hover:border-primary/50 hover:bg-gray-50 transition-all cursor-pointer flex flex-col items-center justify-center gap-2 text-gray-500"
+                        >
+                          <ImageIcon className="h-8 w-8" />
+                          <span className="text-sm font-medium">Click to upload trip map image</span>
+                        </div>
+                      )}
+                      <input
+                        ref={tripMapInputRef}
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={(e) => handleImageUpload(e, 'tripMap')}
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Alt Text
+                        </label>
+                        <input
+                          type="text"
+                          name="tripMapImageAlt"
+                          value={formData.tripMapImageAlt}
+                          onChange={handleInputChange}
+                          className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Caption
+                        </label>
+                        <input
+                          type="text"
+                          name="tripMapImageCaption"
+                          value={formData.tripMapImageCaption}
                           onChange={handleInputChange}
                           className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
                         />
@@ -967,6 +1157,532 @@ export default function AddPackagePage() {
                 </div>
               </>
             )}
+
+            {/* Step 4 Content: Trip Facts & Highlights */}
+            {currentStep === 4 && (
+              <>
+                {/* Trip Facts */}
+                <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                  <h2 className="text-xl font-semibold text-gray-900 mb-6">Trip Facts</h2>
+                  <div className="space-y-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      {/* Trip Grade */}
+                      <div>
+                        <label htmlFor="tripGrade" className="block text-sm font-medium text-gray-700 mb-2">
+                          Trip Grade
+                        </label>
+                        <select
+                          id="tripGrade"
+                          name="tripGrade"
+                          value={formData.tripGrade}
+                          onChange={handleInputChange}
+                          className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all bg-white"
+                        >
+                          <option value="">Select...</option>
+                          <option value="Easy">Easy</option>
+                          <option value="Moderate">Moderate</option>
+                          <option value="Intermediate">Intermediate</option>
+                          <option value="Difficult">Difficult</option>
+                          <option value="Challenging">Challenging</option>
+                        </select>
+                      </div>
+
+                      {/* Trip Style */}
+                      <div>
+                        <label htmlFor="tripStyle" className="block text-sm font-medium text-gray-700 mb-2">
+                          Trip Style
+                        </label>
+                        <select
+                          id="tripStyle"
+                          name="tripStyle"
+                          value={formData.tripStyle}
+                          onChange={handleInputChange}
+                          className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all bg-white"
+                        >
+                          <option value="">Select...</option>
+                          <option value="Trekking">Trekking</option>
+                          <option value="Hiking">Hiking</option>
+                          <option value="Mountaineering">Mountaineering</option>
+                          <option value="Cultural Tour">Cultural Tour</option>
+                          <option value="Adventure">Adventure</option>
+                        </select>
+                      </div>
+
+                      {/* Status (Ribbon) */}
+                      <div>
+                        <label htmlFor="statusRibbon" className="block text-sm font-medium text-gray-700 mb-2">
+                          Status (Ribbon)
+                        </label>
+                        <input
+                          type="text"
+                          id="statusRibbon"
+                          name="statusRibbon"
+                          value={formData.statusRibbon}
+                          onChange={handleInputChange}
+                          className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                          placeholder="e.g., New, Popular, Bestseller"
+                        />
+                      </div>
+
+                      {/* Transportation */}
+                      <div>
+                        <label htmlFor="transportation" className="block text-sm font-medium text-gray-700 mb-2">
+                          Transportation
+                        </label>
+                        <select
+                          id="transportation"
+                          name="transportation"
+                          value={formData.transportation}
+                          onChange={handleInputChange}
+                          className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all bg-white"
+                        >
+                          <option value="">Select...</option>
+                          <option value="Excursion bus">Excursion bus</option>
+                          <option value="Private car">Private car</option>
+                          <option value="Flight">Flight</option>
+                          <option value="Walking">Walking</option>
+                          <option value="Mixed">Mixed</option>
+                        </select>
+                      </div>
+
+                      {/* Accommodation */}
+                      <div>
+                        <label htmlFor="accommodation" className="block text-sm font-medium text-gray-700 mb-2">
+                          Accommodation
+                        </label>
+                        <select
+                          id="accommodation"
+                          name="accommodation"
+                          value={formData.accommodation}
+                          onChange={handleInputChange}
+                          className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all bg-white"
+                        >
+                          <option value="">Select...</option>
+                          <option value="Inn / Resort">Inn / Resort</option>
+                          <option value="Hotel">Hotel</option>
+                          <option value="Lodge">Lodge</option>
+                          <option value="Tea House">Tea House</option>
+                          <option value="Camping">Camping</option>
+                        </select>
+                      </div>
+
+                      {/* Meals */}
+                      <div>
+                        <label htmlFor="meals" className="block text-sm font-medium text-gray-700 mb-2">
+                          Meals
+                        </label>
+                        <select
+                          id="meals"
+                          name="meals"
+                          value={formData.meals}
+                          onChange={handleInputChange}
+                          className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all bg-white"
+                        >
+                          <option value="">Select...</option>
+                          <option value="Breakfast Lunch Dinner">Breakfast Lunch Dinner</option>
+                          <option value="Breakfast only">Breakfast only</option>
+                          <option value="Half Board">Half Board</option>
+                          <option value="Full Board">Full Board</option>
+                          <option value="As per itinerary">As per itinerary</option>
+                        </select>
+                      </div>
+
+                      {/* Group Size */}
+                      <div>
+                        <label htmlFor="groupSize" className="block text-sm font-medium text-gray-700 mb-2">
+                          Group Size
+                        </label>
+                        <input
+                          type="text"
+                          id="groupSize"
+                          name="groupSize"
+                          value={formData.groupSize}
+                          onChange={handleInputChange}
+                          className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                          placeholder="e.g., 1-12 people"
+                        />
+                      </div>
+
+                      {/* Max Altitude */}
+                      <div>
+                        <label htmlFor="maxAltitude" className="block text-sm font-medium text-gray-700 mb-2">
+                          Max Altitude
+                        </label>
+                        <input
+                          type="text"
+                          id="maxAltitude"
+                          name="maxAltitude"
+                          value={formData.maxAltitude}
+                          onChange={handleInputChange}
+                          className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                          placeholder="e.g., 5,545m"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Add New Facts Button */}
+                    <div className="pt-2">
+                      <Button
+                        type="button"
+                        className="px-6 py-2 bg-yellow-400 hover:bg-yellow-500 text-black font-medium rounded-lg flex items-center gap-2"
+                      >
+                        <span className="text-xl leading-none">+</span> Add New Facts
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Trip Highlights */}
+                <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                  <h2 className="text-xl font-semibold text-gray-900 mb-6">Trip Highlights</h2>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Highlights
+                    </label>
+                    <RichTextEditor
+                      content={formData.tripHighlights}
+                      onChange={(content) => setFormData(prev => ({ ...prev, tripHighlights: content }))}
+                      placeholder="Write the trip highlights..."
+                    />
+                  </div>
+                </div>
+              </>
+            )}
+
+            {/* Step 5 Content: Departure Note & Good to Know */}
+            {currentStep === 5 && (
+              <>
+                {/* Departure Note */}
+                <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                  <h2 className="text-xl font-semibold text-gray-900 mb-6">Departure Note</h2>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Departure Note
+                    </label>
+                    <RichTextEditor
+                      content={formData.departureNote}
+                      onChange={(content) => setFormData(prev => ({ ...prev, departureNote: content }))}
+                      placeholder="Write departure notes..."
+                    />
+                  </div>
+                </div>
+
+                {/* Good to Know */}
+                <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                  <h2 className="text-xl font-semibold text-gray-900 mb-6">Good to Know</h2>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Good to Know
+                    </label>
+                    <RichTextEditor
+                      content={formData.goodToKnow}
+                      onChange={(content) => setFormData(prev => ({ ...prev, goodToKnow: content }))}
+                      placeholder="Write good to know information..."
+                    />
+                  </div>
+                </div>
+              </>
+            )}
+
+            {/* Step 6 Content: Extra FAQs & Related Trip */}
+            {currentStep === 6 && (
+              <>
+                {/* Extra FAQs */}
+                <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                  <h2 className="text-xl font-semibold text-gray-900 mb-6">Extra FAQS</h2>
+                  <div>
+                    <p className="text-sm text-gray-600 mb-3">
+                      Title <span className="text-blue-600">should be heading 3</span>, question <span className="text-blue-600">should be heading 4</span>, and answer <span className="text-blue-600">should be paragraph</span>
+                    </p>
+                    <RichTextEditor
+                      content={formData.extraFAQs}
+                      onChange={(content) => setFormData(prev => ({ ...prev, extraFAQs: content }))}
+                      placeholder="Write extra FAQs..."
+                    />
+                  </div>
+                </div>
+
+                {/* Related */}
+                <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                  <h2 className="text-xl font-semibold text-gray-900 mb-6">Related</h2>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Related Trip
+                    </label>
+                    <input
+                      type="text"
+                      name="relatedTrip"
+                      value={formData.relatedTrip}
+                      onChange={handleInputChange}
+                      className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                      placeholder="Inserted are removed"
+                    />
+                  </div>
+                </div>
+              </>
+            )}
+
+            {/* Step 7 Content: Itinerary Management */}
+            {currentStep === 7 && (
+              <div className="space-y-6">
+                <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                  <div className="flex justify-between items-center mb-6">
+                    <h2 className="text-xl font-semibold text-gray-900">Itinerary</h2>
+                    <Button
+                      type="button"
+                      onClick={addDay}
+                      className="bg-primary hover:bg-primary/90 text-white"
+                    >
+                      <Plus className="h-4 w-4 mr-2" />
+                      Add Day
+                    </Button>
+                  </div>
+
+                  <div className="mb-8">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Itinerary Title
+                    </label>
+                    <input
+                      type="text"
+                      name="itineraryTitle"
+                      value={formData.itineraryTitle}
+                      onChange={handleInputChange}
+                      className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                      placeholder="e.g., 14 Days Everest Base Camp Trek Itinerary"
+                    />
+                  </div>
+
+                  {itinerary.length === 0 ? (
+                    <div className="text-center py-12 bg-gray-50 rounded-lg border-2 border-dashed border-gray-200">
+                      <p className="text-gray-500 mb-4">No itinerary days added yet.</p>
+                      <Button
+                        type="button"
+                        onClick={addDay}
+                        variant="outline"
+                      >
+                        Add First Day
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="space-y-8">
+                      {itinerary.map((day, index) => (
+                        <div key={day.id} className="relative">
+                          <div className={`bg-white rounded-lg border transition-all ${expandedDayId === day.id ? 'border-primary shadow-md' : 'border-gray-200 hover:border-gray-300'}`}>
+                            {/* Accordion Header */}
+                            <div
+                              className="flex justify-between items-center p-4 cursor-pointer select-none bg-gray-50 rounded-t-lg"
+                              onClick={() => toggleDay(day.id)}
+                            >
+                              <div className="flex items-center gap-4 flex-1">
+                                <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary text-white font-bold text-sm shrink-0">
+                                  {day.dayNumber}
+                                </div>
+                                <div className="flex-1">
+                                  <h3 className="font-medium text-gray-900">
+                                    {day.title || `Day ${day.dayNumber}`}
+                                  </h3>
+                                  {!expandedDayId && day.title && (
+                                    <p className="text-sm text-gray-500 truncate mt-1 max-w-md">
+                                      {day.description.replace(/<[^>]*>/g, '').substring(0, 60)}...
+                                    </p>
+                                  )}
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <Button
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    deleteDay(day.id);
+                                  }}
+                                  variant="ghost"
+                                  size="sm"
+                                  className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                                {expandedDayId === day.id ? (
+                                  <ChevronDown className="h-5 w-5 text-gray-400" />
+                                ) : (
+                                  <ChevronRight className="h-5 w-5 text-gray-400" />
+                                )}
+                              </div>
+                            </div>
+
+                            {/* Accordion Content */}
+                            {expandedDayId === day.id && (
+                              <div className="p-6 border-t border-gray-100 animate-in slide-in-from-top-2 duration-200">
+                                <div className="space-y-4">
+                                  <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                      Title
+                                    </label>
+                                    <input
+                                      type="text"
+                                      value={day.title}
+                                      onChange={(e) => updateDay(day.id, 'title', e.target.value)}
+                                      className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all bg-white"
+                                      placeholder="e.g., Arrival in Kathmandu"
+                                      autoFocus
+                                    />
+                                  </div>
+                                  <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                      Description
+                                    </label>
+                                    <RichTextEditor
+                                      content={day.description}
+                                      onChange={(content) => updateDay(day.id, 'description', content)}
+                                      placeholder="Describe the day's activities..."
+                                    />
+                                  </div>
+
+                                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div>
+                                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        Meals
+                                      </label>
+                                      <input
+                                        type="text"
+                                        value={day.meals}
+                                        onChange={(e) => updateDay(day.id, 'meals', e.target.value)}
+                                        className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                                        placeholder="Select a Meal"
+                                      />
+                                    </div>
+                                    <div>
+                                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        Accommodation
+                                      </label>
+                                      <input
+                                        type="text"
+                                        value={day.accommodation}
+                                        onChange={(e) => updateDay(day.id, 'accommodation', e.target.value)}
+                                        className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                                        placeholder="Select an Accommodation"
+                                      />
+                                    </div>
+                                  </div>
+
+                                  <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                      Distance
+                                    </label>
+                                    <input
+                                      type="text"
+                                      value={day.distance}
+                                      onChange={(e) => updateDay(day.id, 'distance', e.target.value)}
+                                      className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                                      placeholder="undefined"
+                                    />
+                                  </div>
+
+                                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div>
+                                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        Origin
+                                      </label>
+                                      <input
+                                        type="text"
+                                        value={day.origin}
+                                        onChange={(e) => updateDay(day.id, 'origin', e.target.value)}
+                                        className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                                        placeholder="Origin"
+                                      />
+                                    </div>
+                                    <div>
+                                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        Destination
+                                      </label>
+                                      <input
+                                        type="text"
+                                        value={day.destination}
+                                        onChange={(e) => updateDay(day.id, 'destination', e.target.value)}
+                                        className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                                        placeholder="Destination"
+                                      />
+                                    </div>
+                                  </div>
+
+                                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div>
+                                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        Origin Elevation
+                                      </label>
+                                      <input
+                                        type="text"
+                                        value={day.originElevation}
+                                        onChange={(e) => updateDay(day.id, 'originElevation', e.target.value)}
+                                        className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                                        placeholder="null"
+                                      />
+                                    </div>
+                                    <div>
+                                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        Destination Elevation
+                                      </label>
+                                      <input
+                                        type="text"
+                                        value={day.destinationElevation}
+                                        onChange={(e) => updateDay(day.id, 'destinationElevation', e.target.value)}
+                                        className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                                        placeholder="null"
+                                      />
+                                    </div>
+                                  </div>
+
+                                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div>
+                                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        Duration
+                                      </label>
+                                      <input
+                                        type="text"
+                                        value={day.duration}
+                                        onChange={(e) => updateDay(day.id, 'duration', e.target.value)}
+                                        className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                                        placeholder="null"
+                                      />
+                                    </div>
+                                    <div>
+                                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        Mode of Transportation
+                                      </label>
+                                      <input
+                                        type="text"
+                                        value={day.transportation}
+                                        onChange={(e) => updateDay(day.id, 'transportation', e.target.value)}
+                                        className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                                        placeholder="Car"
+                                      />
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Add Day Between Button */}
+                          <div className="flex justify-center -mb-4 mt-4 relative z-10">
+                            <Button
+                              type="button"
+                              onClick={() => addDayBetween(index)}
+                              variant="outline"
+                              size="sm"
+                              className="bg-white border-dashed border-gray-300 text-gray-500 hover:text-primary hover:border-primary rounded-full text-xs shadow-sm"
+                              title="Insert day after this one"
+                            >
+                              <Plus className="h-3 w-3 mr-1" />
+                              Add Day Here
+                            </Button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
           </form>
         </div>
       </div>
@@ -989,13 +1705,21 @@ export default function AddPackagePage() {
             </div>
 
             <ImageCrop
-              file={selectedImageFile}
+              file={selectedImageFile!}
               onCrop={(croppedImage) => {
-                setFormData(prev => ({
-                  ...prev,
-                  featuredImage: selectedImageFile, // Keep original file object for upload
-                  featuredImagePreview: croppedImage // Use cropped base64 for preview
-                }));
+                if (imageCropType === 'featured') {
+                  setFormData(prev => ({
+                    ...prev,
+                    featuredImage: selectedImageFile,
+                    featuredImagePreview: croppedImage
+                  }));
+                } else if (imageCropType === 'tripMap') {
+                  setFormData(prev => ({
+                    ...prev,
+                    tripMapImage: selectedImageFile,
+                    tripMapImagePreview: croppedImage
+                  }));
+                }
                 setShowImageCrop(false);
                 setSelectedImageFile(null);
               }}
