@@ -10,6 +10,7 @@ import { X, ChevronRight, ChevronDown, Check, Image as ImageIcon, Plus, Trash2 }
 import { ImageCrop, ImageCropContent, ImageCropApply, ImageCropReset } from '@/components/ImageCrop';
 import { FeaturedImage } from '@/components/FeaturedImage';
 import { BannerImage } from '@/components/BannerImage';
+import { TripMapImage } from '@/components/TripMapImage';
 
 interface GroupPrice {
   id: string;
@@ -171,7 +172,6 @@ export default function AddPackagePage() {
   const [imageCropType, setImageCropType] = useState<'featured' | 'tripMap'>('featured');
 
   // Refs for file inputs
-  const tripMapInputRef = useRef<HTMLInputElement>(null);
   const galleryInputRef = useRef<HTMLInputElement>(null);
 
   const [categories, setCategories] = useState<Category[]>([]);
@@ -357,25 +357,41 @@ export default function AddPackagePage() {
   };
 
   // Image Handling
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>, type: 'tripMap') => {
-    const file = e.target.files?.[0];
-    if (file) {
-      if (type === 'tripMap') {
-        setSelectedImageFile(file);
-        setImageCropType('tripMap');
-        setShowImageCrop(true);
-        if (tripMapInputRef.current) tripMapInputRef.current.value = '';
-      }
-    }
+  const handleTripMapUpload = (file: File) => {
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setFormData(prev => ({
+        ...prev,
+        tripMapImage: file,
+        tripMapImagePreview: reader.result as string
+      }));
+    };
+    reader.readAsDataURL(file);
   };
 
-  const removeImage = (type: 'featured' | 'banner' | 'tripMap') => {
+  const removeImage = async (type: 'featured' | 'banner' | 'tripMap') => {
+    // Get the current image URL
+    const imageUrl = formData[`${type}ImagePreview`] as string;
+    
+    // Delete from backend if image exists
+    if (imageUrl) {
+      try {
+        await fetch('http://localhost:3001/api/upload/image', {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ path: imageUrl }),
+        });
+      } catch (err) {
+        console.error('Failed to delete image from backend:', err);
+      }
+    }
+    
+    // Clear from frontend state
     setFormData(prev => ({
       ...prev,
       [`${type}Image`]: null,
       [`${type}ImagePreview`]: ''
     }));
-    if (type === 'tripMap' && tripMapInputRef.current) tripMapInputRef.current.value = '';
   };
 
   const handleGalleryUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -606,8 +622,13 @@ export default function AddPackagePage() {
           description: day.description,
           meals: day.meals,
           accommodation: day.accommodation,
-          walkingHours: day.duration, // Map duration to walkingHours
-          altitude: day.destinationElevation // Map destinationElevation to altitude
+          distance: day.distance,
+          origin: day.origin,
+          destination: day.destination,
+          originElevation: day.originElevation,
+          destinationElevation: day.destinationElevation,
+          walkingHours: day.duration,
+          transportation: day.transportation
         }))
       };
 
@@ -1151,71 +1172,17 @@ export default function AddPackagePage() {
                 />
 
                 {/* Trip Map */}
-                <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-                  <h2 className="text-xl font-semibold text-gray-900 mb-6">Trip Map</h2>
-                  <div className="space-y-6">
-                    <div className="relative">
-                      {formData.tripMapImagePreview ? (
-                        <div className="relative w-full max-w-md aspect-video rounded-lg overflow-hidden border border-gray-200">
-                          <img
-                            src={formData.tripMapImagePreview}
-                            alt="Trip Map preview"
-                            className="w-full h-full object-cover"
-                          />
-                          <button
-                            type="button"
-                            onClick={() => removeImage('tripMap')}
-                            className="absolute top-2 right-2 p-1.5 bg-white/90 rounded-full hover:bg-white text-red-500 transition-colors shadow-sm"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </button>
-                        </div>
-                      ) : (
-                        <div
-                          onClick={() => tripMapInputRef.current?.click()}
-                          className="w-full max-w-md aspect-video rounded-lg border-2 border-dashed border-gray-300 hover:border-primary/50 hover:bg-gray-50 transition-all cursor-pointer flex flex-col items-center justify-center gap-2 text-gray-500"
-                        >
-                          <ImageIcon className="h-8 w-8" />
-                          <span className="text-sm font-medium">Click to upload trip map image</span>
-                        </div>
-                      )}
-                      <input
-                        ref={tripMapInputRef}
-                        type="file"
-                        accept="image/*"
-                        className="hidden"
-                        onChange={(e) => handleImageUpload(e, 'tripMap')}
-                      />
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Alt Text
-                        </label>
-                        <input
-                          type="text"
-                          name="tripMapImageAlt"
-                          value={formData.tripMapImageAlt}
-                          onChange={handleInputChange}
-                          className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Caption
-                        </label>
-                        <input
-                          type="text"
-                          name="tripMapImageCaption"
-                          value={formData.tripMapImageCaption}
-                          onChange={handleInputChange}
-                          className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                <TripMapImage
+                  label="Trip Map"
+                  imageUrl={formData.tripMapImagePreview}
+                  imageAlt={formData.tripMapImageAlt}
+                  imageCaption={formData.tripMapImageCaption}
+                  onImageSelect={handleTripMapUpload}
+                  onImageRemove={() => removeImage('tripMap')}
+                  onAltChange={(value) => setFormData(prev => ({ ...prev, tripMapImageAlt: value }))}
+                  onCaptionChange={(value) => setFormData(prev => ({ ...prev, tripMapImageCaption: value }))}
+                  helperText="Upload a trip map (any size accepted)"
+                />
 
                 {/* Media Gallery */}
                 <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">

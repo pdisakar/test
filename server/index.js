@@ -1229,11 +1229,13 @@ app.post('/api/packages', async (req, res) => {
         await runAsync(
           `INSERT INTO package_itinerary (
             packageId, dayNumber, title, description,
-            meals, accommodation, walkingHours, altitude
-          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+            meals, accommodation, distance, origin, destination, 
+            originElevation, destinationElevation, walkingHours, transportation
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
           [
             packageId, day.dayNumber, day.title, day.description,
-            day.meals, day.accommodation, day.walkingHours, day.altitude
+            day.meals, day.accommodation, day.distance, day.origin, day.destination,
+            day.originElevation, day.destinationElevation, day.walkingHours, day.transportation
           ]
         );
       }
@@ -1476,11 +1478,13 @@ app.put('/api/packages/:id', async (req, res) => {
         await runAsync(
           `INSERT INTO package_itinerary (
             packageId, dayNumber, title, description,
-            meals, accommodation, walkingHours, altitude
-          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+            meals, accommodation, distance, origin, destination, 
+            originElevation, destinationElevation, walkingHours, transportation
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
           [
             id, day.dayNumber, day.title, day.description,
-            day.meals, day.accommodation, day.walkingHours, day.altitude
+            day.meals, day.accommodation, day.distance, day.origin, day.destination,
+            day.originElevation, day.destinationElevation, day.walkingHours, day.transportation
           ]
         );
       }

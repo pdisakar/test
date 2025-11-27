@@ -111,8 +111,13 @@ const migrate = async () => {
         description TEXT,
         meals TEXT,
         accommodation TEXT,
+        distance TEXT,
+        origin TEXT,
+        destination TEXT,
+        originElevation TEXT,
+        destinationElevation TEXT,
         walkingHours TEXT,
-        altitude TEXT,
+        transportation TEXT,
         FOREIGN KEY (packageId) REFERENCES packages(id) ON DELETE CASCADE,
         UNIQUE(packageId, dayNumber)
       );
