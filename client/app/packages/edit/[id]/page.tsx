@@ -485,7 +485,24 @@ export default function EditPackagePage() {
     }
   };
 
-  const removeImage = (type: 'featured' | 'banner' | 'tripMap') => {
+  const removeImage = async (type: 'featured' | 'banner' | 'tripMap') => {
+    // Get the current image URL
+    const imageUrl = formData[`${type}ImagePreview`] as string;
+    
+    // Delete from backend if image exists
+    if (imageUrl) {
+      try {
+        await fetch('http://localhost:3001/api/upload/image', {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ path: imageUrl }),
+        });
+      } catch (err) {
+        console.error('Failed to delete image from backend:', err);
+      }
+    }
+    
+    // Clear from frontend state
     setFormData(prev => ({
       ...prev,
       [`${type}Image`]: null,
