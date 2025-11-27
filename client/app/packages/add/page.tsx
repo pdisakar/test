@@ -48,11 +48,62 @@ interface ItineraryDay {
   transportation: string;
 }
 
+interface Attribute {
+  id: number;
+  name: string;
+  type: string;
+}
+
+interface Category {
+  id: number;
+  label: string;
+  slug: string;
+}
+
+interface FormData {
+  packageTitle: string;
+  urlTitle: string;
+  slug: string;
+  durationValue: string;
+  durationUnit: string;
+  placeIds: string[];
+  metaTitle: string;
+  metaKeywords?: string;
+  metaDescription: string;
+  abstract: string;
+  details: string;
+  price: string;
+  costInclude: string;
+  costExclude: string;
+  featuredImage: File | null;
+  featuredImagePreview: string;
+  featuredImageAlt: string;
+  featuredImageCaption: string;
+  bannerImage: File | null;
+  bannerImagePreview: string;
+  bannerImageAlt: string;
+  bannerImageCaption: string;
+  tripMapImage: File | null;
+  tripMapImagePreview: string;
+  tripMapImageAlt: string;
+  tripMapImageCaption: string;
+  statusRibbon: string;
+  groupSize: string;
+  maxAltitude: string;
+  tripHighlights: string;
+  departureNote: string;
+  goodToKnow: string;
+  extraFAQs: string;
+  relatedTrip: string;
+  itineraryTitle: string;
+  [key: string]: any;
+}
+
 export default function AddPackagePage() {
   const router = useRouter();
 
   // Form state
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<FormData>({
     packageTitle: '',
     urlTitle: '',
     slug: '',
@@ -67,25 +118,20 @@ export default function AddPackagePage() {
     costInclude: '',
     costExclude: '',
     // Step 3 Fields
-    featuredImage: null as File | null,
+    featuredImage: null,
     featuredImagePreview: '',
     featuredImageAlt: '',
     featuredImageCaption: '',
-    bannerImage: null as File | null,
+    bannerImage: null,
     bannerImagePreview: '',
     bannerImageAlt: '',
     bannerImageCaption: '',
-    tripMapImage: null as File | null,
+    tripMapImage: null,
     tripMapImagePreview: '',
     tripMapImageAlt: '',
     tripMapImageCaption: '',
     // Step 4 Fields
-    tripGrade: '',
-    tripStyle: '',
     statusRibbon: '',
-    transportation: '',
-    accommodation: '',
-    meals: '',
     groupSize: '',
     maxAltitude: '',
     tripHighlights: '',
@@ -127,6 +173,34 @@ export default function AddPackagePage() {
   // Refs for file inputs
   const tripMapInputRef = useRef<HTMLInputElement>(null);
   const galleryInputRef = useRef<HTMLInputElement>(null);
+
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [attributeOptions, setAttributeOptions] = useState<Record<string, Attribute[]>>({});
+
+  // Fetch dynamic categories and attributes
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        // 1. Fetch Categories
+        const catRes = await fetch('http://localhost:3001/api/fact-categories');
+        const cats: Category[] = await catRes.json();
+        setCategories(cats);
+
+        // 2. Fetch Attributes for each category
+        const options: Record<string, Attribute[]> = {};
+        await Promise.all(
+          cats.map(async (cat) => {
+            const attrRes = await fetch(`http://localhost:3001/api/attributes/${cat.slug}`);
+            options[cat.slug] = await attrRes.json();
+          })
+        );
+        setAttributeOptions(options);
+      } catch (error) {
+        console.error('Failed to fetch trip facts data:', error);
+      }
+    };
+    fetchData();
+  }, []);
 
   // Fetch places on mount
   useEffect(() => {
@@ -1058,47 +1132,28 @@ export default function AddPackagePage() {
                   <h2 className="text-xl font-semibold text-gray-900 mb-6">Trip Facts</h2>
                   <div className="space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      {/* Trip Grade */}
-                      <div>
-                        <label htmlFor="tripGrade" className="block text-sm font-medium text-gray-700 mb-2">
-                          Trip Grade
-                        </label>
-                        <select
-                          id="tripGrade"
-                          name="tripGrade"
-                          value={formData.tripGrade}
-                          onChange={handleInputChange}
-                          className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all bg-white"
-                        >
-                          <option value="">Select...</option>
-                          <option value="Easy">Easy</option>
-                          <option value="Moderate">Moderate</option>
-                          <option value="Intermediate">Intermediate</option>
-                          <option value="Difficult">Difficult</option>
-                          <option value="Challenging">Challenging</option>
-                        </select>
-                      </div>
-
-                      {/* Trip Style */}
-                      <div>
-                        <label htmlFor="tripStyle" className="block text-sm font-medium text-gray-700 mb-2">
-                          Trip Style
-                        </label>
-                        <select
-                          id="tripStyle"
-                          name="tripStyle"
-                          value={formData.tripStyle}
-                          onChange={handleInputChange}
-                          className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all bg-white"
-                        >
-                          <option value="">Select...</option>
-                          <option value="Trekking">Trekking</option>
-                          <option value="Hiking">Hiking</option>
-                          <option value="Mountaineering">Mountaineering</option>
-                          <option value="Cultural Tour">Cultural Tour</option>
-                          <option value="Adventure">Adventure</option>
-                        </select>
-                      </div>
+                      {/* Dynamic Categories */}
+                      {categories.map((cat) => (
+                        <div key={cat.id}>
+                          <label htmlFor={cat.slug} className="block text-sm font-medium text-gray-700 mb-2">
+                            {cat.label}
+                          </label>
+                          <select
+                            id={cat.slug}
+                            name={cat.slug}
+                            value={formData[cat.slug] || ''}
+                            onChange={handleInputChange}
+                            className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all bg-white"
+                          >
+                            <option value="">Select...</option>
+                            {attributeOptions[cat.slug]?.map((attr) => (
+                              <option key={attr.id} value={attr.name}>
+                                {attr.name}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                      ))}
 
                       {/* Status (Ribbon) */}
                       <div>
@@ -1114,69 +1169,6 @@ export default function AddPackagePage() {
                           className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
                           placeholder="e.g., New, Popular, Bestseller"
                         />
-                      </div>
-
-                      {/* Transportation */}
-                      <div>
-                        <label htmlFor="transportation" className="block text-sm font-medium text-gray-700 mb-2">
-                          Transportation
-                        </label>
-                        <select
-                          id="transportation"
-                          name="transportation"
-                          value={formData.transportation}
-                          onChange={handleInputChange}
-                          className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all bg-white"
-                        >
-                          <option value="">Select...</option>
-                          <option value="Excursion bus">Excursion bus</option>
-                          <option value="Private car">Private car</option>
-                          <option value="Flight">Flight</option>
-                          <option value="Walking">Walking</option>
-                          <option value="Mixed">Mixed</option>
-                        </select>
-                      </div>
-
-                      {/* Accommodation */}
-                      <div>
-                        <label htmlFor="accommodation" className="block text-sm font-medium text-gray-700 mb-2">
-                          Accommodation
-                        </label>
-                        <select
-                          id="accommodation"
-                          name="accommodation"
-                          value={formData.accommodation}
-                          onChange={handleInputChange}
-                          className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all bg-white"
-                        >
-                          <option value="">Select...</option>
-                          <option value="Inn / Resort">Inn / Resort</option>
-                          <option value="Hotel">Hotel</option>
-                          <option value="Lodge">Lodge</option>
-                          <option value="Tea House">Tea House</option>
-                          <option value="Camping">Camping</option>
-                        </select>
-                      </div>
-
-                      {/* Meals */}
-                      <div>
-                        <label htmlFor="meals" className="block text-sm font-medium text-gray-700 mb-2">
-                          Meals
-                        </label>
-                        <select
-                          id="meals"
-                          name="meals"
-                          value={formData.meals}
-                          onChange={handleInputChange}
-                          className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all bg-white"
-                        >
-                          <option value="">Select...</option>
-                          <option value="Breakfast Lunch Dinner">Breakfast Lunch Dinner</option>
-                          <option value="Breakfast only">Breakfast only</option>
-                          <option value="Half Board">Half Board</option>
-                          <option value="Full Board">Full Board</option>
-                          <option value="As per itinerary">As per itinerary</option>
-                        </select>
                       </div>
 
                       {/* Group Size */}
@@ -1210,16 +1202,6 @@ export default function AddPackagePage() {
                           placeholder="e.g., 5,545m"
                         />
                       </div>
-                    </div>
-
-                    {/* Add New Facts Button */}
-                    <div className="pt-2">
-                      <Button
-                        type="button"
-                        className="px-6 py-2 bg-yellow-400 hover:bg-yellow-500 text-black font-medium rounded-lg flex items-center gap-2"
-                      >
-                        <span className="text-xl leading-none">+</span> Add New Facts
-                      </Button>
                     </div>
                   </div>
                 </div>

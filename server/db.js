@@ -97,6 +97,36 @@ const init = () => {
     if (err) console.error('Error creating places table:', err);
     else console.log('Places table ready');
   });
+
+  const createPackageAttributesTableSQL = `
+    CREATE TABLE IF NOT EXISTS package_attributes (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT NOT NULL,
+      type TEXT NOT NULL,
+      createdAt TEXT,
+      updatedAt TEXT
+    );
+  `;
+
+  db.run(createPackageAttributesTableSQL, (err) => {
+    if (err) console.error('Error creating package_attributes table:', err);
+    else console.log('Package attributes table ready');
+  });
+
+  const createTripFactCategoriesTableSQL = `
+    CREATE TABLE IF NOT EXISTS trip_fact_categories (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      label TEXT NOT NULL,
+      slug TEXT NOT NULL UNIQUE,
+      createdAt TEXT,
+      updatedAt TEXT
+    );
+  `;
+
+  db.run(createTripFactCategoriesTableSQL, (err) => {
+    if (err) console.error('Error creating trip_fact_categories table:', err);
+    else console.log('Trip fact categories table ready');
+  });
 };
 
 init();

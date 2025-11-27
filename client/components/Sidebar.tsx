@@ -144,6 +144,7 @@ export function Sidebar({ className }: SidebarProps) {
           sub: [
             { label: "Add New", href: "/packages/add" },
             { label: "All Packages", href: "/packages" },
+            { label: "Trip Facts", href: "/trip-facts" },
             { label: "Deleted Packages", href: "/packages/trash" }
           ]
         },

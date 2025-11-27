@@ -821,6 +821,157 @@ app.put('/api/places/:id', async (req, res) => {
   }
 });
 
+// ========================
+// PACKAGE ATTRIBUTES API
+// ========================
+
+// Get attributes by type
+app.get('/api/attributes/:type', async (req, res) => {
+  const { type } = req.params;
+  try {
+    const attributes = await allAsync('SELECT * FROM package_attributes WHERE type = ? ORDER BY name ASC', [type]);
+    res.json(attributes);
+  } catch (err) {
+    console.error('Error fetching attributes:', err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// Create new attribute
+app.post('/api/attributes', async (req, res) => {
+  const { name, type } = req.body;
+  if (!name || !type) {
+    return res.status(400).json({ success: false, message: 'Name and type are required' });
+  }
+
+  try {
+    const now = new Date().toISOString();
+    const result = await runAsync(
+      'INSERT INTO package_attributes (name, type, createdAt, updatedAt) VALUES (?, ?, ?, ?)',
+      [name, type, now, now]
+    );
+    res.status(201).json({ 
+      success: true, 
+      message: 'Attribute created', 
+      attribute: { id: result.lastID, name, type } 
+    });
+  } catch (err) {
+    console.error('Error creating attribute:', err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// Delete attribute
+app.delete('/api/attributes/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    await runAsync('DELETE FROM package_attributes WHERE id = ?', [id]);
+    res.json({ success: true, message: 'Attribute deleted' });
+  } catch (err) {
+    console.error('Error deleting attribute:', err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// Update attribute
+app.put('/api/attributes/:id', async (req, res) => {
+  const { id } = req.params;
+  const { name } = req.body;
+  if (!name) return res.status(400).json({ success: false, message: 'Name is required' });
+
+  try {
+    const now = new Date().toISOString();
+    await runAsync('UPDATE package_attributes SET name = ?, updatedAt = ? WHERE id = ?', [name, now, id]);
+    res.json({ success: true, message: 'Attribute updated' });
+  } catch (err) {
+    console.error('Error updating attribute:', err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// ========================
+// TRIP FACT CATEGORIES API
+// ========================
+
+// Get all categories
+app.get('/api/fact-categories', async (req, res) => {
+  try {
+    const categories = await allAsync('SELECT * FROM trip_fact_categories ORDER BY createdAt ASC');
+    res.json(categories);
+  } catch (err) {
+    console.error('Error fetching categories:', err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// Create category
+app.post('/api/fact-categories', async (req, res) => {
+  const { label } = req.body;
+  if (!label) return res.status(400).json({ success: false, message: 'Label is required' });
+
+  try {
+    const slug = label.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+    const now = new Date().toISOString();
+    
+    // Check slug uniqueness
+    const existing = await getAsync('SELECT id FROM trip_fact_categories WHERE slug = ?', [slug]);
+    if (existing) return res.status(400).json({ success: false, message: 'Category already exists' });
+
+    const result = await runAsync(
+      'INSERT INTO trip_fact_categories (label, slug, createdAt, updatedAt) VALUES (?, ?, ?, ?)',
+      [label, slug, now, now]
+    );
+    res.status(201).json({ 
+      success: true, 
+      message: 'Category created', 
+      category: { id: result.lastID, label, slug } 
+    });
+  } catch (err) {
+    console.error('Error creating category:', err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// Delete category
+app.delete('/api/fact-categories/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    // Check if it's a default category
+    const category = await getAsync('SELECT slug, isDefault FROM trip_fact_categories WHERE id = ?', [id]);
+    if (!category) {
+      return res.status(404).json({ success: false, message: 'Category not found' });
+    }
+    
+    if (category.isDefault) {
+      return res.status(403).json({ success: false, message: 'Cannot delete default category' });
+    }
+    
+    // Also delete associated attributes
+    await runAsync('DELETE FROM package_attributes WHERE type = ?', [category.slug]);
+    await runAsync('DELETE FROM trip_fact_categories WHERE id = ?', [id]);
+    res.json({ success: true, message: 'Category deleted' });
+  } catch (err) {
+    console.error('Error deleting category:', err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// Update category
+app.put('/api/fact-categories/:id', async (req, res) => {
+  const { id } = req.params;
+  const { label } = req.body;
+  if (!label) return res.status(400).json({ success: false, message: 'Label is required' });
+
+  try {
+    const now = new Date().toISOString();
+    await runAsync('UPDATE trip_fact_categories SET label = ?, updatedAt = ? WHERE id = ?', [label, now, id]);
+    res.json({ success: true, message: 'Category updated' });
+  } catch (err) {
+    console.error('Error updating category:', err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
 // Soft Delete place by ID (Cascading)
 app.delete('/api/places/:id', async (req, res) => {
   const { id } = req.params;
