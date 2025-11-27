@@ -542,29 +542,26 @@ export default function AddPackagePage() {
       return;
     }
 
+    const uploadedImagePaths: string[] = [];
+
     try {
       // Upload images if they exist
       let featuredImageUrl = formData.featuredImagePreview;
-      if (selectedImageFile && imageCropType === 'featured') {
-        // If currently cropping, we might want to use the result, but for now let's assume 
-        // the file in formData (if we stored it) or just the preview if it's a blob.
-        // Actually, we need to store the File object in formData to upload it.
-        // The current state has featuredImage: File | null.
-      }
-
-      // We need to upload the files stored in state
       if (formData.featuredImage instanceof File) {
         featuredImageUrl = await uploadImage(formData.featuredImage);
+        uploadedImagePaths.push(featuredImageUrl);
       }
 
       let bannerImageUrl = formData.bannerImagePreview;
       if (formData.bannerImage instanceof File) {
         bannerImageUrl = await uploadImage(formData.bannerImage);
+        uploadedImagePaths.push(bannerImageUrl);
       }
 
       let tripMapImageUrl = formData.tripMapImagePreview;
       if (formData.tripMapImage instanceof File) {
         tripMapImageUrl = await uploadImage(formData.tripMapImage);
+        uploadedImagePaths.push(tripMapImageUrl);
       }
 
       // Construct Trip Facts object
@@ -648,10 +645,42 @@ export default function AddPackagePage() {
         alert('Package created successfully!');
         router.push('/packages');
       } else {
+        // Cleanup uploaded images if package creation failed
+        if (uploadedImagePaths.length > 0) {
+          console.log('Cleaning up uploaded images due to failure...');
+          await Promise.all(uploadedImagePaths.map(async (path) => {
+            try {
+              await fetch('http://localhost:3001/api/upload/image', {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ path }),
+              });
+            } catch (cleanupErr) {
+              console.error('Failed to cleanup image:', path, cleanupErr);
+            }
+          }));
+        }
         setError(data.message || `Failed to create package: ${res.status} ${res.statusText}`);
       }
     } catch (err: any) {
       console.error('Error creating package:', err);
+      
+      // Cleanup uploaded images if an exception occurred
+      if (uploadedImagePaths.length > 0) {
+        console.log('Cleaning up uploaded images due to exception...');
+        await Promise.all(uploadedImagePaths.map(async (path) => {
+          try {
+            await fetch('http://localhost:3001/api/upload/image', {
+              method: 'DELETE',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ path }),
+            });
+          } catch (cleanupErr) {
+            console.error('Failed to cleanup image:', path, cleanupErr);
+          }
+        }));
+      }
+      
       setError(err.message || 'Failed to create package');
     } finally {
       setLoading(false);

@@ -14,7 +14,7 @@ interface Package {
   durationUnit: string;
   defaultPrice: number;
   groupPriceEnabled: boolean;
-  status: boolean;
+  status: boolean | number;
   featured: boolean;
   featuredImage: string;
   createdAt: string;
@@ -152,6 +152,7 @@ export default function PackagesPage() {
                   Delete ({selectedPackages.length})
                 </Button>
               )}
+
               <Button
                 onClick={() => router.push('/packages/trash')}
                 variant="outline"
@@ -257,11 +258,10 @@ export default function PackagesPage() {
                         {pkg.title}
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-900">
-                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                          pkg.status === true || pkg.status === 1
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${pkg.status === true || pkg.status === 1
                             ? 'bg-green-100 text-green-800'
                             : 'bg-gray-100 text-gray-800'
-                        }`}>
+                          }`}>
                           {pkg.status === true || pkg.status === 1 ? 'Active' : 'Inactive'}
                         </span>
                       </td>

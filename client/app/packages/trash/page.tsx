@@ -1,0 +1,310 @@
+'use client';
+
+import { Sidebar } from '@/components/Sidebar';
+import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { Button } from '@/components/ui/button';
+import { Search, RotateCcw, Trash2, ArrowLeft } from 'lucide-react';
+
+interface Package {
+    id: number;
+    title: string;
+    slug: string;
+    deletedAt: string;
+}
+
+export default function TrashPackagesPage() {
+    const router = useRouter();
+    const [searchTerm, setSearchTerm] = useState('');
+    const [packages, setPackages] = useState<Package[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState('');
+
+    const [processing, setProcessing] = useState(false);
+    const [selectedPackages, setSelectedPackages] = useState<number[]>([]);
+    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+
+    useEffect(() => {
+        fetchTrashPackages();
+    }, []);
+
+    const fetchTrashPackages = async () => {
+        setLoading(true);
+        setError('');
+        try {
+            const response = await fetch('http://localhost:3001/api/packages/trash/all');
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.message || 'Failed to fetch trash packages');
+            }
+
+            if (Array.isArray(data)) {
+                setPackages(data);
+            } else {
+                setPackages([]);
+            }
+        } catch (err: any) {
+            setError(err.message || 'An error occurred while fetching trash packages');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleRestore = async (id: number) => {
+        if (!confirm('Are you sure you want to restore this package?')) return;
+
+        setProcessing(true);
+        try {
+            const res = await fetch(`http://localhost:3001/api/packages/${id}/restore`, {
+                method: 'PUT'
+            });
+
+            if (res.ok) {
+                await fetchTrashPackages();
+            } else {
+                const data = await res.json();
+                alert(data.message || 'Failed to restore package');
+            }
+        } catch (err) {
+            console.error('Error restoring package:', err);
+            alert('Failed to restore package');
+        } finally {
+            setProcessing(false);
+        }
+    };
+
+    const handlePermanentDelete = async () => {
+        if (selectedPackages.length === 0) return;
+
+        setProcessing(true);
+        setError('');
+
+        try {
+            await Promise.all(
+                selectedPackages.map(id =>
+                    fetch(`http://localhost:3001/api/packages/${id}/permanent`, {
+                        method: 'DELETE',
+                    })
+                )
+            );
+
+            await fetchTrashPackages();
+            setSelectedPackages([]);
+            setShowDeleteConfirm(false);
+        } catch (err: any) {
+            setError(err.message || 'An error occurred while deleting permanently');
+        } finally {
+            setProcessing(false);
+            setShowDeleteConfirm(false);
+        }
+    };
+
+    const handleTogglePackage = (id: number) => {
+        setSelectedPackages(prev =>
+            prev.includes(id)
+                ? prev.filter(packageId => packageId !== id)
+                : [...prev, id]
+        );
+    };
+
+    const handleToggleAll = () => {
+        if (selectedPackages.length === filteredPackages.length) {
+            setSelectedPackages([]);
+        } else {
+            setSelectedPackages(filteredPackages.map(p => p.id));
+        }
+    };
+
+    const formatDate = (dateString: string) => {
+        const date = new Date(dateString);
+        return date.toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: true
+        });
+    };
+
+    // Filter packages
+    const filteredPackages = packages.filter(pkg => {
+        return pkg.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            pkg.slug?.toLowerCase().includes(searchTerm.toLowerCase());
+    });
+
+    return (
+        <div className="min-h-screen bg-gray-50 flex">
+            <Sidebar />
+            <div className="flex-1 transition-all duration-300 w-full">
+                <div className="pt-16 pb-6 px-4 md:py-12 md:px-6 max-w-7xl mx-auto">
+                    {/* Header */}
+                    <div className="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-0">
+                        <div className="flex items-center gap-4">
+                            <Button
+                                onClick={() => router.push('/packages')}
+                                variant="ghost"
+                                className="p-2 hover:bg-gray-100 rounded-full"
+                            >
+                                <ArrowLeft className="h-6 w-6 text-gray-600" />
+                            </Button>
+                            <h1 className="text-3xl font-bold text-gray-900">Trash Packages</h1>
+                        </div>
+
+                        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                            {selectedPackages.length > 0 && (
+                                <Button
+                                    onClick={() => setShowDeleteConfirm(true)}
+                                    className="px-6 py-2 bg-red-600 hover:bg-red-700 text-white"
+                                    disabled={processing}
+                                >
+                                    Delete Permanently ({selectedPackages.length})
+                                </Button>
+                            )}
+                        </div>
+                    </div>
+
+                    {/* Error Message */}
+                    {error && (
+                        <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+                            <p className="text-red-800 text-sm">{error}</p>
+                        </div>
+                    )}
+
+                    {/* Filters */}
+                    <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 md:p-6 mb-6">
+                        <div className="flex flex-col md:flex-row md:items-center gap-4">
+                            {/* Info Message */}
+                            <div className="flex items-center gap-2 text-sm text-gray-600">
+                                <div className="h-5 w-5 rounded-full border-2 border-orange-400 flex items-center justify-center">
+                                    <span className="text-orange-400 text-xs">i</span>
+                                </div>
+                                <span>{loading ? 'Loading...' : `${packages.length} Deleted Packages`}</span>
+                            </div>
+
+                            {/* Spacer */}
+                            <div className="flex-1"></div>
+
+                            {/* Search */}
+                            <div className="flex items-center gap-2">
+                                <label className="text-sm font-medium text-gray-700">Search:</label>
+                                <div className="relative">
+                                    <input
+                                        type="text"
+                                        value={searchTerm}
+                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                        placeholder="Search..."
+                                        className="pl-4 pr-10 py-2 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all text-sm w-full md:w-64"
+                                    />
+                                    <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Table */}
+                    <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden overflow-x-auto">
+                        <table className="w-full">
+                            <thead className="bg-gray-50 border-b border-gray-100">
+                                <tr>
+                                    <th className="px-6 py-4 text-left w-12">
+                                        <input
+                                            type="checkbox"
+                                            checked={filteredPackages.length > 0 && selectedPackages.length === filteredPackages.length}
+                                            onChange={handleToggleAll}
+                                            className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary cursor-pointer"
+                                        />
+                                    </th>
+                                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">S.N</th>
+                                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Title</th>
+                                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Deleted At</th>
+                                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-gray-100">
+                                {loading ? (
+                                    <tr>
+                                        <td colSpan={5} className="px-6 py-8 text-center text-gray-500">
+                                            Loading trash...
+                                        </td>
+                                    </tr>
+                                ) : filteredPackages.length === 0 ? (
+                                    <tr>
+                                        <td colSpan={5} className="px-6 py-8 text-center text-gray-500">
+                                            No deleted packages found
+                                        </td>
+                                    </tr>
+                                ) : (
+                                    filteredPackages.map((pkg, index) => (
+                                        <tr key={pkg.id} className="hover:bg-gray-50 transition-colors">
+                                            <td className="px-6 py-4">
+                                                <input
+                                                    type="checkbox"
+                                                    checked={selectedPackages.includes(pkg.id)}
+                                                    onChange={() => handleTogglePackage(pkg.id)}
+                                                    className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary cursor-pointer"
+                                                />
+                                            </td>
+                                            <td className="px-6 py-4 text-sm text-gray-900">
+                                                {index + 1}
+                                            </td>
+                                            <td className="px-6 py-4 text-sm font-medium text-gray-900">
+                                                {pkg.title}
+                                            </td>
+                                            <td className="px-6 py-4 text-sm text-gray-600">{formatDate(pkg.deletedAt)}</td>
+                                            <td className="px-6 py-4">
+                                                <div className="flex items-center gap-2">
+                                                    <Button
+                                                        onClick={() => handleRestore(pkg.id)}
+                                                        variant="outline"
+                                                        size="sm"
+                                                        className="h-8 px-2 border-green-200 text-green-700 hover:bg-green-50 hover:text-green-800"
+                                                        title="Restore"
+                                                        disabled={processing}
+                                                    >
+                                                        <RotateCcw className="h-4 w-4 mr-1" />
+                                                        Restore
+                                                    </Button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                {/* Delete Confirmation Dialog */}
+                {showDeleteConfirm && (
+                    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+                        <div className="bg-white rounded-xl shadow-2xl p-6 max-w-md w-full mx-4">
+                            <h3 className="text-xl font-bold text-gray-900 mb-4">Confirm Permanent Delete</h3>
+                            <p className="text-gray-600 mb-6">
+                                {`Are you sure you want to PERMANENTLY delete ${selectedPackages.length} package${selectedPackages.length > 1 ? 's' : ''}? This action cannot be undone and will remove all associated images.`}
+                            </p>
+                            <div className="flex items-center gap-3 justify-end">
+                                <Button
+                                    onClick={() => setShowDeleteConfirm(false)}
+                                    variant="outline"
+                                    className="px-6 py-2 border-gray-300 text-gray-700 hover:bg-gray-50"
+                                    disabled={processing}
+                                >
+                                    Cancel
+                                </Button>
+                                <Button
+                                    onClick={handlePermanentDelete}
+                                    className="px-6 py-2 bg-red-600 hover:bg-red-700 text-white"
+                                    disabled={processing}
+                                >
+                                    {processing ? 'Deleting...' : 'Delete Permanently'}
+                                </Button>
+                            </div>
+                        </div>
+                    </div>
+                )}
+            </div>
+        </div>
+    );
+}

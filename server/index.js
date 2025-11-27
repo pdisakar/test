@@ -1522,6 +1522,60 @@ app.delete('/api/packages/:id', async (req, res) => {
   }
 });
 
+// Get deleted packages (Trash)
+app.get('/api/packages/trash/all', async (req, res) => {
+  try {
+    const packages = await allAsync('SELECT * FROM packages WHERE deletedAt IS NOT NULL ORDER BY deletedAt DESC');
+    res.status(200).json(packages);
+  } catch (err) {
+    console.error('Error fetching trash:', err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// Restore package
+app.put('/api/packages/:id/restore', async (req, res) => {
+  const { id } = req.params;
+  try {
+    await runAsync('UPDATE packages SET deletedAt = NULL WHERE id = ?', [id]);
+    res.status(200).json({ success: true, message: 'Package restored successfully' });
+  } catch (err) {
+    console.error('Error restoring package:', err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// Permanent delete package
+app.delete('/api/packages/:id/permanent', async (req, res) => {
+  const { id } = req.params;
+  try {
+    // 1. Get package to find images
+    const pkg = await getAsync('SELECT * FROM packages WHERE id = ?', [id]);
+    if (!pkg) {
+      return res.status(404).json({ success: false, message: 'Package not found' });
+    }
+
+    // 2. Delete images from filesystem
+    const imagesToDelete = [
+      pkg.featuredImage,
+      pkg.bannerImage,
+      pkg.tripMapImage
+    ].filter(Boolean);
+
+    for (const imagePath of imagesToDelete) {
+      deleteImageFile(imagePath);
+    }
+
+    // 3. Delete from database (Cascade should handle related tables)
+    await runAsync('DELETE FROM packages WHERE id = ?', [id]);
+
+    res.status(200).json({ success: true, message: 'Package permanently deleted' });
+  } catch (err) {
+    console.error('Error permanently deleting package:', err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
 app.listen(PORT, async () => {
   console.log(`Server running on http://localhost:${PORT}`);
   // Ensure default admin user exists (id 1) after server start
