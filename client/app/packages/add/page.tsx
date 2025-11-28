@@ -172,6 +172,7 @@ export default function AddPackagePage() {
   const [showImageCrop, setShowImageCrop] = useState(false);
   const [selectedImageFile, setSelectedImageFile] = useState<File | null>(null);
   const [imageCropType, setImageCropType] = useState<'featured' | 'tripMap'>('featured');
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   // Refs for file inputs
   const galleryInputRef = useRef<HTMLInputElement>(null);
@@ -643,8 +644,7 @@ export default function AddPackagePage() {
       const data = await res.json();
 
       if (res.ok) {
-        alert('Package created successfully!');
-        router.push('/packages');
+        setShowSuccessModal(true);
       } else {
         // Cleanup uploaded images if package creation failed
         if (uploadedImagePaths.length > 0) {
@@ -686,6 +686,11 @@ export default function AddPackagePage() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleCloseSuccessModal = () => {
+    setShowSuccessModal(false);
+    router.push('/packages');
   };
 
 
@@ -1866,6 +1871,31 @@ export default function AddPackagePage() {
                 className="px-6 py-2 bg-red-600 hover:bg-red-700 text-white"
               >
                 Discard
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Success Modal */}
+      {showSuccessModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl shadow-2xl p-6 max-w-md w-full mx-4">
+            <div className="flex flex-col items-center text-center">
+              <div className="h-12 w-12 bg-green-100 rounded-full flex items-center justify-center mb-4">
+                <svg className="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">Success!</h3>
+              <p className="text-gray-600 mb-6">
+                Package has been created successfully.
+              </p>
+              <Button
+                onClick={handleCloseSuccessModal}
+                className="px-8 py-2 bg-primary hover:bg-primary/90 text-white w-full"
+              >
+                OK
               </Button>
             </div>
           </div>
