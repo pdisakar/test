@@ -233,6 +233,17 @@ export default function AddArticlePage() {
     if (!validateForm()) return;
     setLoading(true);
     try {
+      // Upload images if they are base64
+      let featuredImageUrl = formData.featuredImage;
+      if (formData.featuredImage && formData.featuredImage.startsWith('data:')) {
+        featuredImageUrl = await uploadImage(formData.featuredImage, 'featured');
+      }
+
+      let bannerImageUrl = formData.bannerImageUrl;
+      if (formData.bannerImageUrl && formData.bannerImageUrl.startsWith('data:')) {
+        bannerImageUrl = await uploadImage(formData.bannerImageUrl, 'banner');
+      }
+
       // Prepare payload with correct field names
       const payload = {
         title: formData.title,
@@ -243,10 +254,10 @@ export default function AddArticlePage() {
         metaKeywords: formData.metaKeywords,
         metaDescription: formData.metaDescription,
         description: formData.description,
-        featuredImage: formData.featuredImage,
+        featuredImage: featuredImageUrl,
         featuredImageAlt: formData.featuredImageAlt,
         featuredImageCaption: formData.featuredImageCaption,
-        bannerImage: formData.bannerImageUrl,
+        bannerImage: bannerImageUrl,
         bannerImageAlt: formData.bannerImageAlt,
         bannerImageCaption: formData.bannerImageCaption,
         status: formData.status ? 1 : 0,
@@ -421,9 +432,7 @@ export default function AddArticlePage() {
                     setSelectedImageFile(file);
                     setShowImageCrop(true);
                   }}
-                  onImageRemove={async () => {
-                    console.log('Removing featured image:', formData.featuredImage);
-                    await deleteImage(formData.featuredImage);
+                  onImageRemove={() => {
                     setFormData({ ...formData, featuredImage: '' });
                   }}
                   onAltChange={(value) => setFormData({ ...formData, featuredImageAlt: value })}
@@ -438,38 +447,16 @@ export default function AddArticlePage() {
                   imageUrl={formData.bannerImageUrl}
                   imageAlt={formData.bannerImageAlt}
                   imageCaption={formData.bannerImageCaption}
-                  onImageSelect={async (file) => {
-                    try {
-                      // Delete old banner image if exists
-                      if (formData.bannerImageUrl) {
-                        await deleteImage(formData.bannerImageUrl);
-                      }
-                      const reader = new FileReader();
-                      reader.onload = async (event) => {
-                        const base64 = event.target?.result as string;
-                        try {
-                          const response = await fetch('http://localhost:3001/api/upload/image', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ image: base64, type: 'banner' }),
-                          });
-                          const data = await response.json();
-                          if (response.ok) {
-                            setFormData({ ...formData, bannerImageUrl: data.path });
-                          } else {
-                            setError('Failed to upload banner image');
-                          }
-                        } catch (err) {
-                          setError('Failed to upload banner image');
-                        }
-                      };
-                      reader.readAsDataURL(file);
-                    } catch (err) {
-                      setError('Failed to process banner image');
-                    }
+                  onImageSelect={(file) => {
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                      const base64 = event.target?.result as string;
+                      // Store base64, will upload on submit
+                      setFormData({ ...formData, bannerImageUrl: base64 });
+                    };
+                    reader.readAsDataURL(file);
                   }}
-                  onImageRemove={async () => {
-                    await deleteImage(formData.bannerImageUrl);
+                  onImageRemove={() => {
                     setFormData({ ...formData, bannerImageUrl: '' });
                   }}
                   onAltChange={(value) => setFormData({ ...formData, bannerImageAlt: value })}
@@ -503,17 +490,12 @@ export default function AddArticlePage() {
 
               onCrop={async (croppedImage) => {
                 try {
-                  // Delete old featured image if exists
-                  if (formData.featuredImage) {
-                    await deleteImage(formData.featuredImage);
-                  }
-                  // Upload image to server
-                  const imagePath = await uploadImage(croppedImage);
-                  setFormData({ ...formData, featuredImage: imagePath });
+                  // Store base64 image, will upload on submit
+                  setFormData({ ...formData, featuredImage: croppedImage });
                   setShowImageCrop(false);
                   setSelectedImageFile(null);
                 } catch (err) {
-                  setError('Failed to upload image. Please try again.');
+                  setError('Failed to process image. Please try again.');
                   setShowImageCrop(false);
                   setSelectedImageFile(null);
                 }
