@@ -1619,6 +1619,227 @@ app.delete('/api/packages/:id/permanent', async (req, res) => {
   }
 });
 
+// ========== AUTHORS ENDPOINTS ==========
+
+// Create new author
+app.post('/api/authors', async (req, res) => {
+  const {
+    fullName, urlTitle, slug, email, description,
+    avatar, avatarCaption, bannerImage,
+    metaTitle, metaKeywords, metaDescription, status
+  } = req.body;
+
+  // Validation
+  if (!fullName || !urlTitle || !slug || !email) {
+    return res.status(400).json({ success: false, message: 'Full Name, URL Title, Slug, and Email are required' });
+  }
+
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    return res.status(400).json({ success: false, message: 'Invalid email format' });
+  }
+
+  try {
+    // Check if email already exists
+    const existing = await getAsync('SELECT * FROM authors WHERE LOWER(email) = LOWER(?)', [email]);
+    if (existing) {
+      return res.status(400).json({ success: false, message: 'Email already exists' });
+    }
+
+    // Check if URL title already exists
+    const existingUrl = await getAsync('SELECT * FROM authors WHERE urlTitle = ?', [urlTitle]);
+    if (existingUrl) {
+      return res.status(400).json({ success: false, message: 'URL Title already exists' });
+    }
+
+    // Check if slug already exists
+    const existingSlug = await getAsync('SELECT * FROM authors WHERE slug = ?', [slug]);
+    if (existingSlug) {
+      return res.status(400).json({ success: false, message: 'Slug already exists' });
+    }
+
+    const now = new Date().toISOString();
+    const result = await runAsync(
+      `INSERT INTO authors (
+        fullName, urlTitle, slug, email, description,
+        avatar, avatarCaption, bannerImage,
+        metaTitle, metaKeywords, metaDescription,
+        status, createdAt, updatedAt
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        fullName, urlTitle, slug, email, description,
+        avatar, avatarCaption, bannerImage,
+        metaTitle, metaKeywords, metaDescription,
+        status !== undefined ? status : 1, now, now
+      ]
+    );
+
+    res.status(201).json({
+      success: true,
+      message: 'Author created successfully',
+      authorId: result.lastID
+    });
+  } catch (err) {
+    console.error('Error creating author:', err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// Get all authors (exclude deleted)
+app.get('/api/authors', async (req, res) => {
+  try {
+    const authors = await allAsync('SELECT * FROM authors WHERE deletedAt IS NULL ORDER BY createdAt DESC');
+    res.status(200).json(authors);
+  } catch (err) {
+    console.error('Error fetching authors:', err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// Get single author by ID
+app.get('/api/authors/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    const author = await getAsync('SELECT * FROM authors WHERE id = ?', [id]);
+    if (!author) {
+      return res.status(404).json({ success: false, message: 'Author not found' });
+    }
+    res.status(200).json(author);
+  } catch (err) {
+    console.error('Error fetching author:', err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// Update author
+app.put('/api/authors/:id', async (req, res) => {
+  const { id } = req.params;
+  const {
+    fullName, urlTitle, slug, email, description,
+    avatar, avatarCaption, bannerImage,
+    metaTitle, metaKeywords, metaDescription, status
+  } = req.body;
+
+  // Validation
+  if (!fullName || !urlTitle || !slug || !email) {
+    return res.status(400).json({ success: false, message: 'Full Name, URL Title, Slug, and Email are required' });
+  }
+
+  try {
+    // Check if author exists
+    const existing = await getAsync('SELECT * FROM authors WHERE id = ?', [id]);
+    if (!existing) {
+      return res.status(404).json({ success: false, message: 'Author not found' });
+    }
+
+    // Check if email is taken by another author
+    const emailCheck = await getAsync('SELECT * FROM authors WHERE LOWER(email) = LOWER(?) AND id != ?', [email, id]);
+    if (emailCheck) {
+      return res.status(400).json({ success: false, message: 'Email already exists' });
+    }
+
+    // Check if URL title is taken by another author
+    const urlCheck = await getAsync('SELECT * FROM authors WHERE urlTitle = ? AND id != ?', [urlTitle, id]);
+    if (urlCheck) {
+      return res.status(400).json({ success: false, message: 'URL Title already exists' });
+    }
+
+    // Check if slug is taken by another author
+    const slugCheck = await getAsync('SELECT * FROM authors WHERE slug = ? AND id != ?', [slug, id]);
+    if (slugCheck) {
+      return res.status(400).json({ success: false, message: 'Slug already exists' });
+    }
+
+    const now = new Date().toISOString();
+    await runAsync(
+      `UPDATE authors SET
+        fullName = ?, urlTitle = ?, slug = ?, email = ?, description = ?,
+        avatar = ?, avatarCaption = ?, bannerImage = ?,
+        metaTitle = ?, metaKeywords = ?, metaDescription = ?,
+        status = ?, updatedAt = ?
+      WHERE id = ?`,
+      [
+        fullName, urlTitle, slug, email, description,
+        avatar, avatarCaption, bannerImage,
+        metaTitle, metaKeywords, metaDescription,
+        status, now, id
+      ]
+    );
+
+    res.status(200).json({ success: true, message: 'Author updated successfully' });
+  } catch (err) {
+    console.error('Error updating author:', err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  
+  }
+});
+
+// Delete author (Soft delete)
+app.delete('/api/authors/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    const now = new Date().toISOString();
+    await runAsync('UPDATE authors SET deletedAt = ? WHERE id = ?', [now, id]);
+    res.status(200).json({ success: true, message: 'Author deleted successfully' });
+  } catch (err) {
+    console.error('Error deleting author:', err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// Get deleted authors (Trash)
+app.get('/api/authors/trash/all', async (req, res) => {
+  try {
+    const authors = await allAsync('SELECT * FROM authors WHERE deletedAt IS NOT NULL ORDER BY deletedAt DESC');
+    res.status(200).json(authors);
+  } catch (err) {
+    console.error('Error fetching trash:', err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// Restore author
+app.put('/api/authors/:id/restore', async (req, res) => {
+  const { id } = req.params;
+  try {
+    await runAsync('UPDATE authors SET deletedAt = NULL WHERE id = ?', [id]);
+    res.status(200).json({ success: true, message: 'Author restored successfully' });
+  } catch (err) {
+    console.error('Error restoring author:', err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// Permanent delete author
+app.delete('/api/authors/:id/permanent', async (req, res) => {
+  const { id } = req.params;
+  try {
+    // 1. Get author to find images
+    const author = await getAsync('SELECT * FROM authors WHERE id = ?', [id]);
+    if (!author) {
+      return res.status(404).json({ success: false, message: 'Author not found' });
+    }
+
+    // 2. Delete images from filesystem
+    const imagesToDelete = [
+      author.avatar,
+      author.bannerImage
+    ].filter(Boolean);
+
+    for (const imagePath of imagesToDelete) {
+      deleteImageFile(imagePath);
+    }
+
+    // 3. Delete from database
+    await runAsync('DELETE FROM authors WHERE id = ?', [id]);
+
+    res.status(200).json({ success: true, message: 'Author permanently deleted' });
+  } catch (err) {
+    console.error('Error permanently deleting author:', err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
 app.listen(PORT, async () => {
   console.log(`Server running on http://localhost:${PORT}`);
   // Ensure default admin user exists (id 1) after server start

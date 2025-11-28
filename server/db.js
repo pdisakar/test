@@ -127,6 +127,32 @@ const init = () => {
     if (err) console.error('Error creating trip_fact_categories table:', err);
     else console.log('Trip fact categories table ready');
   });
+
+  const createAuthorsTableSQL = `
+    CREATE TABLE IF NOT EXISTS authors (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      fullName TEXT NOT NULL,
+      urlTitle TEXT NOT NULL,
+      slug TEXT NOT NULL UNIQUE,
+      email TEXT NOT NULL UNIQUE,
+      description TEXT,
+      avatar TEXT,
+      avatarCaption TEXT,
+      bannerImage TEXT,
+      metaTitle TEXT,
+      metaKeywords TEXT,
+      metaDescription TEXT,
+      status INTEGER DEFAULT 1,
+      deletedAt TEXT,
+      createdAt TEXT NOT NULL,
+      updatedAt TEXT NOT NULL
+    );
+  `;
+
+  db.run(createAuthorsTableSQL, (err) => {
+    if (err) console.error('Error creating authors table:', err);
+    else console.log('Authors table ready');
+  });
 };
 
 init();

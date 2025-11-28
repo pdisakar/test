@@ -14,6 +14,8 @@ interface FeaturedImageProps {
     helperText?: string;
     disabled?: boolean;
     required?: boolean;
+    hasAlt?: boolean;
+    hasCaption?: boolean;
 }
 
 export function FeaturedImage({
@@ -27,7 +29,9 @@ export function FeaturedImage({
     onCaptionChange,
     helperText,
     disabled = false,
-    required = false
+    required = false,
+    hasAlt = true,
+    hasCaption = true
 }: FeaturedImageProps) {
     const inputId = `${label.toLowerCase().replace(/\s+/g, '-')}-upload`;
 
@@ -103,31 +107,37 @@ export function FeaturedImage({
             </div>
 
             {/* Alt Text & Caption */}
-            <div className="grid grid-cols-1 gap-4">
-                <div className="group">
-                    <label className="block text-xs font-medium text-gray-500 mb-1.5 ml-1 uppercase tracking-wider">Alt Text</label>
-                    <input
-                        type="text"
-                        value={imageAlt}
-                        onChange={e => onAltChange(e.target.value)}
-                        placeholder="Describe the image for SEO..."
-                        className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:border-primary/50 focus:ring-4 focus:ring-primary/10 outline-none transition-all duration-300 placeholder:text-gray-400"
-                        disabled={disabled}
-                    />
-                </div>
+            {(hasAlt || hasCaption) && (
+                <div className="grid grid-cols-1 gap-4">
+                    {hasAlt && (
+                        <div className="group">
+                            <label className="block text-xs font-medium text-gray-500 mb-1.5 ml-1 uppercase tracking-wider">Alt Text</label>
+                            <input
+                                type="text"
+                                value={imageAlt}
+                                onChange={e => onAltChange(e.target.value)}
+                                placeholder="Describe the image for SEO..."
+                                className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:border-primary/50 focus:ring-4 focus:ring-primary/10 outline-none transition-all duration-300 placeholder:text-gray-400"
+                                disabled={disabled}
+                            />
+                        </div>
+                    )}
 
-                <div className="group">
-                    <label className="block text-xs font-medium text-gray-500 mb-1.5 ml-1 uppercase tracking-wider">Caption</label>
-                    <input
-                        type="text"
-                        value={imageCaption}
-                        onChange={e => onCaptionChange(e.target.value)}
-                        placeholder="Add a caption..."
-                        className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:border-primary/50 focus:ring-4 focus:ring-primary/10 outline-none transition-all duration-300 placeholder:text-gray-400"
-                        disabled={disabled}
-                    />
+                    {hasCaption && (
+                        <div className="group">
+                            <label className="block text-xs font-medium text-gray-500 mb-1.5 ml-1 uppercase tracking-wider">Caption</label>
+                            <input
+                                type="text"
+                                value={imageCaption}
+                                onChange={e => onCaptionChange(e.target.value)}
+                                placeholder="Add a caption..."
+                                className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:border-primary/50 focus:ring-4 focus:ring-primary/10 outline-none transition-all duration-300 placeholder:text-gray-400"
+                                disabled={disabled}
+                            />
+                        </div>
+                    )}
                 </div>
-            </div>
+            )}
         </div>
     );
 }
