@@ -137,6 +137,8 @@ export default function AddAuthorPage() {
     setSuccess('');
     setLoading(true);
 
+    const uploadedImagePaths: string[] = [];
+
     try {
       if (!formData.fullName || !formData.urlTitle || !formData.slug || !formData.email) {
         setError('Full Name, URL Title, Slug, and Email are required');
@@ -144,11 +146,14 @@ export default function AddAuthorPage() {
         return;
       }
 
+      const uploadedImagePaths: string[] = [];
+
       let avatarUrl = formData.avatar;
       if (formData.avatar && formData.avatar.startsWith('data:')) {
         const blob = await fetch(formData.avatar).then(r => r.blob());
         const file = new File([blob], 'avatar.jpg', { type: 'image/jpeg' });
         avatarUrl = await uploadImage(file);
+        uploadedImagePaths.push(avatarUrl);
       }
 
       let bannerUrl = formData.bannerImage;
@@ -156,6 +161,7 @@ export default function AddAuthorPage() {
         const blob = await fetch(formData.bannerImage).then(r => r.blob());
         const file = new File([blob], 'banner.jpg', { type: 'image/jpeg' });
         bannerUrl = await uploadImage(file);
+        uploadedImagePaths.push(bannerUrl);
       }
 
       const payload = {
@@ -192,9 +198,21 @@ export default function AddAuthorPage() {
         setShowSuccessModal(false);
         router.push('/authors');
       }, 1500);
-    } catch (err) {
+    } catch (err: any) {
       console.error('Error:', err);
       setError('An error occurred while creating the author');
+
+      // Cleanup uploaded images if an exception occurred
+      if (uploadedImagePaths.length > 0) {
+        console.log('Cleaning up uploaded images due to exception...');
+        await Promise.all(uploadedImagePaths.map(async (path: string) => {
+          try {
+            await deleteImage(path);
+          } catch (cleanupErr) {
+            console.error('Failed to cleanup image:', path, cleanupErr);
+          }
+        }));
+      }
     } finally {
       setLoading(false);
     }
@@ -228,67 +246,67 @@ export default function AddAuthorPage() {
               <p className="text-red-800 text-sm">{error}</p>
             </div>
           )}
-          
+
           <div className="bg-white rounded-xl shadow-sm border border-gray-100">
             <form onSubmit={handleSubmit} className="p-8">
               <div className="space-y-8">
-                
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {/* Full Name */}
                   <div className="md:col-span-2">
                     <label className="block text-sm font-medium text-gray-700 mb-2">Full Name <span className="text-red-500">*</span></label>
-                    <input 
-                      type="text" 
+                    <input
+                      type="text"
                       name="fullName"
-                      value={formData.fullName} 
-                      onChange={handleNameChange} 
-                      placeholder="e.g. John Doe" 
-                      className="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all" 
-                      required 
-                      disabled={loading} 
+                      value={formData.fullName}
+                      onChange={handleNameChange}
+                      placeholder="e.g. John Doe"
+                      className="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                      required
+                      disabled={loading}
                     />
                   </div>
 
                   {/* URL Title */}
                   <div className="md:col-span-2">
                     <label className="block text-sm font-medium text-gray-700 mb-2">URL Title <span className="text-red-500">*</span></label>
-                    <input 
-                      type="text" 
+                    <input
+                      type="text"
                       name="urlTitle"
-                      value={formData.urlTitle} 
-                      onChange={handleUrlTitleChange} 
-                      placeholder="e.g. john-doe-profile" 
-                      className="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all" 
-                      required 
-                      disabled={loading} 
+                      value={formData.urlTitle}
+                      onChange={handleUrlTitleChange}
+                      placeholder="e.g. john-doe-profile"
+                      className="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                      required
+                      disabled={loading}
                     />
                   </div>
 
                   {/* Slug (auto) */}
                   <div className="md:col-span-2">
                     <label className="block text-sm font-medium text-gray-700 mb-2">Slug</label>
-                    <input 
-                      type="text" 
-                      value={formData.slug} 
-                      readOnly 
+                    <input
+                      type="text"
+                      value={formData.slug}
+                      readOnly
                       placeholder="Auto-generated from URL Title"
-                      className="w-full px-4 py-2.5 rounded-lg bg-gray-100 border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all" 
-                      disabled 
+                      className="w-full px-4 py-2.5 rounded-lg bg-gray-100 border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                      disabled
                     />
                   </div>
 
                   {/* Email */}
                   <div className="md:col-span-2">
                     <label className="block text-sm font-medium text-gray-700 mb-2">E-mail <span className="text-red-500">*</span></label>
-                    <input 
-                      type="email" 
+                    <input
+                      type="email"
                       name="email"
-                      value={formData.email} 
-                      onChange={handleChange} 
-                      placeholder="e.g. john@example.com" 
-                      className="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all" 
-                      required 
-                      disabled={loading} 
+                      value={formData.email}
+                      onChange={handleChange}
+                      placeholder="e.g. john@example.com"
+                      className="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                      required
+                      disabled={loading}
                     />
                   </div>
 
@@ -313,35 +331,35 @@ export default function AddAuthorPage() {
                   <div className="space-y-6">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">Meta Title</label>
-                      <input 
-                        type="text" 
+                      <input
+                        type="text"
                         name="metaTitle"
-                        value={formData.metaTitle} 
-                        onChange={handleChange} 
+                        value={formData.metaTitle}
+                        onChange={handleChange}
                         placeholder="SEO Title"
-                        className="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all" 
+                        className="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
                       />
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">Meta Keywords</label>
-                      <input 
-                        type="text" 
+                      <input
+                        type="text"
                         name="metaKeywords"
-                        value={formData.metaKeywords} 
-                        onChange={handleChange} 
+                        value={formData.metaKeywords}
+                        onChange={handleChange}
                         placeholder="keyword1, keyword2, keyword3"
-                        className="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all" 
+                        className="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
                       />
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">Meta Description</label>
-                      <textarea 
+                      <textarea
                         name="metaDescription"
-                        value={formData.metaDescription} 
-                        onChange={handleChange} 
-                        rows={3} 
+                        value={formData.metaDescription}
+                        onChange={handleChange}
+                        rows={3}
                         placeholder="Brief description for search engines..."
-                        className="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all resize-none" 
+                        className="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all resize-none"
                       />
                     </div>
                   </div>
@@ -370,10 +388,8 @@ export default function AddAuthorPage() {
                     await deleteImage(formData.avatar);
                     setFormData(prev => ({ ...prev, avatar: '' }));
                   }}
-                  onAltChange={() => {}} 
+                  onAltChange={() => { }}
                   onCaptionChange={(cap) => setFormData(prev => ({ ...prev, avatarCaption: cap }))}
-                  hasAlt={false}
-                  hasCaption={true}
                 />
 
                 {/* Banner Image */}
@@ -393,10 +409,8 @@ export default function AddAuthorPage() {
                     await deleteImage(formData.bannerImage);
                     setFormData(prev => ({ ...prev, bannerImage: '' }));
                   }}
-                  onAltChange={() => {}}
-                  onCaptionChange={() => {}}
-                  hasAlt={false}
-                  hasCaption={false}
+                  onAltChange={() => { }}
+                  onCaptionChange={() => { }}
                 />
 
               </div>

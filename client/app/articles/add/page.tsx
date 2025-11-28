@@ -238,16 +238,21 @@ export default function AddArticlePage() {
     setSuccess('');
     if (!validateForm()) return;
     setLoading(true);
+
+    const uploadedImagePaths: string[] = [];
+
     try {
       // Upload images if they are base64
       let featuredImageUrl = formData.featuredImage;
       if (formData.featuredImage && formData.featuredImage.startsWith('data:')) {
         featuredImageUrl = await uploadImage(formData.featuredImage, 'featured');
+        uploadedImagePaths.push(featuredImageUrl);
       }
 
       let bannerImageUrl = formData.bannerImageUrl;
       if (formData.bannerImageUrl && formData.bannerImageUrl.startsWith('data:')) {
         bannerImageUrl = await uploadImage(formData.bannerImageUrl, 'banner');
+        uploadedImagePaths.push(bannerImageUrl);
       }
 
       // Prepare payload with correct field names
@@ -278,6 +283,18 @@ export default function AddArticlePage() {
       setShowSuccessModal(true);
     } catch (err: any) {
       setError(err.message || 'An error occurred while creating the article');
+
+      // Cleanup uploaded images if an exception occurred
+      if (uploadedImagePaths.length > 0) {
+        console.log('Cleaning up uploaded images due to exception...');
+        await Promise.all(uploadedImagePaths.map(async (path: string) => {
+          try {
+            await deleteImage(path);
+          } catch (cleanupErr) {
+            console.error('Failed to cleanup image:', path, cleanupErr);
+          }
+        }));
+      }
     } finally {
       setLoading(false);
     }

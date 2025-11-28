@@ -121,7 +121,7 @@ export function Sidebar({ className }: SidebarProps) {
           sub: [
             { label: "Add New", href: "/authors/add" },
             { label: "All Authors", href: "/authors" },
-            { label: "Deleted Authors", href: "/authors/deleted" }
+            { label: "Deleted Authors", href: "/authors/trash" }
           ]
         },
         {

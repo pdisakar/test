@@ -389,8 +389,6 @@ export default function EditAuthorPage() {
                   }}
                   onAltChange={() => { }}
                   onCaptionChange={(cap) => setFormData(prev => ({ ...prev, avatarCaption: cap }))}
-                  hasAlt={false}
-                  hasCaption={true}
                 />
 
                 {/* Banner Image */}
@@ -421,7 +419,6 @@ export default function EditAuthorPage() {
           </div>
         </div>
       </div>
-
       {/* Success Modal */}
       {showSuccessModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
