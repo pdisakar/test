@@ -5,7 +5,9 @@ import React, { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
+import { X } from 'lucide-react';
 import dynamic from 'next/dynamic';
+import { ImageCrop, ImageCropContent, ImageCropApply, ImageCropReset } from '@/components/ImageCrop';
 import { FeaturedImage } from '@/components/FeaturedImage';
 import { BannerImage } from '@/components/BannerImage';
 
@@ -39,6 +41,8 @@ export default function EditAuthorPage() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [selectedImageFile, setSelectedImageFile] = useState<File | null>(null);
+  const [showImageCrop, setShowImageCrop] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem('authToken');
@@ -51,7 +55,7 @@ export default function EditAuthorPage() {
       const res = await fetch(`http://localhost:3001/api/authors/${params.id}`);
       if (!res.ok) throw new Error('Failed to fetch author');
       const data = await res.json();
-      
+
       setFormData({
         fullName: data.fullName || '',
         urlTitle: data.urlTitle || '',
@@ -241,67 +245,67 @@ export default function EditAuthorPage() {
               <p className="text-red-800 text-sm">{error}</p>
             </div>
           )}
-          
+
           <div className="bg-white rounded-xl shadow-sm border border-gray-100">
             <form onSubmit={handleSubmit} className="p-8">
               <div className="space-y-8">
-                
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {/* Full Name */}
                   <div className="md:col-span-2">
                     <label className="block text-sm font-medium text-gray-700 mb-2">Full Name <span className="text-red-500">*</span></label>
-                    <input 
-                      type="text" 
+                    <input
+                      type="text"
                       name="fullName"
-                      value={formData.fullName} 
-                      onChange={handleNameChange} 
-                      placeholder="e.g. John Doe" 
-                      className="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all" 
-                      required 
-                      disabled={saving} 
+                      value={formData.fullName}
+                      onChange={handleNameChange}
+                      placeholder="e.g. John Doe"
+                      className="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                      required
+                      disabled={saving}
                     />
                   </div>
 
                   {/* URL Title */}
                   <div className="md:col-span-2">
                     <label className="block text-sm font-medium text-gray-700 mb-2">URL Title <span className="text-red-500">*</span></label>
-                    <input 
-                      type="text" 
+                    <input
+                      type="text"
                       name="urlTitle"
-                      value={formData.urlTitle} 
-                      onChange={handleUrlTitleChange} 
-                      placeholder="e.g. john-doe-profile" 
-                      className="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all" 
-                      required 
-                      disabled={saving} 
+                      value={formData.urlTitle}
+                      onChange={handleUrlTitleChange}
+                      placeholder="e.g. john-doe-profile"
+                      className="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                      required
+                      disabled={saving}
                     />
                   </div>
 
                   {/* Slug (auto) */}
                   <div className="md:col-span-2">
                     <label className="block text-sm font-medium text-gray-700 mb-2">Slug</label>
-                    <input 
-                      type="text" 
-                      value={formData.slug} 
-                      readOnly 
+                    <input
+                      type="text"
+                      value={formData.slug}
+                      readOnly
                       placeholder="Auto-generated from URL Title"
-                      className="w-full px-4 py-2.5 rounded-lg bg-gray-100 border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all" 
-                      disabled 
+                      className="w-full px-4 py-2.5 rounded-lg bg-gray-100 border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                      disabled
                     />
                   </div>
 
                   {/* Email */}
                   <div className="md:col-span-2">
                     <label className="block text-sm font-medium text-gray-700 mb-2">E-mail <span className="text-red-500">*</span></label>
-                    <input 
-                      type="email" 
+                    <input
+                      type="email"
                       name="email"
-                      value={formData.email} 
-                      onChange={handleChange} 
-                      placeholder="e.g. john@example.com" 
-                      className="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all" 
-                      required 
-                      disabled={saving} 
+                      value={formData.email}
+                      onChange={handleChange}
+                      placeholder="e.g. john@example.com"
+                      className="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                      required
+                      disabled={saving}
                     />
                   </div>
 
@@ -326,35 +330,35 @@ export default function EditAuthorPage() {
                   <div className="space-y-6">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">Meta Title</label>
-                      <input 
-                        type="text" 
+                      <input
+                        type="text"
                         name="metaTitle"
-                        value={formData.metaTitle} 
-                        onChange={handleChange} 
+                        value={formData.metaTitle}
+                        onChange={handleChange}
                         placeholder="SEO Title"
-                        className="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all" 
+                        className="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
                       />
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">Meta Keywords</label>
-                      <input 
-                        type="text" 
+                      <input
+                        type="text"
                         name="metaKeywords"
-                        value={formData.metaKeywords} 
-                        onChange={handleChange} 
+                        value={formData.metaKeywords}
+                        onChange={handleChange}
                         placeholder="keyword1, keyword2, keyword3"
-                        className="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all" 
+                        className="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
                       />
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">Meta Description</label>
-                      <textarea 
+                      <textarea
                         name="metaDescription"
-                        value={formData.metaDescription} 
-                        onChange={handleChange} 
-                        rows={3} 
+                        value={formData.metaDescription}
+                        onChange={handleChange}
+                        rows={3}
                         placeholder="Brief description for search engines..."
-                        className="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all resize-none" 
+                        className="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all resize-none"
                       />
                     </div>
                   </div>
@@ -376,17 +380,14 @@ export default function EditAuthorPage() {
                   imageAlt=""
                   imageCaption={formData.avatarCaption}
                   onImageSelect={(file) => {
-                    const reader = new FileReader();
-                    reader.onloadend = () => {
-                      setFormData(prev => ({ ...prev, avatar: reader.result as string }));
-                    };
-                    reader.readAsDataURL(file);
+                    setSelectedImageFile(file);
+                    setShowImageCrop(true);
                   }}
                   onImageRemove={async () => {
                     await deleteImage(formData.avatar);
                     setFormData(prev => ({ ...prev, avatar: '' }));
                   }}
-                  onAltChange={() => {}} 
+                  onAltChange={() => { }}
                   onCaptionChange={(cap) => setFormData(prev => ({ ...prev, avatarCaption: cap }))}
                   hasAlt={false}
                   hasCaption={true}
@@ -409,8 +410,8 @@ export default function EditAuthorPage() {
                     await deleteImage(formData.bannerImage);
                     setFormData(prev => ({ ...prev, bannerImage: '' }));
                   }}
-                  onAltChange={() => {}}
-                  onCaptionChange={() => {}}
+                  onAltChange={() => { }}
+                  onCaptionChange={() => { }}
                   hasAlt={false}
                   hasCaption={false}
                 />
@@ -442,6 +443,54 @@ export default function EditAuthorPage() {
                 OK
               </Button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Image Crop Modal */}
+      {showImageCrop && selectedImageFile && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg max-w-2xl w-full p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold">Crop Avatar</h3>
+              <button
+                onClick={() => {
+                  setShowImageCrop(false);
+                  setSelectedImageFile(null);
+                }}
+                className="p-1 hover:bg-gray-100 rounded"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            <ImageCrop
+              file={selectedImageFile}
+              onCrop={async (croppedImage) => {
+                try {
+                  setFormData({ ...formData, avatar: croppedImage });
+                  setShowImageCrop(false);
+                  setSelectedImageFile(null);
+                } catch (err) {
+                  setError('Failed to process image. Please try again.');
+                  setShowImageCrop(false);
+                  setSelectedImageFile(null);
+                }
+              }}
+            >
+              <div className="space-y-4">
+                <ImageCropContent className="border border-gray-200 rounded" />
+                <div className="flex gap-2 justify-end">
+                  <ImageCropReset asChild>
+                    <Button variant="outline" type="button">
+                      Reset
+                    </Button>
+                  </ImageCropReset>
+                  <ImageCropApply asChild>
+                    <Button type="button">Apply Crop</Button>
+                  </ImageCropApply>
+                </div>
+              </div>
+            </ImageCrop>
           </div>
         </div>
       )}

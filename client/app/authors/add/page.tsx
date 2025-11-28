@@ -5,7 +5,9 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
+import { X } from 'lucide-react';
 import dynamic from 'next/dynamic';
+import { ImageCrop, ImageCropContent, ImageCropApply, ImageCropReset } from '@/components/ImageCrop';
 import { FeaturedImage } from '@/components/FeaturedImage';
 import { BannerImage } from '@/components/BannerImage';
 
@@ -38,6 +40,8 @@ export default function AddAuthorPage() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [selectedImageFile, setSelectedImageFile] = useState<File | null>(null);
+  const [showImageCrop, setShowImageCrop] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem('authToken');
@@ -359,11 +363,8 @@ export default function AddAuthorPage() {
                   imageAlt=""
                   imageCaption={formData.avatarCaption}
                   onImageSelect={(file) => {
-                    const reader = new FileReader();
-                    reader.onloadend = () => {
-                      setFormData(prev => ({ ...prev, avatar: reader.result as string }));
-                    };
-                    reader.readAsDataURL(file);
+                    setSelectedImageFile(file);
+                    setShowImageCrop(true);
                   }}
                   onImageRemove={async () => {
                     await deleteImage(formData.avatar);
@@ -425,6 +426,54 @@ export default function AddAuthorPage() {
                 OK
               </Button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Image Crop Modal */}
+      {showImageCrop && selectedImageFile && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg max-w-2xl w-full p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold">Crop Avatar</h3>
+              <button
+                onClick={() => {
+                  setShowImageCrop(false);
+                  setSelectedImageFile(null);
+                }}
+                className="p-1 hover:bg-gray-100 rounded"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            <ImageCrop
+              file={selectedImageFile}
+              onCrop={async (croppedImage) => {
+                try {
+                  setFormData({ ...formData, avatar: croppedImage });
+                  setShowImageCrop(false);
+                  setSelectedImageFile(null);
+                } catch (err) {
+                  setError('Failed to process image. Please try again.');
+                  setShowImageCrop(false);
+                  setSelectedImageFile(null);
+                }
+              }}
+            >
+              <div className="space-y-4">
+                <ImageCropContent className="border border-gray-200 rounded" />
+                <div className="flex gap-2 justify-end">
+                  <ImageCropReset asChild>
+                    <Button variant="outline" type="button">
+                      Reset
+                    </Button>
+                  </ImageCropReset>
+                  <ImageCropApply asChild>
+                    <Button type="button">Apply Crop</Button>
+                  </ImageCropApply>
+                </div>
+              </div>
+            </ImageCrop>
           </div>
         </div>
       )}

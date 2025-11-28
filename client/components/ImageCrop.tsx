@@ -133,7 +133,7 @@ export type ImageCropProps = {
     onComplete?: ReactCropProps['onComplete'];
 } & Omit<ReactCropProps, 'onChange' | 'onComplete' | 'children'>;
 
-export const DEFAULT_ASPECT_RATIO = 7 / 5;
+export const DEFAULT_ASPECT_RATIO = 5 / 7;
 
 export const ImageCrop = ({
     file,
