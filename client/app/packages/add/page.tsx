@@ -166,6 +166,7 @@ export default function AddPackagePage() {
 
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showDiscardConfirm, setShowDiscardConfirm] = useState(false);
 
   // Image Crop State
   const [showImageCrop, setShowImageCrop] = useState(false);
@@ -689,12 +690,57 @@ export default function AddPackagePage() {
 
 
   const handleNext = () => {
-    // Validation for Step 1
-    if (currentStep === 1 && !formData.packageTitle) {
-      setError('Package Title is required');
-      return;
-    }
     setError('');
+
+    // Validation for Step 1
+    if (currentStep === 1) {
+      if (!formData.packageTitle) {
+        setError('Package Title is required');
+        return;
+      }
+      if (!formData.urlTitle) {
+        setError('URL Title is required');
+        return;
+      }
+      if (!formData.slug) {
+        setError('Slug is required');
+        return;
+      }
+      if (!formData.durationValue) {
+        setError('Package Duration is required');
+        return;
+      }
+      if (formData.placeIds.length === 0) {
+        setError('At least one Place is required');
+        return;
+      }
+      if (groupPriceEnabled) {
+        if (groupPrices.length === 0) {
+          setError('At least one Group Price is required');
+          return;
+        }
+        // Check if any group price fields are empty
+        const invalidGroupPrice = groupPrices.find(gp => !gp.minPerson || !gp.maxPerson || !gp.price);
+        if (invalidGroupPrice) {
+          setError('All fields (Min Person, Max Person, Price) are required for Group Prices');
+          return;
+        }
+      } else {
+        if (!formData.price) {
+          setError('Price is required');
+          return;
+        }
+      }
+    }
+
+    // Validation for Step 2
+    if (currentStep === 2) {
+      if (!formData.metaTitle) {
+        setError('Meta Title is required');
+        return;
+      }
+    }
+
     setCurrentStep(prev => prev + 1);
     window.scrollTo(0, 0);
   };
@@ -706,9 +752,12 @@ export default function AddPackagePage() {
   };
 
   const handleDiscard = () => {
-    if (confirm('Are you sure you want to discard changes?')) {
-      router.push('/packages');
-    }
+    setShowDiscardConfirm(true);
+  };
+
+  const handleConfirmDiscard = () => {
+    setShowDiscardConfirm(false);
+    router.push('/packages');
   };
 
   return (
@@ -738,7 +787,7 @@ export default function AddPackagePage() {
                   Back
                 </Button>
               )}
-              {currentStep < 7 ? (
+              {currentStep < 8 ? (
                 <Button
                   type="button"
                   onClick={handleNext}
@@ -801,7 +850,7 @@ export default function AddPackagePage() {
 
                     <div>
                       <label htmlFor="urlTitle" className="block text-sm font-medium text-gray-700 mb-2">
-                        URL Title
+                        URL Title <span className="text-red-500">*</span>
                       </label>
                       <input
                         type="text"
@@ -815,7 +864,7 @@ export default function AddPackagePage() {
 
                     <div>
                       <label htmlFor="slug" className="block text-sm font-medium text-gray-700 mb-2">
-                        Slug
+                        Slug <span className="text-red-500">*</span>
                       </label>
                       <input
                         type="text"
@@ -835,7 +884,7 @@ export default function AddPackagePage() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Package Durations
+                        Package Durations <span className="text-red-500">*</span>
                       </label>
                       <div className="flex gap-4">
                         <input
@@ -860,7 +909,7 @@ export default function AddPackagePage() {
 
                     <div>
                       <label htmlFor="placeId" className="block text-sm font-medium text-gray-700 mb-2">
-                        Package Place
+                        Package Place <span className="text-red-500">*</span>
                       </label>
                       <div
                         className="border border-gray-200 rounded-lg bg-white cursor-pointer"
@@ -1017,7 +1066,7 @@ export default function AddPackagePage() {
                   {!groupPriceEnabled && (
                     <div className="mt-6">
                       <label htmlFor="price" className="block text-sm font-medium text-gray-700 mb-2">
-                        Price
+                        Price <span className="text-red-500">*</span>
                       </label>
                       <input
                         type="number"
@@ -1032,6 +1081,45 @@ export default function AddPackagePage() {
                   )}
                 </div>
 
+                {/* Tour Status */}
+                <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                  <h2 className="text-xl font-semibold text-gray-900 mb-6">Tour Status</h2>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {/* Status Toggle */}
+                    <div>
+                      <label className="block text-sm font-bold text-gray-700 mb-3 uppercase">Status</label>
+                      <div className="flex items-center gap-3 h-[42px]">
+                        <Switch
+                          checked={status}
+                          onCheckedChange={setStatus}
+                        />
+                        <span className="text-sm text-gray-600">
+                          {status ? 'Publish' : 'Draft'}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Featured Toggle */}
+                    <div>
+                      <label className="block text-sm font-bold text-gray-700 mb-3 uppercase">Is Featured?</label>
+                      <div className="flex items-center gap-3 h-[42px]">
+                        <Switch
+                          checked={featured}
+                          onCheckedChange={setFeatured}
+                        />
+                        <span className="text-sm text-gray-600">
+                          {featured ? 'Yes' : 'No'}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </>
+            )}
+
+            {/* Step 2 Content: Meta & Introduction */}
+            {currentStep === 2 && (
+              <>
                 {/* Meta */}
                 <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
                   <h2 className="text-xl font-semibold text-gray-900 mb-6">Meta</h2>
@@ -1097,45 +1185,11 @@ export default function AddPackagePage() {
                     </div>
                   </div>
                 </div>
-
-                {/* Tour Status */}
-                <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-                  <h2 className="text-xl font-semibold text-gray-900 mb-6">Tour Status</h2>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {/* Status Toggle */}
-                    <div>
-                      <label className="block text-sm font-bold text-gray-700 mb-3 uppercase">Status</label>
-                      <div className="flex items-center gap-3 h-[42px]">
-                        <Switch
-                          checked={status}
-                          onCheckedChange={setStatus}
-                        />
-                        <span className="text-sm text-gray-600">
-                          {status ? 'Publish' : 'Draft'}
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Featured Toggle */}
-                    <div>
-                      <label className="block text-sm font-bold text-gray-700 mb-3 uppercase">Is Featured?</label>
-                      <div className="flex items-center gap-3 h-[42px]">
-                        <Switch
-                          checked={featured}
-                          onCheckedChange={setFeatured}
-                        />
-                        <span className="text-sm text-gray-600">
-                          {featured ? 'Yes' : 'No'}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
               </>
             )}
 
-            {/* Step 2 Content */}
-            {currentStep === 2 && (
+            {/* Step 3 Content */}
+            {currentStep === 3 && (
               <>
                 {/* Cost Include */}
                 <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
@@ -1171,8 +1225,8 @@ export default function AddPackagePage() {
 
 
 
-            {/* Step 3 Content: Images & Gallery */}
-            {currentStep === 3 && (
+            {/* Step 4 Content: Images & Gallery */}
+            {currentStep === 4 && (
               <>
                 {/* Featured Image */}
                 <FeaturedImage
@@ -1269,8 +1323,8 @@ export default function AddPackagePage() {
               </>
             )}
 
-            {/* Step 4 Content: Trip Facts & Highlights */}
-            {currentStep === 4 && (
+            {/* Step 5 Content: Trip Facts & Highlights */}
+            {currentStep === 5 && (
               <>
                 {/* Trip Facts */}
                 <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
@@ -1368,8 +1422,8 @@ export default function AddPackagePage() {
               </>
             )}
 
-            {/* Step 5 Content: Departure Note & Good to Know */}
-            {currentStep === 5 && (
+            {/* Step 6 Content: Departure Note & Good To Know */}
+            {currentStep === 6 && (
               <>
                 {/* Departure Note */}
                 <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
@@ -1403,8 +1457,8 @@ export default function AddPackagePage() {
               </>
             )}
 
-            {/* Step 6 Content: Extra FAQs & Related Trip */}
-            {currentStep === 6 && (
+            {/* Step 7 Content: Extra FAQs & Related Trip */}
+            {currentStep === 7 && (
               <>
                 {/* Extra FAQs */}
                 <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
@@ -1441,8 +1495,8 @@ export default function AddPackagePage() {
               </>
             )}
 
-            {/* Step 7 Content: Itinerary Management */}
-            {currentStep === 7 && (
+            {/* Step 8 Content: Itinerary */}
+            {currentStep === 8 && (
               <div className="space-y-6">
                 <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
                   <div className="flex justify-between items-center mb-6">
@@ -1787,6 +1841,33 @@ export default function AddPackagePage() {
                 </div>
               </div>
             </ImageCrop>
+          </div>
+        </div>
+      )}
+
+      {/* Discard Confirmation Dialog */}
+      {showDiscardConfirm && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl shadow-2xl p-6 max-w-md w-full mx-4">
+            <h3 className="text-xl font-bold text-gray-900 mb-4">Confirm Discard</h3>
+            <p className="text-gray-600 mb-6">
+              Are you sure you want to discard all changes? This action cannot be undone.
+            </p>
+            <div className="flex items-center gap-3 justify-end">
+              <Button
+                onClick={() => setShowDiscardConfirm(false)}
+                variant="outline"
+                className="px-6 py-2 border-gray-300 text-gray-700 hover:bg-gray-50"
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={handleConfirmDiscard}
+                className="px-6 py-2 bg-red-600 hover:bg-red-700 text-white"
+              >
+                Discard
+              </Button>
+            </div>
           </div>
         </div>
       )}

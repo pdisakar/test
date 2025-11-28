@@ -13,6 +13,7 @@ interface FeaturedImageProps {
     onCaptionChange: (value: string) => void;
     helperText?: string;
     disabled?: boolean;
+    required?: boolean;
 }
 
 export function FeaturedImage({
@@ -25,7 +26,8 @@ export function FeaturedImage({
     onAltChange,
     onCaptionChange,
     helperText,
-    disabled = false
+    disabled = false,
+    required = false
 }: FeaturedImageProps) {
     const inputId = `${label.toLowerCase().replace(/\s+/g, '-')}-upload`;
 
@@ -42,7 +44,7 @@ export function FeaturedImage({
             <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
                     <ImageIcon className="w-4 h-4 text-primary" />
-                    {label}
+                    {label} {required && <span className="text-red-500">*</span>}
                 </label>
                 <div className="space-y-3">
                     {imageUrl ? (
