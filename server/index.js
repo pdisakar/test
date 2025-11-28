@@ -1601,6 +1601,14 @@ app.delete('/api/packages/:id/permanent', async (req, res) => {
       deleteImageFile(imagePath);
     }
 
+    // 2.1 Delete gallery images from filesystem
+    const galleryImages = await allAsync('SELECT imageUrl FROM package_gallery WHERE packageId = ?', [id]);
+    if (galleryImages && galleryImages.length > 0) {
+      for (const img of galleryImages) {
+        deleteImageFile(img.imageUrl);
+      }
+    }
+
     // 3. Delete from database (Cascade should handle related tables)
     await runAsync('DELETE FROM packages WHERE id = ?', [id]);
 
