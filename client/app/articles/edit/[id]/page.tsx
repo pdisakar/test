@@ -57,6 +57,7 @@ export default function EditArticlePage() {
   const [success, setSuccess] = useState('');
   const [selectedImageFile, setSelectedImageFile] = useState<File | null>(null);
   const [showImageCrop, setShowImageCrop] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [showAccordion, setShowAccordion] = useState(false);
   const [expandedParents, setExpandedParents] = useState<Set<number>>(new Set());
   const [parentOptions, setParentOptions] = useState<Article[]>([]);
@@ -270,6 +271,11 @@ export default function EditArticlePage() {
     return true;
   };
 
+  const handleCloseSuccessModal = () => {
+    setShowSuccessModal(false);
+    router.push('/articles');
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
@@ -312,10 +318,7 @@ export default function EditArticlePage() {
         throw new Error(data.message || 'Failed to update article');
       }
 
-      setSuccess('Article updated successfully!');
-      setTimeout(() => {
-        router.push('/articles');
-      }, 1000);
+      setShowSuccessModal(true);
     } catch (err: any) {
       setError(err.message || 'An error occurred while updating the article');
     } finally {
@@ -593,6 +596,32 @@ export default function EditArticlePage() {
                 </div>
               </div>
             </ImageCrop>
+          </div>
+        </div>
+      )}
+
+
+      {/* Success Modal */}
+      {showSuccessModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl shadow-2xl p-6 max-w-md w-full mx-4">
+            <div className="flex flex-col items-center text-center">
+              <div className="h-12 w-12 bg-green-100 rounded-full flex items-center justify-center mb-4">
+                <svg className="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">Success!</h3>
+              <p className="text-gray-600 mb-6">
+                Article has been updated successfully.
+              </p>
+              <Button
+                onClick={handleCloseSuccessModal}
+                className="px-8 py-2 bg-primary hover:bg-primary/90 text-white w-full"
+              >
+                OK
+              </Button>
+            </div>
           </div>
         </div>
       )}

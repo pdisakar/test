@@ -107,6 +107,7 @@ export default function EditPackagePage() {
   const [fetchingData, setFetchingData] = useState(true);
   const [loading, setLoading] = useState(false);
   const [showDiscardConfirm, setShowDiscardConfirm] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   // Form state
   const [formData, setFormData] = useState<FormData>({
@@ -654,8 +655,13 @@ export default function EditPackagePage() {
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleCloseSuccessModal = () => {
+    setShowSuccessModal(false);
+    router.push('/packages');
+  };
+
+  const handleSubmit = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
     setError('');
     setLoading(true);
 
@@ -772,8 +778,7 @@ export default function EditPackagePage() {
       const data = await res.json();
 
       if (res.ok) {
-        alert('Package updated successfully!');
-        router.push('/packages');
+        setShowSuccessModal(true);
       } else {
         setError(data.message || `Failed to update package: ${res.status} ${res.statusText}`);
       }
@@ -899,6 +904,7 @@ export default function EditPackagePage() {
 
               {currentStep < 8 ? (
                 <Button
+                  key="next-btn"
                   type="button"
                   onClick={handleNext}
                   className="px-6 py-2 bg-primary hover:bg-primary/90 text-white"
@@ -907,8 +913,9 @@ export default function EditPackagePage() {
                 </Button>
               ) : (
                 <Button
-                  type="submit"
-                  form="package-form"
+                  key="update-btn"
+                  type="button"
+                  onClick={() => handleSubmit()}
                   className="px-6 py-2 bg-primary hover:bg-primary/90 text-white"
                   disabled={loading}
                 >
@@ -1297,14 +1304,14 @@ export default function EditPackagePage() {
                   <h2 className="text-xl font-semibold text-gray-900 mb-6 uppercase">Cost Include</h2>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Cost Includes - Default Design
-                      </label>
-                      <RichTextEditor
-                        content={formData.costInclude}
-                        onChange={(content) => setFormData(prev => ({ ...prev, costInclude: content }))}
-                        placeholder="Write cost includes..."
-                      />
-                    </div>
+                      Cost Includes - Default Design
+                    </label>
+                    <RichTextEditor
+                      content={formData.costInclude}
+                      onChange={(content) => setFormData(prev => ({ ...prev, costInclude: content }))}
+                      placeholder="Write cost includes..."
+                    />
+                  </div>
                 </div>
 
                 {/* Cost Exclude */}
@@ -1425,7 +1432,7 @@ export default function EditPackagePage() {
             )}
 
             {/* Step 4 Content: Trip Facts & Highlights */}
-            {currentStep === 4 && (
+            {currentStep === 5 && (
               <>
                 {/* Trip Facts */}
                 <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
@@ -1524,7 +1531,7 @@ export default function EditPackagePage() {
             )}
 
             {/* Step 5 Content: Departure Note & Good to Know */}
-            {currentStep === 5 && (
+            {currentStep === 6 && (
               <>
                 {/* Departure Note */}
                 <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
@@ -1559,7 +1566,7 @@ export default function EditPackagePage() {
             )}
 
             {/* Step 6 Content: Extra FAQs & Related Trip */}
-            {currentStep === 6 && (
+            {currentStep === 7 && (
               <>
                 {/* Extra FAQs */}
                 <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
@@ -1597,7 +1604,7 @@ export default function EditPackagePage() {
             )}
 
             {/* Step 7 Content: Itinerary Management */}
-            {currentStep === 7 && (
+            {currentStep === 8 && (
               <div className="space-y-6">
                 <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
                   <div className="flex justify-between items-center mb-6">
@@ -1896,82 +1903,112 @@ export default function EditPackagePage() {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg max-w-2xl w-full p-6">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold">Crop Image</h3>
-              <button
-                onClick={() => {
-                  setShowImageCrop(false);
-                  setSelectedImageFile(null);
-                }}
-                className="p-1 hover:bg-gray-100 rounded"
-              >
-                <X className="h-5 w-5" />
-              </button>
-            </div>
-
-            <ImageCrop
-              file={selectedImageFile!}
-              onCrop={(croppedImage) => {
-                if (imageCropType === 'featured') {
-                  setFormData(prev => ({
-                    ...prev,
-                    featuredImage: selectedImageFile,
-                    featuredImagePreview: croppedImage
-                  }));
-                } else if (imageCropType === 'tripMap') {
-                  setFormData(prev => ({
-                    ...prev,
-                    tripMapImage: selectedImageFile,
-                    tripMapImagePreview: croppedImage
-                  }));
-                }
-                setShowImageCrop(false);
-                setSelectedImageFile(null);
-              }}
-            >
-              <div className="space-y-4">
-                <ImageCropContent className="border border-gray-200 rounded" />
-                <div className="flex gap-2 justify-end">
-                  <ImageCropReset asChild>
-                    <Button variant="outline" type="button">
-                      Reset
-                    </Button>
-                  </ImageCropReset>
-                  <ImageCropApply asChild>
-                    <Button type="button">Apply Crop</Button>
-                  </ImageCropApply>
-                </div>
-              </div>
-            </ImageCrop>
-          </div>
+          <h3 className="text-lg font-semibold">Crop Image</h3>
+          <button
+            onClick={() => {
+              setShowImageCrop(false);
+              setSelectedImageFile(null);
+            }}
+            className="p-1 hover:bg-gray-100 rounded"
+          >
+            <X className="h-5 w-5" />
+          </button>
         </div>
-      )}
 
-      {/* Discard Confirmation Dialog */}
-      {showDiscardConfirm && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-xl shadow-2xl p-6 max-w-md w-full mx-4">
-            <h3 className="text-xl font-bold text-gray-900 mb-4">Confirm Discard</h3>
-            <p className="text-gray-600 mb-6">
-              Are you sure you want to discard all changes? This action cannot be undone.
-            </p>
-            <div className="flex items-center gap-3 justify-end">
-              <Button
-                onClick={() => setShowDiscardConfirm(false)}
-                variant="outline"
-                className="px-6 py-2 border-gray-300 text-gray-700 hover:bg-gray-50"
-              >
-                Cancel
-              </Button>
-              <Button
-                onClick={handleConfirmDiscard}
-                className="px-6 py-2 bg-red-600 hover:bg-red-700 text-white"
-              >
-                Discard
-              </Button>
+        <ImageCrop
+          file={selectedImageFile!}
+          onCrop={(croppedImage) => {
+            if (imageCropType === 'featured') {
+              setFormData(prev => ({
+                ...prev,
+                featuredImage: selectedImageFile,
+                featuredImagePreview: croppedImage
+              }));
+            } else if (imageCropType === 'tripMap') {
+              setFormData(prev => ({
+                ...prev,
+                tripMapImage: selectedImageFile,
+                tripMapImagePreview: croppedImage
+              }));
+            }
+            setShowImageCrop(false);
+            setSelectedImageFile(null);
+          }}
+        >
+          <div className="space-y-4">
+            <ImageCropContent className="border border-gray-200 rounded" />
+            <div className="flex gap-2 justify-end">
+              <ImageCropReset asChild>
+                <Button variant="outline" type="button">
+                  Reset
+                </Button>
+              </ImageCropReset>
+              <ImageCropApply asChild>
+                <Button type="button">Apply Crop</Button>
+              </ImageCropApply>
             </div>
           </div>
-        </div>
-      )}
+        </ImageCrop>
+      </div>
     </div>
+  )
+}
+
+{/* Discard Confirmation Dialog */ }
+{
+  showDiscardConfirm && (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+      <div className="bg-white rounded-xl shadow-2xl p-6 max-w-md w-full mx-4">
+        <h3 className="text-xl font-bold text-gray-900 mb-4">Confirm Discard</h3>
+        <p className="text-gray-600 mb-6">
+          Are you sure you want to discard all changes? This action cannot be undone.
+        </p>
+        <div className="flex items-center gap-3 justify-end">
+          <Button
+            onClick={() => setShowDiscardConfirm(false)}
+            variant="outline"
+            className="px-6 py-2 border-gray-300 text-gray-700 hover:bg-gray-50"
+          >
+            Cancel
+          </Button>
+          <Button
+            onClick={handleConfirmDiscard}
+            className="px-6 py-2 bg-red-600 hover:bg-red-700 text-white"
+          >
+            Discard
+          </Button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+{/* Success Modal */ }
+{
+  showSuccessModal && (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+      <div className="bg-white rounded-xl shadow-2xl p-6 max-w-md w-full mx-4">
+        <div className="flex flex-col items-center text-center">
+          <div className="h-12 w-12 bg-green-100 rounded-full flex items-center justify-center mb-4">
+            <svg className="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            </svg>
+          </div>
+          <h3 className="text-xl font-bold text-gray-900 mb-2">Success!</h3>
+          <p className="text-gray-600 mb-6">
+            Package has been updated successfully.
+          </p>
+          <Button
+            onClick={handleCloseSuccessModal}
+            className="px-8 py-2 bg-primary hover:bg-primary/90 text-white w-full"
+          >
+            OK
+          </Button>
+        </div>
+      </div>
+    </div>
+  )
+}
+    </div >
   );
 }
