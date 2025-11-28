@@ -1840,6 +1840,237 @@ app.delete('/api/authors/:id/permanent', async (req, res) => {
   }
 });
 
+// ========================
+// BLOGS API ENDPOINTS
+// ========================
+
+// Get all active blogs
+app.get('/api/blogs', async (req, res) => {
+  try {
+    const blogs = await allAsync('SELECT * FROM blogs WHERE deletedAt IS NULL ORDER BY createdAt DESC');
+    res.json(blogs);
+  } catch (err) {
+    console.error('Error fetching blogs:', err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// Get blogs trash (must be before /:id route)
+app.get('/api/blogs/trash', async (req, res) => {
+  try {
+    const blogs = await allAsync('SELECT * FROM blogs WHERE deletedAt IS NOT NULL ORDER BY deletedAt DESC');
+    res.json(blogs);
+  } catch (err) {
+    console.error('Error fetching blogs trash:', err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// Get single blog
+app.get('/api/blogs/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    const blog = await getAsync('SELECT * FROM blogs WHERE id = ?', [id]);
+    if (!blog) {
+      return res.status(404).json({ success: false, message: 'Blog not found' });
+    }
+    res.json({ success: true, blog });
+  } catch (err) {
+    console.error('Error fetching blog:', err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// Create new blog
+app.post('/api/blogs', async (req, res) => {
+  const {
+    title, urlTitle, slug, authorId, publishedDate,
+    status, isFeatured, abstract, description,
+    metaTitle, metaKeywords, metaDescription,
+    featuredImage, featuredImageAlt, featuredImageCaption,
+    bannerImage, bannerImageAlt, bannerImageCaption
+  } = req.body;
+
+  if (!title || !urlTitle || !slug) {
+    return res.status(400).json({ success: false, message: 'Title, URL Title, and Slug are required' });
+  }
+
+  try {
+    const existing = await getAsync('SELECT id FROM blogs WHERE slug = ?', [slug]);
+    if (existing) {
+      return res.status(400).json({ success: false, message: 'Slug already exists' });
+    }
+
+    const now = new Date().toISOString();
+    const result = await runAsync(
+      `INSERT INTO blogs (
+        title, urlTitle, slug, authorId, publishedDate,
+        status, isFeatured, abstract, description,
+        metaTitle, metaKeywords, metaDescription,
+        featuredImage, featuredImageAlt, featuredImageCaption,
+        bannerImage, bannerImageAlt, bannerImageCaption,
+        createdAt, updatedAt
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        title, urlTitle, slug, authorId || null, publishedDate,
+        status ? 1 : 0, isFeatured ? 1 : 0, abstract, description,
+        metaTitle, metaKeywords, metaDescription,
+        featuredImage, featuredImageAlt, featuredImageCaption,
+        bannerImage, bannerImageAlt, bannerImageCaption,
+        now, now
+      ]
+    );
+
+    res.status(201).json({
+      success: true,
+      message: 'Blog created successfully',
+      blogId: result.lastID
+    });
+  } catch (err) {
+    console.error('Error creating blog:', err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// Update blog
+app.put('/api/blogs/:id', async (req, res) => {
+  const { id } = req.params;
+  const {
+    title, urlTitle, slug, authorId, publishedDate,
+    status, isFeatured, abstract, description,
+    metaTitle, metaKeywords, metaDescription,
+    featuredImage, featuredImageAlt, featuredImageCaption,
+    bannerImage, bannerImageAlt, bannerImageCaption
+  } = req.body;
+
+  try {
+    const existingBlog = await getAsync('SELECT * FROM blogs WHERE id = ?', [id]);
+    if (!existingBlog) {
+      return res.status(404).json({ success: false, message: 'Blog not found' });
+    }
+
+    if (slug !== existingBlog.slug) {
+      const slugCheck = await getAsync('SELECT id FROM blogs WHERE slug = ? AND id != ?', [slug, id]);
+      if (slugCheck) {
+        return res.status(400).json({ success: false, message: 'Slug already exists' });
+      }
+    }
+
+    // Delete old images if replaced
+    if (featuredImage && featuredImage !== existingBlog.featuredImage) {
+      deleteImageFile(existingBlog.featuredImage);
+    }
+    if (bannerImage && bannerImage !== existingBlog.bannerImage) {
+      deleteImageFile(existingBlog.bannerImage);
+    }
+
+    const now = new Date().toISOString();
+    await runAsync(
+      `UPDATE blogs SET
+        title = ?, urlTitle = ?, slug = ?, authorId = ?, publishedDate = ?,
+        status = ?, isFeatured = ?, abstract = ?, description = ?,
+        metaTitle = ?, metaKeywords = ?, metaDescription = ?,
+        featuredImage = ?, featuredImageAlt = ?, featuredImageCaption = ?,
+        bannerImage = ?, bannerImageAlt = ?, bannerImageCaption = ?,
+        updatedAt = ?
+      WHERE id = ?`,
+      [
+        title, urlTitle, slug, authorId || null, publishedDate,
+        status ? 1 : 0, isFeatured ? 1 : 0, abstract, description,
+        metaTitle, metaKeywords, metaDescription,
+        featuredImage, featuredImageAlt, featuredImageCaption,
+        bannerImage, bannerImageAlt, bannerImageCaption,
+        now, id
+      ]
+    );
+
+    res.status(200).json({ success: true, message: 'Blog updated successfully' });
+  } catch (err) {
+    console.error('Error updating blog:', err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// Soft delete blog
+app.delete('/api/blogs/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    const now = new Date().toISOString();
+    await runAsync('UPDATE blogs SET deletedAt = ? WHERE id = ?', [now, id]);
+    res.json({ success: true, message: 'Blog moved to trash' });
+  } catch (err) {
+    console.error('Error deleting blog:', err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// Bulk Soft Delete Blogs
+app.post('/api/blogs/bulk-delete', async (req, res) => {
+  const { ids } = req.body;
+  if (!ids || !Array.isArray(ids) || ids.length === 0) return res.status(400).json({ success: false, message: 'No IDs provided' });
+
+  try {
+    const now = new Date().toISOString();
+    const placeholders = ids.map(() => '?').join(',');
+    
+    const result = await runAsync(`UPDATE blogs SET deletedAt = ? WHERE id IN (${placeholders})`, [now, ...ids]);
+    res.status(200).json({ success: true, message: `${result.changes} blogs moved to trash` });
+  } catch (err) {
+    console.error('Error bulk deleting blogs:', err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// Restore single blog
+app.post('/api/blogs/:id/restore', async (req, res) => {
+  const { id } = req.params;
+  try {
+    await runAsync('UPDATE blogs SET deletedAt = NULL WHERE id = ?', [id]);
+    res.json({ success: true, message: 'Blog restored' });
+  } catch (err) {
+    console.error('Error restoring blog:', err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// Bulk Restore Blogs
+app.post('/api/blogs/bulk-restore', async (req, res) => {
+  const { ids } = req.body;
+  if (!ids || !Array.isArray(ids) || ids.length === 0) return res.status(400).json({ success: false, message: 'No IDs provided' });
+
+  try {
+    const placeholders = ids.map(() => '?').join(',');
+    const result = await runAsync(`UPDATE blogs SET deletedAt = NULL WHERE id IN (${placeholders})`, ids);
+    res.status(200).json({ success: true, message: `${result.changes} blogs restored` });
+  } catch (err) {
+    console.error('Error bulk restoring blogs:', err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// Bulk Permanent Delete Blogs
+app.post('/api/blogs/bulk-delete-permanent', async (req, res) => {
+  const { ids } = req.body;
+  if (!ids || !Array.isArray(ids) || ids.length === 0) return res.status(400).json({ success: false, message: 'No IDs provided' });
+
+  try {
+    const placeholders = ids.map(() => '?').join(',');
+    
+    // Delete associated images
+    const blogsToDelete = await allAsync(`SELECT featuredImage, bannerImage FROM blogs WHERE id IN (${placeholders})`, ids);
+    blogsToDelete.forEach(blog => {
+      deleteImageFile(blog.featuredImage);
+      deleteImageFile(blog.bannerImage);
+    });
+
+    const result = await runAsync(`DELETE FROM blogs WHERE id IN (${placeholders})`, ids);
+    res.status(200).json({ success: true, message: `${result.changes} blogs permanently deleted` });
+  } catch (err) {
+    console.error('Error bulk permanent deleting blogs:', err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
 app.listen(PORT, async () => {
   console.log(`Server running on http://localhost:${PORT}`);
   // Ensure default admin user exists (id 1) after server start

@@ -153,6 +153,39 @@ const init = () => {
     if (err) console.error('Error creating authors table:', err);
     else console.log('Authors table ready');
   });
+
+  const createBlogsTableSQL = `
+    CREATE TABLE IF NOT EXISTS blogs (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      title TEXT NOT NULL,
+      urlTitle TEXT NOT NULL,
+      slug TEXT NOT NULL UNIQUE,
+      authorId INTEGER,
+      publishedDate TEXT,
+      status INTEGER DEFAULT 0,
+      isFeatured INTEGER DEFAULT 0,
+      abstract TEXT,
+      description TEXT,
+      metaTitle TEXT,
+      metaKeywords TEXT,
+      metaDescription TEXT,
+      featuredImage TEXT,
+      featuredImageAlt TEXT,
+      featuredImageCaption TEXT,
+      bannerImage TEXT,
+      bannerImageAlt TEXT,
+      bannerImageCaption TEXT,
+      deletedAt TEXT,
+      createdAt TEXT NOT NULL,
+      updatedAt TEXT NOT NULL,
+      FOREIGN KEY (authorId) REFERENCES authors(id)
+    );
+  `;
+
+  db.run(createBlogsTableSQL, (err) => {
+    if (err) console.error('Error creating blogs table:', err);
+    else console.log('Blogs table ready');
+  });
 };
 
 init();
