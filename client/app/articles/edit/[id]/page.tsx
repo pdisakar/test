@@ -503,7 +503,8 @@ export default function EditArticlePage() {
                     setSelectedImageFile(file);
                     setShowImageCrop(true);
                   }}
-                  onImageRemove={() => {
+                  onImageRemove={async () => {
+                    await deleteImage(formData.featuredImage);
                     setFormData({ ...formData, featuredImage: '' });
                   }}
                   onAltChange={(value) => setFormData({ ...formData, featuredImageAlt: value })}
@@ -527,7 +528,8 @@ export default function EditArticlePage() {
                     };
                     reader.readAsDataURL(file);
                   }}
-                  onImageRemove={() => {
+                  onImageRemove={async () => {
+                    await deleteImage(formData.bannerImageUrl);
                     setFormData({ ...formData, bannerImageUrl: '' });
                   }}
                   onAltChange={(value) => setFormData({ ...formData, bannerImageAlt: value })}
