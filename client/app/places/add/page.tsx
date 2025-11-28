@@ -243,7 +243,24 @@ export default function AddplacePage() {
         body: JSON.stringify(payload),
       });
       const data = await response.json();
-      if (!response.ok) throw new Error(data.message || 'Failed to create place');
+      
+      if (!response.ok) {
+        // Cleanup uploaded images if server validation failed
+        if (uploadedImagePaths.length > 0) {
+          console.log('Cleaning up uploaded images due to server error...');
+          await Promise.all(uploadedImagePaths.map(async (path: string) => {
+            try {
+              await deleteImage(path);
+            } catch (cleanupErr) {
+              console.error('Failed to cleanup image:', path, cleanupErr);
+            }
+          }));
+        }
+        setError(data.message || 'Failed to create place');
+        setLoading(false);
+        return;
+      }
+      
       setShowSuccessModal(true);
     } catch (err: any) {
       setError(err.message || 'An error occurred while creating the place');

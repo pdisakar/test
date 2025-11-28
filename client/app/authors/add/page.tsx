@@ -146,8 +146,6 @@ export default function AddAuthorPage() {
         return;
       }
 
-      const uploadedImagePaths: string[] = [];
-
       let avatarUrl = formData.avatar;
       if (formData.avatar && formData.avatar.startsWith('data:')) {
         const blob = await fetch(formData.avatar).then(r => r.blob());
@@ -188,6 +186,17 @@ export default function AddAuthorPage() {
       const data = await res.json();
 
       if (!res.ok) {
+        // Cleanup uploaded images if server validation failed
+        if (uploadedImagePaths.length > 0) {
+          console.log('Cleaning up uploaded images due to server error...');
+          await Promise.all(uploadedImagePaths.map(async (path: string) => {
+            try {
+              await deleteImage(path);
+            } catch (cleanupErr) {
+              console.error('Failed to cleanup image:', path, cleanupErr);
+            }
+          }));
+        }
         setError(data.message || 'Failed to create author');
         setLoading(false);
         return;
