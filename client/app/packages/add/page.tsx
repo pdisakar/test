@@ -728,6 +728,16 @@ export default function AddPackagePage() {
               >
                 Discard
               </Button>
+              {currentStep > 1 && (
+                <Button
+                  type="button"
+                  onClick={handleBack}
+                  variant="outline"
+                  className="px-6 py-2 border-gray-300 text-gray-700 hover:bg-gray-50"
+                >
+                  Back
+                </Button>
+              )}
               {currentStep < 7 ? (
                 <Button
                   type="button"

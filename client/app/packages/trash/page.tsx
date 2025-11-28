@@ -4,7 +4,7 @@ import { Sidebar } from '@/components/Sidebar';
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Search, RotateCcw, Trash2, ArrowLeft } from 'lucide-react';
+import { Search, RotateCcw, ArrowLeft } from 'lucide-react';
 
 interface Package {
     id: number;
@@ -23,6 +23,7 @@ export default function TrashPackagesPage() {
     const [processing, setProcessing] = useState(false);
     const [selectedPackages, setSelectedPackages] = useState<number[]>([]);
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+    const [bulkDeleteStep, setBulkDeleteStep] = useState(1);
 
     useEffect(() => {
         fetchTrashPackages();
@@ -74,7 +75,7 @@ export default function TrashPackagesPage() {
         }
     };
 
-    const handlePermanentDelete = async () => {
+    const handleBulkDeletePermanent = async () => {
         if (selectedPackages.length === 0) return;
 
         setProcessing(true);
@@ -92,6 +93,7 @@ export default function TrashPackagesPage() {
             await fetchTrashPackages();
             setSelectedPackages([]);
             setShowDeleteConfirm(false);
+            setBulkDeleteStep(1);
         } catch (err: any) {
             setError(err.message || 'An error occurred while deleting permanently');
         } finally {
@@ -218,6 +220,7 @@ export default function TrashPackagesPage() {
                                     </th>
                                     <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">S.N</th>
                                     <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Title</th>
+                                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Status</th>
                                     <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Deleted At</th>
                                     <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Actions</th>
                                 </tr>
@@ -252,6 +255,11 @@ export default function TrashPackagesPage() {
                                             <td className="px-6 py-4 text-sm font-medium text-gray-900">
                                                 {pkg.title}
                                             </td>
+                                            <td className="px-6 py-4">
+                                                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                                    Deleted
+                                                </span>
+                                            </td>
                                             <td className="px-6 py-4 text-sm text-gray-600">{formatDate(pkg.deletedAt)}</td>
                                             <td className="px-6 py-4">
                                                 <div className="flex items-center gap-2">
@@ -276,30 +284,44 @@ export default function TrashPackagesPage() {
                     </div>
                 </div>
 
-                {/* Delete Confirmation Dialog */}
+                {/* Bulk Delete Confirmation Dialog */}
                 {showDeleteConfirm && (
                     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
                         <div className="bg-white rounded-xl shadow-2xl p-6 max-w-md w-full mx-4">
-                            <h3 className="text-xl font-bold text-gray-900 mb-4">Confirm Permanent Delete</h3>
+                            <h3 className="text-xl font-bold text-gray-900 mb-4">
+                                {bulkDeleteStep === 1 ? 'Confirm Permanent Delete' : 'Are you absolutely sure?'}
+                            </h3>
                             <p className="text-gray-600 mb-6">
-                                {`Are you sure you want to PERMANENTLY delete ${selectedPackages.length} package${selectedPackages.length > 1 ? 's' : ''}? This action cannot be undone and will remove all associated images.`}
+                                {bulkDeleteStep === 1
+                                    ? `Permanently delete ${selectedPackages.length} package(s)? This action CANNOT be undone.`
+                                    : 'This will permanently remove these packages and all their images. There is no going back. Confirm?'}
                             </p>
                             <div className="flex items-center gap-3 justify-end">
                                 <Button
-                                    onClick={() => setShowDeleteConfirm(false)}
+                                    onClick={() => { setShowDeleteConfirm(false); setBulkDeleteStep(1); }}
                                     variant="outline"
                                     className="px-6 py-2 border-gray-300 text-gray-700 hover:bg-gray-50"
                                     disabled={processing}
                                 >
                                     Cancel
                                 </Button>
-                                <Button
-                                    onClick={handlePermanentDelete}
-                                    className="px-6 py-2 bg-red-600 hover:bg-red-700 text-white"
-                                    disabled={processing}
-                                >
-                                    {processing ? 'Deleting...' : 'Delete Permanently'}
-                                </Button>
+                                {bulkDeleteStep === 1 ? (
+                                    <Button
+                                        onClick={() => setBulkDeleteStep(2)}
+                                        className="px-6 py-2 bg-red-600 hover:bg-red-700 text-white"
+                                        disabled={processing}
+                                    >
+                                        Delete Forever
+                                    </Button>
+                                ) : (
+                                    <Button
+                                        onClick={handleBulkDeletePermanent}
+                                        className="px-6 py-2 bg-red-900 hover:bg-red-950 text-white"
+                                        disabled={processing}
+                                    >
+                                        {processing ? 'Deleting...' : 'Yes, Delete Everything'}
+                                    </Button>
+                                )}
                             </div>
                         </div>
                     </div>

@@ -4,7 +4,7 @@ import { Sidebar } from '@/components/Sidebar';
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Search, RotateCcw, Trash2, ArrowLeft, ChevronRight, ChevronDown } from 'lucide-react';
+import { Search, RotateCcw, ArrowLeft, ChevronRight, ChevronDown } from 'lucide-react';
 
 interface place {
   id: number;
@@ -28,8 +28,6 @@ export default function TrashPage() {
   const [selectedplaces, setSelectedplaces] = useState<number[]>([]);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [showRestoreConfirm, setShowRestoreConfirm] = useState(false);
-  const [placeToDelete, setplaceToDelete] = useState<number | null>(null);
-  const [deleteStep, setDeleteStep] = useState(1);
   const [bulkDeleteStep, setBulkDeleteStep] = useState(1);
   const [expandedRows, setExpandedRows] = useState<Set<number>>(new Set());
 
@@ -69,29 +67,6 @@ export default function TrashPage() {
       });
       if (!response.ok) throw new Error('Failed to restore place');
       await fetchTrash();
-    } catch (err: any) {
-      setError(err.message);
-    } finally {
-      setProcessing(false);
-    }
-  };
-
-  const handleDeletePermanent = (id: number) => {
-    setplaceToDelete(id);
-    setDeleteStep(1);
-  };
-
-  const confirmDeletePermanent = async () => {
-    if (!placeToDelete) return;
-    setProcessing(true);
-    try {
-      const response = await fetch(`http://localhost:3001/api/places/${placeToDelete}/permanent`, {
-        method: 'DELETE',
-      });
-      if (!response.ok) throw new Error('Failed to delete place');
-      await fetchTrash();
-      setplaceToDelete(null);
-      setDeleteStep(1);
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -249,20 +224,11 @@ export default function TrashPage() {
                 variant="outline"
                 size="sm"
                 disabled={isChildOfDeletedParent}
-                className={`h-8 w-8 p-0 border-green-200 hover:bg-green-50 text-green-600 ${isChildOfDeletedParent ? 'opacity-50 cursor-not-allowed' : ''}`}
+                className={`h-8 px-2 border-green-200 text-green-700 hover:bg-green-50 hover:text-green-800 ${isChildOfDeletedParent ? 'opacity-50 cursor-not-allowed' : ''}`}
                 title={isChildOfDeletedParent ? "Restore parent to recover this item" : "Restore"}
               >
-                <RotateCcw className="h-4 w-4" />
-              </Button>
-              <Button
-                onClick={() => handleDeletePermanent(place.id)}
-                variant="outline"
-                size="sm"
-                disabled={isChildOfDeletedParent}
-                className={`h-8 w-8 p-0 border-red-200 hover:bg-red-50 text-red-600 ${isChildOfDeletedParent ? 'opacity-50 cursor-not-allowed' : ''}`}
-                title={isChildOfDeletedParent ? "Delete parent to remove this item" : "Delete Permanently"}
-              >
-                <Trash2 className="h-4 w-4" />
+                <RotateCcw className="h-4 w-4 mr-1" />
+                Restore
               </Button>
             </div>
           </td>
@@ -289,7 +255,7 @@ export default function TrashPage() {
               <Button onClick={() => router.push('/places')} variant="ghost" size="icon">
                 <ArrowLeft className="h-5 w-5" />
               </Button>
-              <h1 className="text-3xl font-bold text-gray-900">Trash</h1>
+              <h1 className="text-3xl font-bold text-gray-900">Places Trash</h1>
             </div>
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
               {selectedplaces.length > 0 && (
@@ -323,6 +289,9 @@ export default function TrashPage() {
           <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 md:p-6 mb-6">
             <div className="flex flex-col md:flex-row md:items-center gap-4">
               <div className="flex items-center gap-2 text-sm text-gray-600">
+                <div className="h-5 w-5 rounded-full border-2 border-orange-400 flex items-center justify-center">
+                  <span className="text-orange-400 text-xs">i</span>
+                </div>
                 <span>{loading ? 'Loading...' : `${places.length} Deleted places`}</span>
               </div>
               <div className="flex-1"></div>
@@ -408,30 +377,6 @@ export default function TrashPage() {
                   <Button onClick={() => setBulkDeleteStep(2)} className="bg-red-600 hover:bg-red-700 text-white">Delete Forever</Button>
                 ) : (
                   <Button onClick={handleBulkDeletePermanent} className="bg-red-900 hover:bg-red-950 text-white">Yes, Delete Everything</Button>
-                )}
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Single Delete Confirmation */}
-        {placeToDelete && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-            <div className="bg-white rounded-xl shadow-2xl p-6 max-w-md w-full mx-4">
-              <h3 className="text-xl font-bold text-gray-900 mb-4">
-                {deleteStep === 1 ? 'Confirm Permanent Delete' : 'Are you absolutely sure?'}
-              </h3>
-              <p className="text-gray-600 mb-6">
-                {deleteStep === 1
-                  ? 'Permanently delete this place? This action CANNOT be undone.'
-                  : 'This will permanently remove the place and all its images. There is no going back. Confirm?'}
-              </p>
-              <div className="flex gap-3 justify-end">
-                <Button onClick={() => { setplaceToDelete(null); setDeleteStep(1); }} variant="outline">Cancel</Button>
-                {deleteStep === 1 ? (
-                  <Button onClick={() => setDeleteStep(2)} className="bg-red-600 hover:bg-red-700 text-white">Delete Forever</Button>
-                ) : (
-                  <Button onClick={confirmDeletePermanent} className="bg-red-900 hover:bg-red-950 text-white">Yes, Delete Everything</Button>
                 )}
               </div>
             </div>
