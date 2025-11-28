@@ -49,6 +49,18 @@ const updateSchema = async () => {
       }
     }
 
+    console.log('Creating package_gallery table if not exists...');
+    await runAsync(`
+      CREATE TABLE IF NOT EXISTS package_gallery (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        packageId INTEGER,
+        imageUrl TEXT,
+        createdAt TEXT,
+        FOREIGN KEY(packageId) REFERENCES packages(id) ON DELETE CASCADE
+      )
+    `);
+    console.log('package_gallery table check/creation completed.');
+
     console.log('Schema update completed successfully.');
   } catch (error) {
     console.error('Schema update failed:', error);

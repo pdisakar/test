@@ -1251,6 +1251,16 @@ app.post('/api/packages', async (req, res) => {
       }
     }
 
+    // Insert Gallery Images
+    if (req.body.galleryImages && Array.isArray(req.body.galleryImages)) {
+      for (const imageUrl of req.body.galleryImages) {
+        await runAsync(
+          `INSERT INTO package_gallery (packageId, imageUrl, createdAt) VALUES (?, ?, ?)`,
+          [packageId, imageUrl, now]
+        );
+      }
+    }
+
     res.status(201).json({
       success: true,
       message: 'Package created successfully',
@@ -1346,6 +1356,11 @@ app.get('/api/packages/:idOrSlug', async (req, res) => {
       [packageId]
     );
 
+    const galleryImages = await allAsync(
+      `SELECT imageUrl FROM package_gallery WHERE packageId = ? ORDER BY createdAt ASC`,
+      [packageId]
+    );
+
     // Format trip facts as object { categorySlug: attributeId }
     const tripFactsObj = {};
     tripFacts.forEach(tf => {
@@ -1359,7 +1374,8 @@ app.get('/api/packages/:idOrSlug', async (req, res) => {
         places,
         tripFacts: tripFactsObj,
         itinerary,
-        groupPrices
+        groupPrices,
+        galleryImages: galleryImages.map(g => g.imageUrl)
       }
     });
 
@@ -1500,6 +1516,25 @@ app.put('/api/packages/:id', async (req, res) => {
         );
       }
     }
+
+    // Update Gallery Images (Delete all and re-insert)
+    console.log('[DEBUG] Received galleryImages:', req.body.galleryImages);
+    
+    // Delete all from database
+    await runAsync('DELETE FROM package_gallery WHERE packageId = ?', [id]);
+    
+    // Insert new gallery images
+    const newImageUrls = req.body.galleryImages || [];
+    if (Array.isArray(newImageUrls)) {
+      console.log('[DEBUG] Inserting', newImageUrls.length, 'gallery images');
+      for (const imageUrl of newImageUrls) {
+        await runAsync(
+          `INSERT INTO package_gallery (packageId, imageUrl, createdAt) VALUES (?, ?, ?)`,
+          [id, imageUrl, now]
+        );
+      }
+    }
+    // Note: Files are deleted immediately when user clicks delete button in frontend
 
     res.status(200).json({ success: true, message: 'Package updated successfully' });
 

@@ -11,6 +11,7 @@ import { ImageCrop, ImageCropContent, ImageCropApply, ImageCropReset } from '@/c
 import { FeaturedImage } from '@/components/FeaturedImage';
 import { BannerImage } from '@/components/BannerImage';
 import { TripMapImage } from '@/components/TripMapImage';
+import { GalleryUpload, type GalleryImage } from '@/components/GalleryUpload';
 
 interface GroupPrice {
   id: string;
@@ -27,11 +28,7 @@ interface Place {
   children?: Place[];
 }
 
-interface GalleryImage {
-  id: string;
-  file: File | null;
-  preview: string;
-}
+
 
 interface ItineraryDay {
   id: string;
@@ -176,9 +173,6 @@ export default function EditPackagePage() {
   const [showImageCrop, setShowImageCrop] = useState(false);
   const [selectedImageFile, setSelectedImageFile] = useState<File | null>(null);
   const [imageCropType, setImageCropType] = useState<'featured' | 'tripMap'>('featured');
-
-  // Refs for file inputs
-  const galleryInputRef = useRef<HTMLInputElement>(null);
 
   const [categories, setCategories] = useState<Category[]>([]);
   const [attributeOptions, setAttributeOptions] = useState<Record<string, Attribute[]>>({});
@@ -341,6 +335,15 @@ export default function EditPackagePage() {
       // Set status toggles
       setStatus(pkg.status === 1 || pkg.status === true);
       setFeatured(pkg.featured === 1 || pkg.featured === true);
+
+      // Load gallery images
+      if (pkg.galleryImages && pkg.galleryImages.length > 0) {
+        setGalleryImages(pkg.galleryImages.map((url: string) => ({
+          id: Math.random().toString(36).substr(2, 9),
+          file: null,
+          preview: url
+        })));
+      }
 
       setFetchingData(false);
     } catch (err: any) {
@@ -523,25 +526,7 @@ export default function EditPackagePage() {
     }));
   };
 
-  const handleGalleryUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files || []);
-    files.forEach(file => {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setGalleryImages(prev => [...prev, {
-          id: Date.now() + Math.random().toString(),
-          file,
-          preview: reader.result as string
-        }]);
-      };
-      reader.readAsDataURL(file);
-    });
-    if (galleryInputRef.current) galleryInputRef.current.value = '';
-  };
 
-  const removeGalleryImage = (id: string) => {
-    setGalleryImages(prev => prev.filter(img => img.id !== id));
-  };
 
   // Itinerary Management
   const addDay = () => {
@@ -665,16 +650,6 @@ export default function EditPackagePage() {
     setError('');
     setLoading(true);
 
-    // Validation
-    if (!formData.packageTitle) {
-      setError('Package Title is required');
-      return;
-    }
-    if (!formData.slug) {
-      setError('Slug is required');
-      return;
-    }
-
     try {
       // Upload images if they exist
       let featuredImageUrl = formData.featuredImagePreview;
@@ -699,6 +674,29 @@ export default function EditPackagePage() {
       if (formData.tripMapImage instanceof File) {
         tripMapImageUrl = await uploadImage(formData.tripMapImage);
       }
+
+      // Upload new gallery images (ones with file property)
+      const newGalleryImageUrls: string[] = [];
+      console.log('[DEBUG] Gallery images before processing:', galleryImages);
+      for (const galleryImg of galleryImages) {
+        if (galleryImg.file) {
+          const uploadedUrl = await uploadImage(galleryImg.file);
+          newGalleryImageUrls.push(uploadedUrl);
+        } else if (galleryImg.preview) {
+          // Existing image from database, keep its URL
+          newGalleryImageUrls.push(galleryImg.preview);
+        }
+      }
+      console.log('[DEBUG] Gallery URLs to send to backend:', newGalleryImageUrls);
+
+      // Normalize gallery URLs (extract only the path if it's a full URL)
+      const normalizedGalleryUrls = newGalleryImageUrls.map(url => {
+        if (url.startsWith('http://localhost:3001')) {
+          return url.replace('http://localhost:3001', '');
+        }
+        return url;
+      });
+      console.log('[DEBUG] Normalized gallery URLs:', normalizedGalleryUrls);
 
       // Construct Trip Facts object
       const tripFactsPayload: Record<string, number> = {};
@@ -764,7 +762,8 @@ export default function EditPackagePage() {
           destinationElevation: day.destinationElevation,
           walkingHours: day.duration,
           transportation: day.transportation
-        }))
+        })),
+        galleryImages: normalizedGalleryUrls
       };
 
       const res = await fetch(`http://localhost:3001/api/packages/${packageId}`, {
@@ -1390,44 +1389,11 @@ export default function EditPackagePage() {
                 />
 
                 {/* Media Gallery */}
-                <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-                  <h2 className="text-xl font-semibold text-gray-900 mb-6">Media Gallery</h2>
-                  <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
-                    {galleryImages.map((img) => (
-                      <div key={img.id} className="relative aspect-square rounded-lg overflow-hidden border border-gray-200 group">
-                        <img
-                          src={img.preview}
-                          alt="Gallery preview"
-                          className="w-full h-full object-cover"
-                        />
-                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                          <button
-                            type="button"
-                            onClick={() => removeGalleryImage(img.id)}
-                            className="p-2 bg-white rounded-full text-red-500 hover:bg-red-50 transition-colors"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </button>
-                        </div>
-                      </div>
-                    ))}
-                    <div
-                      onClick={() => galleryInputRef.current?.click()}
-                      className="aspect-square rounded-lg border-2 border-dashed border-gray-300 hover:border-primary/50 hover:bg-gray-50 transition-all cursor-pointer flex flex-col items-center justify-center gap-2 text-gray-500"
-                    >
-                      <Plus className="h-8 w-8" />
-                      <span className="text-sm font-medium">Add Media</span>
-                    </div>
-                    <input
-                      ref={galleryInputRef}
-                      type="file"
-                      accept="image/*"
-                      multiple
-                      className="hidden"
-                      onChange={handleGalleryUpload}
-                    />
-                  </div>
-                </div>
+                <GalleryUpload
+                  label="Media Gallery"
+                  images={galleryImages}
+                  onImagesChange={setGalleryImages}
+                />
               </>
             )}
 
@@ -1903,112 +1869,112 @@ export default function EditPackagePage() {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg max-w-2xl w-full p-6">
             <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold">Crop Image</h3>
-          <button
-            onClick={() => {
-              setShowImageCrop(false);
-              setSelectedImageFile(null);
-            }}
-            className="p-1 hover:bg-gray-100 rounded"
-          >
-            <X className="h-5 w-5" />
-          </button>
-        </div>
+              <h3 className="text-lg font-semibold">Crop Image</h3>
+              <button
+                onClick={() => {
+                  setShowImageCrop(false);
+                  setSelectedImageFile(null);
+                }}
+                className="p-1 hover:bg-gray-100 rounded"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
 
-        <ImageCrop
-          file={selectedImageFile!}
-          onCrop={(croppedImage) => {
-            if (imageCropType === 'featured') {
-              setFormData(prev => ({
-                ...prev,
-                featuredImage: selectedImageFile,
-                featuredImagePreview: croppedImage
-              }));
-            } else if (imageCropType === 'tripMap') {
-              setFormData(prev => ({
-                ...prev,
-                tripMapImage: selectedImageFile,
-                tripMapImagePreview: croppedImage
-              }));
-            }
-            setShowImageCrop(false);
-            setSelectedImageFile(null);
-          }}
-        >
-          <div className="space-y-4">
-            <ImageCropContent className="border border-gray-200 rounded" />
-            <div className="flex gap-2 justify-end">
-              <ImageCropReset asChild>
-                <Button variant="outline" type="button">
-                  Reset
+            <ImageCrop
+              file={selectedImageFile!}
+              onCrop={(croppedImage) => {
+                if (imageCropType === 'featured') {
+                  setFormData(prev => ({
+                    ...prev,
+                    featuredImage: selectedImageFile,
+                    featuredImagePreview: croppedImage
+                  }));
+                } else if (imageCropType === 'tripMap') {
+                  setFormData(prev => ({
+                    ...prev,
+                    tripMapImage: selectedImageFile,
+                    tripMapImagePreview: croppedImage
+                  }));
+                }
+                setShowImageCrop(false);
+                setSelectedImageFile(null);
+              }}
+            >
+              <div className="space-y-4">
+                <ImageCropContent className="border border-gray-200 rounded" />
+                <div className="flex gap-2 justify-end">
+                  <ImageCropReset asChild>
+                    <Button variant="outline" type="button">
+                      Reset
+                    </Button>
+                  </ImageCropReset>
+                  <ImageCropApply asChild>
+                    <Button type="button">Apply Crop</Button>
+                  </ImageCropApply>
+                </div>
+              </div>
+            </ImageCrop>
+          </div>
+        </div>
+      )
+      }
+
+      {/* Discard Confirmation Dialog */}
+      {
+        showDiscardConfirm && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-xl shadow-2xl p-6 max-w-md w-full mx-4">
+              <h3 className="text-xl font-bold text-gray-900 mb-4">Confirm Discard</h3>
+              <p className="text-gray-600 mb-6">
+                Are you sure you want to discard all changes? This action cannot be undone.
+              </p>
+              <div className="flex items-center gap-3 justify-end">
+                <Button
+                  onClick={() => setShowDiscardConfirm(false)}
+                  variant="outline"
+                  className="px-6 py-2 border-gray-300 text-gray-700 hover:bg-gray-50"
+                >
+                  Cancel
                 </Button>
-              </ImageCropReset>
-              <ImageCropApply asChild>
-                <Button type="button">Apply Crop</Button>
-              </ImageCropApply>
+                <Button
+                  onClick={handleConfirmDiscard}
+                  className="px-6 py-2 bg-red-600 hover:bg-red-700 text-white"
+                >
+                  Discard
+                </Button>
+              </div>
             </div>
           </div>
-        </ImageCrop>
-      </div>
-    </div>
-  )
-}
+        )
+      }
 
-{/* Discard Confirmation Dialog */ }
-{
-  showDiscardConfirm && (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-xl shadow-2xl p-6 max-w-md w-full mx-4">
-        <h3 className="text-xl font-bold text-gray-900 mb-4">Confirm Discard</h3>
-        <p className="text-gray-600 mb-6">
-          Are you sure you want to discard all changes? This action cannot be undone.
-        </p>
-        <div className="flex items-center gap-3 justify-end">
-          <Button
-            onClick={() => setShowDiscardConfirm(false)}
-            variant="outline"
-            className="px-6 py-2 border-gray-300 text-gray-700 hover:bg-gray-50"
-          >
-            Cancel
-          </Button>
-          <Button
-            onClick={handleConfirmDiscard}
-            className="px-6 py-2 bg-red-600 hover:bg-red-700 text-white"
-          >
-            Discard
-          </Button>
-        </div>
-      </div>
-    </div>
-  )
-}
-
-{/* Success Modal */ }
-{
-  showSuccessModal && (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-xl shadow-2xl p-6 max-w-md w-full mx-4">
-        <div className="flex flex-col items-center text-center">
-          <div className="h-12 w-12 bg-green-100 rounded-full flex items-center justify-center mb-4">
-            <svg className="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-            </svg>
+      {/* Success Modal */}
+      {
+        showSuccessModal && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-xl shadow-2xl p-6 max-w-md w-full mx-4">
+              <div className="flex flex-col items-center text-center">
+                <div className="h-12 w-12 bg-green-100 rounded-full flex items-center justify-center mb-4">
+                  <svg className="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                </div>
+                <h3 className="text-xl font-bold text-gray-900 mb-2">Success!</h3>
+                <p className="text-gray-600 mb-6">
+                  Package has been updated successfully.
+                </p>
+                <Button
+                  onClick={handleCloseSuccessModal}
+                  className="px-8 py-2 bg-primary hover:bg-primary/90 text-white w-full"
+                >
+                  OK
+                </Button>
+              </div>
+            </div>
           </div>
-          <h3 className="text-xl font-bold text-gray-900 mb-2">Success!</h3>
-          <p className="text-gray-600 mb-6">
-            Package has been updated successfully.
-          </p>
-          <Button
-            onClick={handleCloseSuccessModal}
-            className="px-8 py-2 bg-primary hover:bg-primary/90 text-white w-full"
-          >
-            OK
-          </Button>
-        </div>
-      </div>
-    </div>
-  )
-}
+        )
+      }
     </div >
   );
 }

@@ -11,6 +11,7 @@ import { ImageCrop, ImageCropContent, ImageCropApply, ImageCropReset } from '@/c
 import { FeaturedImage } from '@/components/FeaturedImage';
 import { BannerImage } from '@/components/BannerImage';
 import { TripMapImage } from '@/components/TripMapImage';
+import { GalleryUpload, GalleryImage } from '@/components/GalleryUpload';
 
 interface GroupPrice {
   id: string;
@@ -27,11 +28,7 @@ interface Place {
   children?: Place[];
 }
 
-interface GalleryImage {
-  id: string;
-  file: File | null;
-  preview: string;
-}
+
 
 interface ItineraryDay {
   id: string;
@@ -175,7 +172,7 @@ export default function AddPackagePage() {
   const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   // Refs for file inputs
-  const galleryInputRef = useRef<HTMLInputElement>(null);
+
 
   const [categories, setCategories] = useState<Category[]>([]);
   const [attributeOptions, setAttributeOptions] = useState<Record<string, Attribute[]>>({});
@@ -397,25 +394,7 @@ export default function AddPackagePage() {
     }));
   };
 
-  const handleGalleryUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files || []);
-    files.forEach(file => {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setGalleryImages(prev => [...prev, {
-          id: Date.now() + Math.random().toString(),
-          file,
-          preview: reader.result as string
-        }]);
-      };
-      reader.readAsDataURL(file);
-    });
-    if (galleryInputRef.current) galleryInputRef.current.value = '';
-  };
 
-  const removeGalleryImage = (id: string) => {
-    setGalleryImages(prev => prev.filter(img => img.id !== id));
-  };
 
   // Itinerary Management
   const addDay = () => {
@@ -566,6 +545,16 @@ export default function AddPackagePage() {
         uploadedImagePaths.push(tripMapImageUrl);
       }
 
+      // Upload gallery images
+      const galleryImageUrls: string[] = [];
+      for (const galleryImg of galleryImages) {
+        if (galleryImg.file) {
+          const uploadedUrl = await uploadImage(galleryImg.file);
+          galleryImageUrls.push(uploadedUrl);
+          uploadedImagePaths.push(uploadedUrl);
+        }
+      }
+
       // Construct Trip Facts object
       const tripFactsPayload: Record<string, number> = {};
       categories.forEach(cat => {
@@ -596,6 +585,7 @@ export default function AddPackagePage() {
         groupPrices: groupPriceEnabled ? groupPrices : [],
         costInclude: formData.costInclude,
         costExclude: formData.costExclude,
+        galleryImages: galleryImageUrls,
         featuredImage: featuredImageUrl,
         featuredImageAlt: formData.featuredImageAlt,
         featuredImageCaption: formData.featuredImageCaption,
@@ -1287,44 +1277,11 @@ export default function AddPackagePage() {
                 />
 
                 {/* Media Gallery */}
-                <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-                  <h2 className="text-xl font-semibold text-gray-900 mb-6">Media Gallery</h2>
-                  <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
-                    {galleryImages.map((img) => (
-                      <div key={img.id} className="relative aspect-square rounded-lg overflow-hidden border border-gray-200 group">
-                        <img
-                          src={img.preview}
-                          alt="Gallery preview"
-                          className="w-full h-full object-cover"
-                        />
-                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                          <button
-                            type="button"
-                            onClick={() => removeGalleryImage(img.id)}
-                            className="p-2 bg-white rounded-full text-red-500 hover:bg-red-50 transition-colors"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </button>
-                        </div>
-                      </div>
-                    ))}
-                    <div
-                      onClick={() => galleryInputRef.current?.click()}
-                      className="aspect-square rounded-lg border-2 border-dashed border-gray-300 hover:border-primary/50 hover:bg-gray-50 transition-all cursor-pointer flex flex-col items-center justify-center gap-2 text-gray-500"
-                    >
-                      <Plus className="h-8 w-8" />
-                      <span className="text-sm font-medium">Add Media</span>
-                    </div>
-                    <input
-                      ref={galleryInputRef}
-                      type="file"
-                      accept="image/*"
-                      multiple
-                      className="hidden"
-                      onChange={handleGalleryUpload}
-                    />
-                  </div>
-                </div>
+                <GalleryUpload
+                  label="Media Gallery"
+                  images={galleryImages}
+                  onImagesChange={setGalleryImages}
+                />
               </>
             )}
 
