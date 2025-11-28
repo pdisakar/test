@@ -254,6 +254,8 @@ export default function AddplacePage() {
 
   const deleteImage = async (imageUrl: string) => {
     if (!imageUrl) return;
+    // Don't delete if it's a base64 image (not yet uploaded)
+    if (imageUrl.startsWith('data:')) return;
     try {
       await fetch('http://localhost:3001/api/upload/image', {
         method: 'DELETE',
@@ -435,7 +437,8 @@ export default function AddplacePage() {
                     setSelectedImageFile(file);
                     setShowImageCrop(true);
                   }}
-                  onImageRemove={() => {
+                  onImageRemove={async () => {
+                    await deleteImage(formData.featuredImage);
                     setFormData({ ...formData, featuredImage: '' });
                   }}
                   onAltChange={(value) => setFormData({ ...formData, featuredImageAlt: value })}
@@ -459,7 +462,8 @@ export default function AddplacePage() {
                     };
                     reader.readAsDataURL(file);
                   }}
-                  onImageRemove={() => {
+                  onImageRemove={async () => {
+                    await deleteImage(formData.bannerImageUrl);
                     setFormData({ ...formData, bannerImageUrl: '' });
                   }}
                   onAltChange={(value) => setFormData({ ...formData, bannerImageAlt: value })}

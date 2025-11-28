@@ -249,6 +249,21 @@ export default function EditPlacePage() {
         return true;
     };
 
+    const deleteImage = async (imageUrl: string) => {
+        if (!imageUrl) return;
+        // Don't delete if it's a base64 image (not yet uploaded)
+        if (imageUrl.startsWith('data:')) return;
+        try {
+            await fetch('http://localhost:3001/api/upload/image', {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ path: imageUrl }),
+            });
+        } catch (err) {
+            console.error('Failed to delete image:', err);
+        }
+    };
+
     const handleCloseSuccessModal = () => {
         setShowSuccessModal(false);
         router.push('/places');
@@ -468,7 +483,8 @@ export default function EditPlacePage() {
                                         setSelectedImageFile(file);
                                         setShowImageCrop(true);
                                     }}
-                                    onImageRemove={() => {
+                                    onImageRemove={async () => {
+                                        await deleteImage(formData.featuredImage);
                                         setFormData({ ...formData, featuredImage: '' });
                                     }}
                                     onAltChange={(value) => setFormData({ ...formData, featuredImageAlt: value })}
@@ -490,7 +506,8 @@ export default function EditPlacePage() {
                                         };
                                         reader.readAsDataURL(file);
                                     }}
-                                    onImageRemove={() => {
+                                    onImageRemove={async () => {
+                                        await deleteImage(formData.bannerImageUrl);
                                         setFormData({ ...formData, bannerImageUrl: '' });
                                     }}
                                     onAltChange={(value) => setFormData({ ...formData, bannerImageAlt: value })}
