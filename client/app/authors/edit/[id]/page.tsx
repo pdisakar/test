@@ -31,8 +31,11 @@ export default function EditAuthorPage() {
     description: '',
     status: false,
     avatar: '',
+    avatarAlt: '',
     avatarCaption: '',
     bannerImage: '',
+    bannerImageAlt: '',
+    bannerImageCaption: '',
     metaTitle: '',
     metaKeywords: '',
     metaDescription: '',
@@ -64,8 +67,11 @@ export default function EditAuthorPage() {
         description: data.description || '',
         status: data.status === 1,
         avatar: data.avatar || '',
+        avatarAlt: data.avatarAlt || '',
         avatarCaption: data.avatarCaption || '',
         bannerImage: data.bannerImage || '',
+        bannerImageAlt: data.bannerImageAlt || '',
+        bannerImageCaption: data.bannerImageCaption || '',
         metaTitle: data.metaTitle || '',
         metaKeywords: data.metaKeywords || '',
         metaDescription: data.metaDescription || '',
@@ -175,8 +181,11 @@ export default function EditAuthorPage() {
         email: formData.email,
         description: formData.description,
         avatar: avatarUrl,
+        avatarAlt: formData.avatarAlt,
         avatarCaption: formData.avatarCaption,
         bannerImage: bannerUrl,
+        bannerImageAlt: formData.bannerImageAlt,
+        bannerImageCaption: formData.bannerImageCaption,
         metaTitle: formData.metaTitle,
         metaKeywords: formData.metaKeywords,
         metaDescription: formData.metaDescription,
@@ -377,7 +386,7 @@ export default function EditAuthorPage() {
                 <FeaturedImage
                   label="Avatar"
                   imageUrl={formData.avatar}
-                  imageAlt=""
+                  imageAlt={formData.avatarAlt}
                   imageCaption={formData.avatarCaption}
                   onImageSelect={(file) => {
                     setSelectedImageFile(file);
@@ -387,7 +396,7 @@ export default function EditAuthorPage() {
                     await deleteImage(formData.avatar);
                     setFormData(prev => ({ ...prev, avatar: '' }));
                   }}
-                  onAltChange={() => { }}
+                  onAltChange={(alt) => setFormData(prev => ({ ...prev, avatarAlt: alt }))}
                   onCaptionChange={(cap) => setFormData(prev => ({ ...prev, avatarCaption: cap }))}
                 />
 
@@ -395,8 +404,8 @@ export default function EditAuthorPage() {
                 <BannerImage
                   label="Banner Image"
                   imageUrl={formData.bannerImage}
-                  imageAlt=""
-                  imageCaption=""
+                  imageAlt={formData.bannerImageAlt}
+                  imageCaption={formData.bannerImageCaption}
                   onImageSelect={(file) => {
                     const reader = new FileReader();
                     reader.onloadend = () => {
@@ -408,10 +417,8 @@ export default function EditAuthorPage() {
                     await deleteImage(formData.bannerImage);
                     setFormData(prev => ({ ...prev, bannerImage: '' }));
                   }}
-                  onAltChange={() => { }}
-                  onCaptionChange={() => { }}
-                  hasAlt={false}
-                  hasCaption={false}
+                  onAltChange={(alt) => setFormData(prev => ({ ...prev, bannerImageAlt: alt }))}
+                  onCaptionChange={(cap) => setFormData(prev => ({ ...prev, bannerImageCaption: cap }))}
                 />
 
               </div>
