@@ -1625,7 +1625,7 @@ app.delete('/api/packages/:id/permanent', async (req, res) => {
 app.post('/api/authors', async (req, res) => {
   const {
     fullName, urlTitle, slug, email, description,
-    avatar, avatarCaption, bannerImage,
+    avatar, avatarAlt, avatarCaption, bannerImage, bannerImageAlt, bannerImageCaption,
     metaTitle, metaKeywords, metaDescription, status
   } = req.body;
 
@@ -1662,13 +1662,13 @@ app.post('/api/authors', async (req, res) => {
     const result = await runAsync(
       `INSERT INTO authors (
         fullName, urlTitle, slug, email, description,
-        avatar, avatarCaption, bannerImage,
+        avatar, avatarAlt, avatarCaption, bannerImage, bannerImageAlt, bannerImageCaption,
         metaTitle, metaKeywords, metaDescription,
         status, createdAt, updatedAt
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         fullName, urlTitle, slug, email, description,
-        avatar, avatarCaption, bannerImage,
+        avatar, avatarAlt, avatarCaption, bannerImage, bannerImageAlt, bannerImageCaption,
         metaTitle, metaKeywords, metaDescription,
         status !== undefined ? status : 1, now, now
       ]
@@ -1716,7 +1716,7 @@ app.put('/api/authors/:id', async (req, res) => {
   const { id } = req.params;
   const {
     fullName, urlTitle, slug, email, description,
-    avatar, avatarCaption, bannerImage,
+    avatar, avatarAlt, avatarCaption, bannerImage, bannerImageAlt, bannerImageCaption,
     metaTitle, metaKeywords, metaDescription, status
   } = req.body;
 
@@ -1754,13 +1754,13 @@ app.put('/api/authors/:id', async (req, res) => {
     await runAsync(
       `UPDATE authors SET
         fullName = ?, urlTitle = ?, slug = ?, email = ?, description = ?,
-        avatar = ?, avatarCaption = ?, bannerImage = ?,
+        avatar = ?, avatarAlt = ?, avatarCaption = ?, bannerImage = ?, bannerImageAlt = ?, bannerImageCaption = ?,
         metaTitle = ?, metaKeywords = ?, metaDescription = ?,
         status = ?, updatedAt = ?
       WHERE id = ?`,
       [
         fullName, urlTitle, slug, email, description,
-        avatar, avatarCaption, bannerImage,
+        avatar, avatarAlt, avatarCaption, bannerImage, bannerImageAlt, bannerImageCaption,
         metaTitle, metaKeywords, metaDescription,
         status, now, id
       ]
