@@ -2479,6 +2479,78 @@ app.delete('/api/testimonials/:id/permanent', async (req, res) => {
   }
 });
 
+// Bulk delete testimonials (soft delete)
+app.post('/api/testimonials/bulk-delete', async (req, res) => {
+  const { ids } = req.body;
+
+  if (!ids || !Array.isArray(ids) || ids.length === 0) {
+    return res.status(400).json({ success: false, message: 'No testimonial IDs provided' });
+  }
+
+  try {
+    const now = new Date().toISOString();
+    const placeholders = ids.map(() => '?').join(',');
+    const query = `UPDATE testimonials SET deletedAt = ? WHERE id IN (${placeholders})`;
+    await runAsync(query, [now, ...ids]);
+
+    res.status(200).json({ success: true, message: `${ids.length} testimonial(s) deleted successfully` });
+  } catch (err) {
+    console.error('Error bulk deleting testimonials:', err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// Bulk restore testimonials
+app.post('/api/testimonials/bulk-restore', async (req, res) => {
+  const { ids } = req.body;
+
+  if (!ids || !Array.isArray(ids) || ids.length === 0) {
+    return res.status(400).json({ success: false, message: 'No testimonial IDs provided' });
+  }
+
+  try {
+    const placeholders = ids.map(() => '?').join(',');
+    const query = `UPDATE testimonials SET deletedAt = NULL WHERE id IN (${placeholders})`;
+    await runAsync(query, ids);
+
+    res.status(200).json({ success: true, message: `${ids.length} testimonial(s) restored successfully` });
+  } catch (err) {
+    console.error('Error bulk restoring testimonials:', err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// Bulk permanent delete testimonials
+app.post('/api/testimonials/bulk-delete-permanent', async (req, res) => {
+  const { ids } = req.body;
+
+  if (!ids || !Array.isArray(ids) || ids.length === 0) {
+    return res.status(400).json({ success: false, message: 'No testimonial IDs provided' });
+  }
+
+  try {
+    // 1. Get all testimonials to find images
+    const placeholders = ids.map(() => '?').join(',');
+    const testimonials = await allAsync(`SELECT * FROM testimonials WHERE id IN (${placeholders})`, ids);
+
+    // 2. Delete images from filesystem
+    for (const testimonial of testimonials) {
+      if (testimonial.avatar) {
+        deleteImageFile(testimonial.avatar);
+      }
+    }
+
+    // 3. Delete from database
+    const deleteQuery = `DELETE FROM testimonials WHERE id IN (${placeholders})`;
+    await runAsync(deleteQuery, ids);
+
+    res.status(200).json({ success: true, message: `${ids.length} testimonial(s) permanently deleted` });
+  } catch (err) {
+    console.error('Error bulk deleting testimonials permanently:', err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
 app.listen(PORT, async () => {
   console.log(`Server running on http://localhost:${PORT}`);
   // Ensure default admin user exists (id 1) after server start

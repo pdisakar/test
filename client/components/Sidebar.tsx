@@ -95,7 +95,7 @@ export function Sidebar({ className, isCollapsed, isMobileOpen, onMobileClose }:
           sub: [
             { label: "Add New", href: "/testimonials/add" },
             { label: "Testimonials List", href: "/testimonials" },
-            { label: "Deleted Testimonials", href: "/testimonials/deleted" }
+            { label: "Deleted Testimonials", href: "/testimonials/trash" }
           ]
         },
 
