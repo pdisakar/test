@@ -422,7 +422,7 @@ export default function AddTestimonialPage() {
                                                     disabled={loading}
                                                 />
                                                 <span className="text-sm text-gray-600 dark:text-gray-400 dark:text-gray-500">
-                                                    {formData.status ? 'Published' : 'Unpublished'}
+                                                    {formData.status ? 'Published' : 'Draft'}
                                                 </span>
                                             </div>
                                         </div>
@@ -435,7 +435,7 @@ export default function AddTestimonialPage() {
                                                     disabled={loading}
                                                 />
                                                 <span className="text-sm text-gray-600 dark:text-gray-400 dark:text-gray-500">
-                                                    {formData.isFeatured ? 'Featured' : 'Standard'}
+                                                    {formData.isFeatured ? 'Featured' : 'Not Featured'}
                                                 </span>
                                             </div>
                                         </div>

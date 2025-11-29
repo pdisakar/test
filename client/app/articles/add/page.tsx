@@ -425,7 +425,7 @@ export default function AddArticlePage() {
                         disabled={loading}
                       />
                       <span className="text-sm text-gray-600 dark:text-gray-400 dark:text-gray-500">
-                        {formData.status ? 'Active' : 'Not Active'}
+                        {formData.status ? 'Published' : 'Draft'}
                       </span>
                     </div>
                   </div>

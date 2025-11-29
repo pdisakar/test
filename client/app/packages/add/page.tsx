@@ -1102,7 +1102,7 @@ export default function AddPackagePage() {
                           onCheckedChange={setFeatured}
                         />
                         <span className="text-sm text-gray-600 dark:text-gray-400 dark:text-gray-500">
-                          {featured ? 'Yes' : 'No'}
+                          {featured ? 'Featured' : 'Not Featured'}
                         </span>
                       </div>
                     </div>

@@ -336,7 +336,7 @@ export default function AddAuthorPage() {
                         onCheckedChange={(checked) => setFormData({ ...formData, status: checked })}
                       />
                       <span className="text-sm text-gray-600 dark:text-gray-400 dark:text-gray-500">
-                        {formData.status ? 'Published' : 'Unpublished'}
+                        {formData.status ? 'Published' : 'Draft'}
                       </span>
                     </div>
                   </div>
