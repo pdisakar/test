@@ -2088,11 +2088,17 @@ app.get('/api/blogs/trash', async (req, res) => {
   }
 });
 
-// Get single blog
-app.get('/api/blogs/:id', async (req, res) => {
-  const { id } = req.params;
+// Get single blog (by ID or slug)
+app.get('/api/blogs/:idOrSlug', async (req, res) => {
+  const { idOrSlug } = req.params;
   try {
-    const blog = await getAsync('SELECT * FROM blogs WHERE id = ?', [id]);
+    let blog;
+    if (!isNaN(idOrSlug)) {
+      blog = await getAsync('SELECT * FROM blogs WHERE id = ? AND deletedAt IS NULL', [idOrSlug]);
+    } else {
+      blog = await getAsync('SELECT * FROM blogs WHERE slug = ? AND deletedAt IS NULL', [idOrSlug]);
+    }
+
     if (!blog) {
       return res.status(404).json({ success: false, message: 'Blog not found' });
     }
