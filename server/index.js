@@ -2551,6 +2551,119 @@ app.post('/api/testimonials/bulk-delete-permanent', async (req, res) => {
   }
 });
 
+// ========================
+// MENUS API ENDPOINTS
+// ========================
+
+// Get all menus
+app.get('/api/menus', async (req, res) => {
+  try {
+    const menus = await allAsync('SELECT * FROM menus ORDER BY type, displayOrder, createdAt');
+    res.status(200).json(menus);
+  } catch (err) {
+    console.error('Error fetching menus:', err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// Get menus by type (header/footer)
+app.get('/api/menus/type/:type', async (req, res) => {
+  const { type } = req.params;
+  try {
+    const menus = await allAsync('SELECT * FROM menus WHERE type = ? AND status = 1 ORDER BY displayOrder, createdAt', [type]);
+    res.status(200).json(menus);
+  } catch (err) {
+    console.error('Error fetching menus by type:', err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// Get single menu by ID
+app.get('/api/menus/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    const menu = await getAsync('SELECT * FROM menus WHERE id = ?', [id]);
+    if (!menu) {
+      return res.status(404).json({ success: false, message: 'Menu not found' });
+    }
+    res.status(200).json(menu);
+  } catch (err) {
+    console.error('Error fetching menu:', err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// Create new menu
+app.post('/api/menus', async (req, res) => {
+  const { title, type, parentId, urlSegmentType, urlSegmentId, url, status, displayOrder } = req.body;
+
+  if (!title || !type) {
+    return res.status(400).json({ success: false, message: 'Title and type are required' });
+  }
+
+  try {
+    const now = new Date().toISOString();
+
+    const result = await runAsync(
+      `INSERT INTO menus (title, type, parentId, urlSegmentType, urlSegmentId, url, status, displayOrder, createdAt, updatedAt) 
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [title, type, parentId || null, urlSegmentType || null, urlSegmentId || null, url || null, status ? 1 : 0, displayOrder || 0, now, now]
+    );
+
+    res.status(201).json({
+      success: true,
+      message: 'Menu created successfully',
+      menuId: result.lastID
+    });
+  } catch (err) {
+    console.error('Error creating menu:', err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// Update menu
+app.put('/api/menus/:id', async (req, res) => {
+  const { id } = req.params;
+  const { title, type, parentId, urlSegmentType, urlSegmentId, url, status, displayOrder } = req.body;
+
+  if (!title || !type) {
+    return res.status(400).json({ success: false, message: 'Title and type are required' });
+  }
+
+  try {
+    const existing = await getAsync('SELECT * FROM menus WHERE id = ?', [id]);
+    if (!existing) {
+      return res.status(404).json({ success: false, message: 'Menu not found' });
+    }
+
+    const now = new Date().toISOString();
+
+    await runAsync(
+      `UPDATE menus SET title = ?, type = ?, parentId = ?, urlSegmentType = ?, urlSegmentId = ?, url = ?, status = ?, displayOrder = ?, updatedAt = ? WHERE id = ?`,
+      [title, type, parentId || null, urlSegmentType || null, urlSegmentId || null, url || null, status ? 1 : 0, displayOrder || 0, now, id]
+    );
+
+    res.status(200).json({ success: true, message: 'Menu updated successfully' });
+  } catch (err) {
+    console.error('Error updating menu:', err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// Delete menu
+app.delete('/api/menus/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    // Also delete child menus
+    await runAsync('DELETE FROM menus WHERE parentId = ?', [id]);
+    await runAsync('DELETE FROM menus WHERE id = ?', [id]);
+    res.status(200).json({ success: true, message: 'Menu deleted successfully' });
+  } catch (err) {
+    console.error('Error deleting menu:', err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
 app.listen(PORT, async () => {
   console.log(`Server running on http://localhost:${PORT}`);
   // Ensure default admin user exists (id 1) after server start

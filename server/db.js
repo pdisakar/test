@@ -248,6 +248,28 @@ const init = () => {
     if (err) console.error('Error creating testimonials table:', err);
     else console.log('Testimonials table ready');
   });
+
+  // Menus table
+  const createMenusTableSQL = `
+    CREATE TABLE IF NOT EXISTS menus (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      title TEXT NOT NULL,
+      type TEXT NOT NULL,
+      parentId INTEGER,
+      urlSegmentType TEXT,
+      urlSegmentId INTEGER,
+      url TEXT,
+      status INTEGER DEFAULT 1,
+      displayOrder INTEGER DEFAULT 0,
+      createdAt TEXT NOT NULL,
+      updatedAt TEXT NOT NULL
+    );
+  `;
+
+  db.run(createMenusTableSQL, (err) => {
+    if (err) console.error('Error creating menus table:', err);
+    else console.log('Menus table ready');
+  });
 };
 
 init();

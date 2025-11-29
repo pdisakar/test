@@ -30,6 +30,19 @@ interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {
   onMobileClose: () => void;
 }
 
+type MenuItem = {
+  title: string;
+  icon: React.ForwardRefExoticComponent<any>;
+} & (
+    | { href: string; sub?: never }
+    | { sub: { label: string; href: string }[]; href?: never }
+  );
+
+type MenuSection = {
+  title?: string;
+  items: MenuItem[];
+};
+
 export function Sidebar({ className, isCollapsed, isMobileOpen, onMobileClose }: SidebarProps) {
   const [openItem, setOpenItem] = React.useState<string | null>(null);
 
@@ -37,7 +50,7 @@ export function Sidebar({ className, isCollapsed, isMobileOpen, onMobileClose }:
     setOpenItem((prev) => prev === title ? null : title);
   };
 
-  const menuItems = [
+  const menuItems: MenuSection[] = [
     {
       title: "MENU",
       items: [
@@ -122,6 +135,14 @@ export function Sidebar({ className, isCollapsed, isMobileOpen, onMobileClose }:
             { label: "Deleted Blogs", href: "/blogs/trash" }
           ]
         },
+        {
+          title: "Menus",
+          icon: Edit,
+          sub: [
+            { label: "Add New", href: "/menus/add" },
+            { label: "All Menus", href: "/menus" }
+          ]
+        },
       ]
     },
     {
@@ -187,47 +208,66 @@ export function Sidebar({ className, isCollapsed, isMobileOpen, onMobileClose }:
               )}
               <div className="space-y-1">
                 {section.items.map((item) => (
-                  <Collapsible
-                    key={item.title}
-                    open={(!isCollapsed || isMobileOpen) && openItem === item.title}
-                    onOpenChange={() => toggleItem(item.title)}
-                  >
-                    <CollapsibleTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        className={cn(
-                          "w-full justify-start h-11 rounded-xl transition-all duration-200 group",
-                          isCollapsed ? "md:justify-center md:px-0" : "px-3",
-                          openItem === item.title
-                            ? "bg-primary/5 dark:bg-primary/10 text-primary dark:text-primary"
-                            : "text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white"
-                        )}
-                      >
-                        <item.icon className={cn("h-5 w-5 shrink-0 transition-colors", (!isCollapsed || isMobileOpen) && "mr-3", openItem === item.title ? "text-primary" : "text-gray-400 dark:text-gray-500 group-hover:text-gray-600 dark:group-hover:text-gray-300")} />
-                        {(!isCollapsed || isMobileOpen) && (
-                          <div className="flex-1 flex items-center justify-between">
-                            <span className="font-medium">{item.title}</span>
-                            <ChevronDown className={cn("h-4 w-4 text-gray-400 dark:text-gray-500 transition-transform duration-200", openItem === item.title && "transform rotate-180")} />
+                  item.href ? (
+                    // Direct link without submenu
+                    <Link
+                      key={item.title}
+                      href={item.href}
+                      className={cn(
+                        "flex items-center w-full h-11 rounded-xl transition-all duration-200 group",
+                        isCollapsed ? "md:justify-center md:px-0" : "px-3 justify-start",
+                        "text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white"
+                      )}
+                    >
+                      <item.icon className={cn("h-5 w-5 shrink-0 transition-colors", (!isCollapsed || isMobileOpen) && "mr-3", "text-gray-400 dark:text-gray-500 group-hover:text-gray-600 dark:group-hover:text-gray-300")} />
+                      {(!isCollapsed || isMobileOpen) && (
+                        <span className="font-medium">{item.title}</span>
+                      )}
+                    </Link>
+                  ) : (
+                    // Collapsible item with submenu
+                    <Collapsible
+                      key={item.title}
+                      open={(!isCollapsed || isMobileOpen) && openItem === item.title}
+                      onOpenChange={() => toggleItem(item.title)}
+                    >
+                      <CollapsibleTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          className={cn(
+                            "w-full justify-start h-11 rounded-xl transition-all duration-200 group",
+                            isCollapsed ? "md:justify-center md:px-0" : "px-3",
+                            openItem === item.title
+                              ? "bg-primary/5 dark:bg-primary/10 text-primary dark:text-primary"
+                              : "text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white"
+                          )}
+                        >
+                          <item.icon className={cn("h-5 w-5 shrink-0 transition-colors", (!isCollapsed || isMobileOpen) && "mr-3", openItem === item.title ? "text-primary" : "text-gray-400 dark:text-gray-500 group-hover:text-gray-600 dark:group-hover:text-gray-300")} />
+                          {(!isCollapsed || isMobileOpen) && (
+                            <div className="flex-1 flex items-center justify-between">
+                              <span className="font-medium">{item.title}</span>
+                              <ChevronDown className={cn("h-4 w-4 text-gray-400 dark:text-gray-500 transition-transform duration-200", openItem === item.title && "transform rotate-180")} />
+                            </div>
+                          )}
+                        </Button>
+                      </CollapsibleTrigger>
+                      <CollapsibleContent>
+                        {(!isCollapsed || isMobileOpen) && item.sub && (
+                          <div className="mt-1 ml-4 pl-4 border-l border-gray-100 dark:border-gray-800 space-y-1">
+                            {item.sub.map((subItem) => (
+                              <Link
+                                key={subItem.label}
+                                href={subItem.href}
+                                className="flex items-center w-full h-9 px-3 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg transition-colors"
+                              >
+                                {subItem.label}
+                              </Link>
+                            ))}
                           </div>
                         )}
-                      </Button>
-                    </CollapsibleTrigger>
-                    <CollapsibleContent>
-                      {(!isCollapsed || isMobileOpen) && (
-                        <div className="mt-1 ml-4 pl-4 border-l border-gray-100 dark:border-gray-800 space-y-1">
-                          {item.sub.map((subItem) => (
-                            <Link
-                              key={subItem.label}
-                              href={subItem.href}
-                              className="flex items-center w-full h-9 px-3 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg transition-colors"
-                            >
-                              {subItem.label}
-                            </Link>
-                          ))}
-                        </div>
-                      )}
-                    </CollapsibleContent>
-                  </Collapsible>
+                      </CollapsibleContent>
+                    </Collapsible>
+                  )
                 ))}
               </div>
             </div>
