@@ -119,7 +119,7 @@ export function Sidebar({ className, isCollapsed, isMobileOpen, onMobileClose }:
           sub: [
             { label: "Add New", href: "/blogs/add" },
             { label: "All Blogs", href: "/blogs" },
-            { label: "Deleted Blogs", href: "/blogs/deleted" }
+            { label: "Deleted Blogs", href: "/blogs/trash" }
           ]
         },
       ]
