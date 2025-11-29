@@ -176,7 +176,7 @@ export default function MenusPage() {
                                                 <td className="px-6 py-4">
                                                     <div className="flex gap-2">
                                                         <Button
-                                                            onClick={() => router.push(`/menus/edit/${menu.id}`)}
+                                                            onClick={() => router.push(`/admin/menus/edit/${menu.id}`)}
                                                             variant="outline"
                                                             size="sm"
                                                             className="h-8 w-8 p-0"

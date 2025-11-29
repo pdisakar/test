@@ -65,7 +65,7 @@ export default function TeamsPage() {
     };
 
     const handleEdit = (id: number) => {
-        router.push(`/teams/edit/${id}`);
+        router.push(`/admin/teams/edit/${id}`);
     };
 
     const handleConfirmDelete = async () => {

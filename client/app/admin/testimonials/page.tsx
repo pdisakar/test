@@ -76,7 +76,7 @@ export default function TestimonialsPage() {
     };
 
     const handleEdit = (id: number) => {
-        router.push(`/testimonials/edit/${id}`);
+        router.push(`/admin/testimonials/edit/${id}`);
     };
 
     const handleConfirmDelete = async () => {

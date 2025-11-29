@@ -65,7 +65,7 @@ export default function AuthorsPage() {
     };
 
     const handleEdit = (id: number) => {
-        router.push(`/authors/edit/${id}`);
+        router.push(`/admin/authors/edit/${id}`);
     };
 
     const handleConfirmDelete = async () => {

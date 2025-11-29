@@ -77,7 +77,7 @@ export default function ArticlesPage() {
   };
 
   const handleEdit = (id: number) => {
-    router.push(`/articles/edit/${id}`);
+    router.push(`/admin/articles/edit/${id}`);
   };
 
 

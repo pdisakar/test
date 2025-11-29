@@ -64,7 +64,7 @@ export default function PackagesPage() {
   };
 
   const handleEdit = (id: number) => {
-    router.push(`/packages/edit/${id}`);
+    router.push(`/admin/packages/edit/${id}`);
   };
 
   const handleConfirmDelete = async () => {

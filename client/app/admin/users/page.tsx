@@ -283,7 +283,7 @@ export default function UsersPage() {
                     <td className="px-6 py-4 text-sm text-gray-900 dark:text-white">{user.id}</td>
                     <td className="px-6 py-4">
                       <Button
-                        onClick={() => router.push(`/users/edit/${user.id}`)}
+                        onClick={() => router.push(`/admin/users/edit/${user.id}`)}
                         variant="outline"
                         size="sm"
                         className="h-8 w-8 p-0 border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:bg-gray-800"
