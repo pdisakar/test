@@ -6,6 +6,8 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/app/admin/components/ui/button';
 import { Switch } from '@/app/admin/components/ui/switch';
 
+import { HierarchySelector } from '@/app/admin/components/HierarchySelector';
+
 interface Menu {
     id: number;
     title: string;
@@ -22,12 +24,14 @@ interface Article {
     id: number;
     title: string;
     slug: string;
+    parentId: number | null;
 }
 
 interface Place {
     id: number;
     title: string;
     slug: string;
+    parentId: number | null;
 }
 
 export default function EditMenuPage({ params }: { params: Promise<{ id: string }> }) {
@@ -35,9 +39,9 @@ export default function EditMenuPage({ params }: { params: Promise<{ id: string 
     const { id } = use(params);
     const [title, setTitle] = useState('');
     const [type, setType] = useState('header');
-    const [parentId, setParentId] = useState('');
+    const [parentId, setParentId] = useState<number | null>(null);
     const [urlSegmentType, setUrlSegmentType] = useState('article');
-    const [urlSegmentId, setUrlSegmentId] = useState('');
+    const [urlSegmentId, setUrlSegmentId] = useState<number | null>(null);
     const [status, setStatus] = useState(true);
     const [saving, setSaving] = useState(false);
     const [loading, setLoading] = useState(true);
@@ -78,9 +82,9 @@ export default function EditMenuPage({ params }: { params: Promise<{ id: string 
             // Set form data
             setTitle(menuData.title);
             setType(menuData.type);
-            setParentId(menuData.parentId ? menuData.parentId.toString() : '');
+            setParentId(menuData.parentId);
             setUrlSegmentType(menuData.urlSegmentType || 'article');
-            setUrlSegmentId(menuData.urlSegmentId ? menuData.urlSegmentId.toString() : '');
+            setUrlSegmentId(menuData.urlSegmentId);
             setStatus(menuData.status === 1);
 
             setParentMenus(Array.isArray(menusData) ? menusData : []);
@@ -108,10 +112,10 @@ export default function EditMenuPage({ params }: { params: Promise<{ id: string 
             let url = null;
             if (urlSegmentId) {
                 if (urlSegmentType === 'article') {
-                    const article = articles.find(a => a.id === parseInt(urlSegmentId));
+                    const article = articles.find(a => a.id === urlSegmentId);
                     if (article) url = `/${article.slug}`;
                 } else {
-                    const place = places.find(p => p.id === parseInt(urlSegmentId));
+                    const place = places.find(p => p.id === urlSegmentId);
                     if (place) url = `/${place.slug}`;
                 }
             }
@@ -119,9 +123,9 @@ export default function EditMenuPage({ params }: { params: Promise<{ id: string 
             const payload = {
                 title,
                 type,
-                parentId: parentId ? parseInt(parentId) : null,
+                parentId: parentId,
                 urlSegmentType: urlSegmentId ? urlSegmentType : null,
-                urlSegmentId: urlSegmentId ? parseInt(urlSegmentId) : null,
+                urlSegmentId: urlSegmentId,
                 url,
                 status,
                 displayOrder: 0 // Preserve existing order? API might handle this
@@ -188,7 +192,7 @@ export default function EditMenuPage({ params }: { params: Promise<{ id: string 
                                 value={type}
                                 onChange={(e) => {
                                     setType(e.target.value);
-                                    setParentId(''); // Reset parent when type changes
+                                    setParentId(null); // Reset parent when type changes
                                 }}
                                 className="w-full px-4 py-2.5 rounded-lg border border-gray-200 dark:border-gray-700 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all bg-white dark:bg-gray-900"
                             >
@@ -202,16 +206,12 @@ export default function EditMenuPage({ params }: { params: Promise<{ id: string 
                             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                 Parent Menu
                             </label>
-                            <select
-                                value={parentId}
-                                onChange={(e) => setParentId(e.target.value)}
-                                className="w-full px-4 py-2.5 rounded-lg border border-gray-200 dark:border-gray-700 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all bg-white dark:bg-gray-900"
-                            >
-                                <option value="">-- None (Top Level) --</option>
-                                {availableParents.map(menu => (
-                                    <option key={menu.id} value={menu.id}>{menu.title}</option>
-                                ))}
-                            </select>
+                            <HierarchySelector
+                                items={availableParents}
+                                selectedId={parentId}
+                                onSelect={setParentId}
+                                placeholder="-- None (Top Level) --"
+                            />
                             <p className="text-xs text-gray-500 mt-1">Select a parent menu to create a sub-menu</p>
                         </div>
 
@@ -227,7 +227,7 @@ export default function EditMenuPage({ params }: { params: Promise<{ id: string 
                                     value={urlSegmentType}
                                     onChange={(e) => {
                                         setUrlSegmentType(e.target.value);
-                                        setUrlSegmentId('');
+                                        setUrlSegmentId(null);
                                     }}
                                     className="w-full px-4 py-2.5 rounded-lg border border-gray-200 dark:border-gray-700 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all bg-white dark:bg-gray-900"
                                 >
@@ -236,21 +236,12 @@ export default function EditMenuPage({ params }: { params: Promise<{ id: string 
                                 </select>
 
                                 {/* Segment Selection */}
-                                <select
-                                    value={urlSegmentId}
-                                    onChange={(e) => setUrlSegmentId(e.target.value)}
-                                    className="w-full px-4 py-2.5 rounded-lg border border-gray-200 dark:border-gray-700 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all bg-white dark:bg-gray-900"
-                                >
-                                    <option value="">-- Select {urlSegmentType === 'article' ? 'Article' : 'Place'} --</option>
-                                    {urlSegmentType === 'article'
-                                        ? articles.map(article => (
-                                            <option key={article.id} value={article.id}>{article.title}</option>
-                                        ))
-                                        : places.map(place => (
-                                            <option key={place.id} value={place.id}>{place.title}</option>
-                                        ))
-                                    }
-                                </select>
+                                <HierarchySelector
+                                    items={urlSegmentType === 'article' ? articles : places}
+                                    selectedId={urlSegmentId}
+                                    onSelect={setUrlSegmentId}
+                                    placeholder={`-- Select ${urlSegmentType === 'article' ? 'Article' : 'Place'} --`}
+                                />
                             </div>
                             <p className="text-xs text-gray-500 mt-1">Select an article or place to link this menu to</p>
                         </div>

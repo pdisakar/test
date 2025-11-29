@@ -2703,10 +2703,35 @@ app.post('/api/menus', async (req, res) => {
       [title, type, parentId || null, urlSegmentType || null, urlSegmentId || null, url || null, status ? 1 : 0, displayOrder || 0, now, now]
     );
 
+    const newMenuId = result.lastID;
+
+    // Automatically import child places as sub-menus
+    if (urlSegmentType === 'place' && urlSegmentId) {
+      try {
+        const childPlaces = await allAsync('SELECT * FROM places WHERE parentId = ? AND deletedAt IS NULL', [urlSegmentId]);
+
+        if (childPlaces && childPlaces.length > 0) {
+          console.log(`[Auto-Menu] Found ${childPlaces.length} child places for Place ID ${urlSegmentId}. Creating sub-menus...`);
+
+          for (const child of childPlaces) {
+            const childUrl = `/${child.slug}`;
+            await runAsync(
+              `INSERT INTO menus (title, type, parentId, urlSegmentType, urlSegmentId, url, status, displayOrder, createdAt, updatedAt) 
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+              [child.title, type, newMenuId, 'place', child.id, childUrl, 1, 0, now, now]
+            );
+          }
+        }
+      } catch (autoErr) {
+        console.error('Error auto-creating sub-menus:', autoErr);
+        // Don't fail the main request if auto-creation fails, but log it.
+      }
+    }
+
     res.status(201).json({
       success: true,
       message: 'Menu created successfully',
-      menuId: result.lastID
+      menuId: newMenuId
     });
   } catch (err) {
     console.error('Error creating menu:', err);
