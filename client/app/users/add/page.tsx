@@ -1,6 +1,6 @@
 'use client';
 
-import { Sidebar } from '@/components/Sidebar';
+import { MainLayout } from '@/components/MainLayout';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
@@ -112,160 +112,155 @@ export default function AddUserPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
-      <Sidebar />
-      <div className="flex-1 transition-all duration-300 w-full">
-        <div className="pt-16 pb-6 px-4 md:py-12 md:px-6 max-w-7xl mx-auto">
-          {/* Header */}
-          <div className="mb-8 flex items-center justify-between">
-            <h1 className="text-3xl font-bold text-gray-900">Add User</h1>
-            <div className="flex items-center gap-3">
-              <Button
-                onClick={handleDiscard}
-                variant="outline"
-                className="px-6 py-2 border-gray-300 text-gray-700 hover:bg-gray-50"
-                disabled={loading}
-              >
-                Discard
-              </Button>
-              <Button
-                onClick={(e) => handleSubmit(e, true)}
-                className="px-6 py-2 bg-green-600 hover:bg-green-700 text-white"
-                disabled={loading}
-              >
-                {loading ? 'Saving...' : 'Save & New'}
-              </Button>
-              <Button
-                onClick={(e) => handleSubmit(e, false)}
-                className="px-6 py-2 bg-primary hover:bg-primary/90 text-white"
-                disabled={loading}
-              >
-                {loading ? 'Saving...' : 'Save'}
-              </Button>
-            </div>
-          </div>
-
-          {/* Error Message */}
-          {error && (
-            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
-              <p className="text-red-800 text-sm">{error}</p>
-            </div>
-          )}
-
-          {/* Success Message */}
-          {success && (
-            <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
-              <p className="text-green-800 text-sm">{success}</p>
-            </div>
-          )}
-
-          {/* Form */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100">
-            <form onSubmit={(e) => handleSubmit(e, false)} className="p-8">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Name */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Name <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    placeholder="Full Name"
-                    className="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
-                    required
-                    disabled={loading}
-                  />
-                </div>
-
-                {/* Email */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    E-mail <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="email"
-                    value={formData.email}
-                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    placeholder="email@example.com"
-                    className="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
-                    required
-                    disabled={loading}
-                  />
-                </div>
-
-                {/* Password */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Password <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="password"
-                    value={formData.password}
-                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                    placeholder="••••••••"
-                    className="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
-                    required
-                    disabled={loading}
-                  />
-                </div>
-
-                {/* Confirm Password */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Confirm Password <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="password"
-                    value={formData.confirmPassword}
-                    onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
-                    placeholder="••••••••"
-                    className="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
-                    required
-                    disabled={loading}
-                  />
-                </div>
-
-                {/* User Type */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    User Type <span className="text-red-500">*</span>
-                  </label>
-                  <select
-                    value={formData.userType}
-                    onChange={(e) => setFormData({ ...formData, userType: e.target.value })}
-                    className="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all bg-white"
-                    required
-                    disabled={loading}
-                  >
-                    <option value="">Select User Type</option>
-                    <option value="super-user">Super User</option>
-                    <option value="admin">Admin</option>
-                  </select>
-                </div>
-
-                {/* Status */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Status
-                  </label>
-                  <div className="flex items-center gap-3 h-[42px]">
-                    <Switch
-                      checked={formData.status}
-                      onCheckedChange={(checked) => setFormData({ ...formData, status: checked })}
-                      disabled={loading}
-                    />
-                    <span className="text-sm text-gray-600">
-                      {formData.status ? 'Active' : 'Not Active'}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </form>
-          </div>
+    <MainLayout>
+      {/* Header */}
+      <div className="mb-8 flex items-center justify-between">
+        <h1 className="text-3xl font-bold text-gray-900">Add User</h1>
+        <div className="flex items-center gap-3">
+          <Button
+            onClick={handleDiscard}
+            variant="outline"
+            className="px-6 py-2 border-gray-300 text-gray-700 hover:bg-gray-50"
+            disabled={loading}
+          >
+            Discard
+          </Button>
+          <Button
+            onClick={(e) => handleSubmit(e, true)}
+            className="px-6 py-2 bg-green-600 hover:bg-green-700 text-white"
+            disabled={loading}
+          >
+            {loading ? 'Saving...' : 'Save & New'}
+          </Button>
+          <Button
+            onClick={(e) => handleSubmit(e, false)}
+            className="px-6 py-2 bg-primary hover:bg-primary/90 text-white"
+            disabled={loading}
+          >
+            {loading ? 'Saving...' : 'Save'}
+          </Button>
         </div>
       </div>
-    </div>
+
+      {/* Error Message */}
+      {error && (
+        <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+          <p className="text-red-800 text-sm">{error}</p>
+        </div>
+      )}
+
+      {/* Success Message */}
+      {success && (
+        <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+          <p className="text-green-800 text-sm">{success}</p>
+        </div>
+      )}
+
+      {/* Form */}
+      <div className="bg-white rounded-xl shadow-sm border border-gray-100">
+        <form onSubmit={(e) => handleSubmit(e, false)} className="p-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Name */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Name <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                value={formData.name}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                placeholder="Full Name"
+                className="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                required
+                disabled={loading}
+              />
+            </div>
+
+            {/* Email */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                E-mail <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="email"
+                value={formData.email}
+                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                placeholder="email@example.com"
+                className="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                required
+                disabled={loading}
+              />
+            </div>
+
+            {/* Password */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Password <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="password"
+                value={formData.password}
+                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                placeholder="••••••••"
+                className="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                required
+                disabled={loading}
+              />
+            </div>
+
+            {/* Confirm Password */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Confirm Password <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="password"
+                value={formData.confirmPassword}
+                onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+                placeholder="••••••••"
+                className="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                required
+                disabled={loading}
+              />
+            </div>
+
+            {/* User Type */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                User Type <span className="text-red-500">*</span>
+              </label>
+              <select
+                value={formData.userType}
+                onChange={(e) => setFormData({ ...formData, userType: e.target.value })}
+                className="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all bg-white"
+                required
+                disabled={loading}
+              >
+                <option value="">Select User Type</option>
+                <option value="super-user">Super User</option>
+                <option value="admin">Admin</option>
+              </select>
+            </div>
+
+            {/* Status */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Status
+              </label>
+              <div className="flex items-center gap-3 h-[42px]">
+                <Switch
+                  checked={formData.status}
+                  onCheckedChange={(checked) => setFormData({ ...formData, status: checked })}
+                  disabled={loading}
+                />
+                <span className="text-sm text-gray-600">
+                  {formData.status ? 'Active' : 'Not Active'}
+                </span>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+    </MainLayout>
   );
 }

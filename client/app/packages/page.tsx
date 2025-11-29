@@ -1,6 +1,6 @@
 'use client';
 
-import { Sidebar } from '@/components/Sidebar';
+import { MainLayout } from '@/components/MainLayout';
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
@@ -135,8 +135,7 @@ export default function PackagesPage() {
   });
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
-      <Sidebar />
+    <MainLayout>
       <div className="flex-1 transition-all duration-300 w-full">
         <div className="pt-16 pb-6 px-4 md:py-12 md:px-6 max-w-7xl mx-auto">
           {/* Header */}
@@ -259,8 +258,8 @@ export default function PackagesPage() {
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-900">
                         <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${pkg.status === true || pkg.status === 1
-                            ? 'bg-green-100 text-green-800'
-                            : 'bg-gray-100 text-gray-800'
+                          ? 'bg-green-100 text-green-800'
+                          : 'bg-gray-100 text-gray-800'
                           }`}>
                           {pkg.status === true || pkg.status === 1 ? 'Active' : 'Inactive'}
                         </span>
@@ -313,6 +312,6 @@ export default function PackagesPage() {
           </div>
         )}
       </div>
-    </div>
+    </MainLayout>
   );
 }

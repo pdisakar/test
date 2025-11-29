@@ -1,6 +1,6 @@
 'use client';
 
-import { Sidebar } from '@/components/Sidebar';
+import { MainLayout } from '@/components/MainLayout';
 import React, { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
@@ -225,18 +225,16 @@ export default function EditAuthorPage() {
 
   if (loading) {
     return (
-      <div className="flex min-h-screen bg-gray-50">
-        <Sidebar />
-        <div className="flex-1 p-8 flex items-center justify-center">
+      <MainLayout>
+        <div className="flex-1 p-8 flex items-center justify-center h-full">
           <div className="text-gray-500">Loading author data...</div>
         </div>
-      </div>
+      </MainLayout>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
-      <Sidebar />
+    <MainLayout>
       <div className="flex-1 transition-all duration-300 w-full">
         <div className="pt-16 pb-6 px-4 md:py-12 md:px-6 max-w-7xl mx-auto">
           <div className="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-0">
@@ -498,6 +496,6 @@ export default function EditAuthorPage() {
           </div>
         </div>
       )}
-    </div>
+    </MainLayout>
   );
 }

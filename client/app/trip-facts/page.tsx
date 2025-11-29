@@ -1,6 +1,6 @@
 'use client';
 
-import { Sidebar } from '@/components/Sidebar';
+import { MainLayout } from '@/components/MainLayout';
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Trash2, Plus, Pencil, Check, X, FolderPlus } from 'lucide-react';
@@ -28,9 +28,9 @@ export default function TripFactsPage() {
   const [loading, setLoading] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editValue, setEditValue] = useState('');
-  const [categoryToDelete, setCategoryToDelete] = useState<{id: number, label: string} | null>(null);
+  const [categoryToDelete, setCategoryToDelete] = useState<{ id: number, label: string } | null>(null);
   const [deleteStep, setDeleteStep] = useState(1);
-  const [attributeToDelete, setAttributeToDelete] = useState<{id: number, name: string} | null>(null);
+  const [attributeToDelete, setAttributeToDelete] = useState<{ id: number, name: string } | null>(null);
   const [attributeDeleteStep, setAttributeDeleteStep] = useState(1);
 
   useEffect(() => {
@@ -94,13 +94,13 @@ export default function TripFactsPage() {
   };
 
   const handleDeleteCategory = (id: number, label: string) => {
-    setCategoryToDelete({id, label});
+    setCategoryToDelete({ id, label });
     setDeleteStep(1);
   };
 
   const confirmDeleteCategory = async () => {
     if (!categoryToDelete) return;
-    
+
     try {
       const res = await fetch(`http://localhost:3001/api/fact-categories/${categoryToDelete.id}`, {
         method: 'DELETE',
@@ -147,13 +147,13 @@ export default function TripFactsPage() {
   };
 
   const handleDeleteAttribute = (id: number, name: string) => {
-    setAttributeToDelete({id, name});
+    setAttributeToDelete({ id, name });
     setAttributeDeleteStep(1);
   };
 
   const confirmDeleteAttribute = async () => {
     if (!attributeToDelete) return;
-    
+
     try {
       const res = await fetch(`http://localhost:3001/api/attributes/${attributeToDelete.id}`, {
         method: 'DELETE',
@@ -196,8 +196,7 @@ export default function TripFactsPage() {
   };
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
-      <Sidebar className="w-64 shrink-0" />
+    <MainLayout>
       <div className="flex-1 p-8">
         <div className="max-w-4xl mx-auto">
           <div className="flex items-center justify-between mb-8">
@@ -229,11 +228,10 @@ export default function TripFactsPage() {
               <div key={cat.id} className="relative group">
                 <button
                   onClick={() => setActiveTab(cat.slug)}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap ${cat.isDefault ? 'pr-4' : 'pr-8'} ${
-                    activeTab === cat.slug
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap ${cat.isDefault ? 'pr-4' : 'pr-8'} ${activeTab === cat.slug
                       ? 'bg-primary text-white shadow-sm'
                       : 'bg-white text-gray-600 hover:bg-gray-100 border border-gray-200'
-                  }`}
+                    }`}
                 >
                   {cat.label}
                 </button>
@@ -243,9 +241,8 @@ export default function TripFactsPage() {
                       e.stopPropagation();
                       handleDeleteCategory(cat.id, cat.label);
                     }}
-                    className={`absolute right-1 top-1/2 -translate-y-1/2 p-1 rounded-full hover:bg-red-100 hover:text-red-600 transition-colors ${
-                       activeTab === cat.slug ? 'text-white/80 hover:text-white hover:bg-white/20' : 'text-gray-400'
-                    }`}
+                    className={`absolute right-1 top-1/2 -translate-y-1/2 p-1 rounded-full hover:bg-red-100 hover:text-red-600 transition-colors ${activeTab === cat.slug ? 'text-white/80 hover:text-white hover:bg-white/20' : 'text-gray-400'
+                      }`}
                   >
                     <X className="h-3 w-3" />
                   </button>
@@ -371,6 +368,6 @@ export default function TripFactsPage() {
           </div>
         </div>
       )}
-    </div>
+    </MainLayout>
   );
 }

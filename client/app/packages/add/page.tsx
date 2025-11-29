@@ -1,6 +1,6 @@
 "use client";
 
-import { Sidebar } from '@/components/Sidebar';
+import { MainLayout } from '@/components/MainLayout';
 import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
@@ -372,7 +372,7 @@ export default function AddPackagePage() {
   const removeImage = async (type: 'featured' | 'banner' | 'tripMap') => {
     // Get the current image URL
     const imageUrl = formData[`${type}ImagePreview`] as string;
-    
+
     // Delete from backend if image exists
     if (imageUrl) {
       try {
@@ -385,7 +385,7 @@ export default function AddPackagePage() {
         console.error('Failed to delete image from backend:', err);
       }
     }
-    
+
     // Clear from frontend state
     setFormData(prev => ({
       ...prev,
@@ -486,7 +486,7 @@ export default function AddPackagePage() {
   const uploadImage = async (file: File): Promise<string> => {
     try {
       const base64 = await fileToBase64(file);
-      
+
       const res = await fetch('http://localhost:3001/api/upload/image', {
         method: 'POST',
         headers: {
@@ -499,7 +499,7 @@ export default function AddPackagePage() {
         const errorData = await res.json();
         throw new Error(errorData.message || 'Failed to upload image');
       }
-      
+
       const data = await res.json();
       return data.path; // Server returns 'path' not 'url'
     } catch (error) {
@@ -655,7 +655,7 @@ export default function AddPackagePage() {
       }
     } catch (err: any) {
       console.error('Error creating package:', err);
-      
+
       // Cleanup uploaded images if an exception occurred
       if (uploadedImagePaths.length > 0) {
         console.log('Cleaning up uploaded images due to exception...');
@@ -671,7 +671,7 @@ export default function AddPackagePage() {
           }
         }));
       }
-      
+
       setError(err.message || 'Failed to create package');
     } finally {
       setLoading(false);
@@ -756,8 +756,7 @@ export default function AddPackagePage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
-      <Sidebar />
+    <MainLayout>
       <div className="flex-1 transition-all duration-300 w-full">
         <div className="pt-16 pb-6 px-4 md:py-12 md:px-6 max-w-7xl mx-auto">
           {/* Header */}
@@ -1729,7 +1728,7 @@ export default function AddPackagePage() {
               >
                 Back
               </Button>
-              
+
               {currentStep < 7 ? (
                 <Button
                   type="button"
@@ -1858,6 +1857,6 @@ export default function AddPackagePage() {
           </div>
         </div>
       )}
-    </div>
+    </MainLayout>
   );
 }

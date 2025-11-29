@@ -1,6 +1,6 @@
 'use client';
 
-import { Sidebar } from '@/components/Sidebar';
+import { MainLayout } from '@/components/MainLayout';
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
@@ -146,8 +146,7 @@ export default function TrashPage() {
     );
 
     return (
-        <div className="min-h-screen bg-gray-50 flex">
-            <Sidebar />
+        <MainLayout>
             <div className="flex-1 transition-all duration-300 w-full">
                 <div className="pt-16 pb-6 px-4 md:py-12 md:px-6 max-w-7xl mx-auto">
                     {/* Header */}
@@ -341,6 +340,6 @@ export default function TrashPage() {
                     </div>
                 )}
             </div>
-        </div>
+        </MainLayout>
     );
 }

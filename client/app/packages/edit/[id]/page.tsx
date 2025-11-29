@@ -1,6 +1,6 @@
 "use client";
 
-import { Sidebar } from '@/components/Sidebar';
+import { MainLayout } from '@/components/MainLayout';
 import React, { useState, useEffect, useRef } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
@@ -863,18 +863,16 @@ export default function EditPackagePage() {
 
   if (fetchingData) {
     return (
-      <div className="min-h-screen bg-gray-50 flex">
-        <Sidebar />
-        <div className="flex-1 transition-all duration-300 flex items-center justify-center">
+      <MainLayout>
+        <div className="flex-1 transition-all duration-300 flex items-center justify-center h-full">
           <p className="text-gray-600">Loading package...</p>
         </div>
-      </div>
+      </MainLayout>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
-      <Sidebar />
+    <MainLayout>
       <div className="flex-1 transition-all duration-300 w-full">
         <div className="pt-16 pb-6 px-4 md:py-12 md:px-6 max-w-7xl mx-auto">
           {/* Header */}
@@ -1975,6 +1973,6 @@ export default function EditPackagePage() {
           </div>
         )
       }
-    </div >
+    </MainLayout>
   );
 }

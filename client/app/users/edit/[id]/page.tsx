@@ -1,6 +1,6 @@
 'use client';
 
-import { Sidebar } from '@/components/Sidebar';
+import { MainLayout } from '@/components/MainLayout';
 import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
@@ -154,163 +154,157 @@ export default function EditUserPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex">
-        <Sidebar />
-        <div className="flex-1 transition-all duration-300 flex items-center justify-center">
+      <MainLayout>
+        <div className="flex-1 transition-all duration-300 flex items-center justify-center h-full">
           <p className="text-gray-600">Loading user data...</p>
         </div>
-      </div>
+      </MainLayout>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
-      <Sidebar />
-      <div className="flex-1 transition-all duration-300">
-        <div className="py-12 px-6 max-w-7xl mx-auto">
-          {/* Header */}
-          <div className="mb-8 flex items-center justify-between">
-            <h1 className="text-3xl font-bold text-gray-900">Edit User</h1>
-            <div className="flex items-center gap-3">
-              <Button
-                onClick={handleDiscard}
-                variant="outline"
-                className="px-6 py-2 border-gray-300 text-gray-700 hover:bg-gray-50"
-                disabled={saving}
-              >
-                Discard
-              </Button>
-              <Button
-                onClick={handleSubmit}
-                className="px-6 py-2 bg-primary hover:bg-primary/90 text-white"
-                disabled={saving}
-              >
-                {saving ? 'Updating...' : 'Update'}
-              </Button>
-            </div>
-          </div>
-
-          {/* Error Message */}
-          {error && (
-            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
-              <p className="text-red-800 text-sm">{error}</p>
-            </div>
-          )}
-
-          {/* Success Message */}
-          {success && (
-            <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
-              <p className="text-green-800 text-sm">{success}</p>
-            </div>
-          )}
-
-          {/* Form */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100">
-            <form onSubmit={handleSubmit} className="p-8">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Name */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Name <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    placeholder="Full Name"
-                    className="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
-                    required
-                    disabled={saving}
-                  />
-                </div>
-
-                {/* Email */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    E-mail <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="email"
-                    value={formData.email}
-                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    placeholder="email@example.com"
-                    className="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
-                    required
-                    disabled={saving}
-                  />
-                </div>
-
-                {/* Password */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Password <span className="text-gray-400 text-xs">(Leave blank to keep current)</span>
-                  </label>
-                  <input
-                    type="password"
-                    value={formData.password}
-                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                    placeholder="••••••••"
-                    className="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
-                    disabled={saving}
-                  />
-                </div>
-
-                {/* Confirm Password */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Confirm Password
-                  </label>
-                  <input
-                    type="password"
-                    value={formData.confirmPassword}
-                    onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
-                    placeholder="••••••••"
-                    className="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
-                    disabled={saving}
-                  />
-                </div>
-
-                {/* User Type */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    User Type <span className="text-red-500">*</span>
-                  </label>
-                  <select
-                    value={formData.userType}
-                    onChange={(e) => setFormData({ ...formData, userType: e.target.value })}
-                    className="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all bg-white"
-                    required
-                    disabled={saving}
-                  >
-                    <option value="">Select User Type</option>
-                    <option value="super-user">Super User</option>
-                    <option value="admin">Admin</option>
-                  </select>
-                </div>
-
-                {/* Status */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Status
-                  </label>
-                  <div className="flex items-center gap-3 h-[42px]">
-                    <Switch
-                      checked={formData.status}
-                      onCheckedChange={(checked) => setFormData({ ...formData, status: checked })}
-                      disabled={saving}
-                    />
-                    <span className="text-sm text-gray-600">
-                      {formData.status ? 'Active' : 'Not Active'}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </form>
+    <MainLayout>
+      <div className="py-12 px-6 max-w-7xl mx-auto">
+        {/* Header */}
+        <div className="mb-8 flex items-center justify-between">
+          <h1 className="text-3xl font-bold text-gray-900">Edit User</h1>
+          <div className="flex items-center gap-3">
+            <Button
+              onClick={handleDiscard}
+              variant="outline"
+              className="px-6 py-2 border-gray-300 text-gray-700 hover:bg-gray-50"
+              disabled={saving}
+            >
+              Discard
+            </Button>
+            <Button
+              onClick={handleSubmit}
+              className="px-6 py-2 bg-primary hover:bg-primary/90 text-white"
+              disabled={saving}
+            >
+              {saving ? 'Updating...' : 'Update'}
+            </Button>
           </div>
         </div>
+
+        {/* Error Message */}
+        {error && (
+          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+            <p className="text-red-800 text-sm">{error}</p>
+          </div>
+        )}
+
+        {/* Success Message */}
+        {success && (
+          <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+            <p className="text-green-800 text-sm">{success}</p>
+          </div>
+        )}
+
+        {/* Form */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100">
+          <form onSubmit={handleSubmit} className="p-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Name */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Name <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  placeholder="Full Name"
+                  className="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                  required
+                  disabled={saving}
+                />
+              </div>
+
+              {/* Email */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  E-mail <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="email"
+                  value={formData.email}
+                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  placeholder="email@example.com"
+                  className="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                  required
+                  disabled={saving}
+                />
+              </div>
+
+              {/* Password */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Password <span className="text-gray-400 text-xs">(Leave blank to keep current)</span>
+                </label>
+                <input
+                  type="password"
+                  value={formData.password}
+                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                  placeholder="••••••••"
+                  className="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                  disabled={saving}
+                />
+              </div>
+
+              {/* Confirm Password */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Confirm Password
+                </label>
+                <input
+                  type="password"
+                  value={formData.confirmPassword}
+                  onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+                  placeholder="••••••••"
+                  className="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                  disabled={saving}
+                />
+              </div>
+
+              {/* User Type */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  User Type <span className="text-red-500">*</span>
+                </label>
+                <select
+                  value={formData.userType}
+                  onChange={(e) => setFormData({ ...formData, userType: e.target.value })}
+                  className="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all bg-white"
+                  required
+                  disabled={saving}
+                >
+                  <option value="">Select User Type</option>
+                  <option value="super-user">Super User</option>
+                  <option value="admin">Admin</option>
+                </select>
+              </div>
+
+              {/* Status */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Status
+                </label>
+                <div className="flex items-center gap-3 h-[42px]">
+                  <Switch
+                    checked={formData.status}
+                    onCheckedChange={(checked) => setFormData({ ...formData, status: checked })}
+                    disabled={saving}
+                  />
+                  <span className="text-sm text-gray-600">
+                    {formData.status ? 'Active' : 'Not Active'}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
       </div>
-    </div>
-      )}
 
       {/* Success Modal */}
       {showSuccessModal && (
@@ -336,6 +330,6 @@ export default function EditUserPage() {
           </div>
         </div>
       )}
-    </div>
+    </MainLayout>
   );
 }

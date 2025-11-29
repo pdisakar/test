@@ -1,6 +1,6 @@
 'use client';
 
-import { Sidebar } from '@/components/Sidebar';
+import { MainLayout } from '@/components/MainLayout';
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
@@ -243,7 +243,7 @@ export default function AddplacePage() {
         body: JSON.stringify(payload),
       });
       const data = await response.json();
-      
+
       if (!response.ok) {
         // Cleanup uploaded images if server validation failed
         if (uploadedImagePaths.length > 0) {
@@ -260,7 +260,7 @@ export default function AddplacePage() {
         setLoading(false);
         return;
       }
-      
+
       setShowSuccessModal(true);
     } catch (err: any) {
       setError(err.message || 'An error occurred while creating the place');
@@ -320,194 +320,191 @@ export default function AddplacePage() {
   const handleDiscard = () => router.push('/places');
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
-      <Sidebar />
-      <div className="flex-1 transition-all duration-300 w-full">
-        <div className="pt-16 pb-6 px-4 md:py-12 md:px-6 max-w-7xl mx-auto">
-          <div className="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-0">
-            <h1 className="text-3xl font-bold text-gray-900">Add place</h1>
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-              <Button onClick={handleClearForm} variant="outline" className="px-6 py-2 border-gray-300 text-gray-700 hover:bg-gray-50" disabled={loading}>Clear Form</Button>
-              <Button onClick={handleDiscard} variant="outline" className="px-6 py-2 border-gray-300 text-gray-700 hover:bg-gray-50" disabled={loading}>Discard</Button>
-              <Button onClick={handleSubmit} className="px-6 py-2 bg-primary hover:bg-primary/90 text-white" disabled={loading}>
-                {loading ? 'Saving...' : 'Save'}
-              </Button>
-            </div>
+    <MainLayout>
+      <div className="pt-16 pb-6 px-4 md:py-12 md:px-6 max-w-7xl mx-auto">
+        <div className="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-0">
+          <h1 className="text-3xl font-bold text-gray-900">Add place</h1>
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+            <Button onClick={handleClearForm} variant="outline" className="px-6 py-2 border-gray-300 text-gray-700 hover:bg-gray-50" disabled={loading}>Clear Form</Button>
+            <Button onClick={handleDiscard} variant="outline" className="px-6 py-2 border-gray-300 text-gray-700 hover:bg-gray-50" disabled={loading}>Discard</Button>
+            <Button onClick={handleSubmit} className="px-6 py-2 bg-primary hover:bg-primary/90 text-white" disabled={loading}>
+              {loading ? 'Saving...' : 'Save'}
+            </Button>
           </div>
-          {error && (
-            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
-              <p className="text-red-800 text-sm">{error}</p>
-            </div>
-          )}
-          {success && (
-            <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
-              <p className="text-green-800 text-sm">{success}</p>
-            </div>
-          )}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100">
-            <form onSubmit={handleSubmit} className="p-8">
-              <div className="space-y-8">
+        </div>
+        {error && (
+          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+            <p className="text-red-800 text-sm">{error}</p>
+          </div>
+        )}
+        {success && (
+          <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+            <p className="text-green-800 text-sm">{success}</p>
+          </div>
+        )}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100">
+          <form onSubmit={handleSubmit} className="p-8">
+            <div className="space-y-8">
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {/* Title */}
-                  <div className="md:col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Title <span className="text-red-500">*</span></label>
-                    <input type="text" value={formData.title} onChange={e => setFormData({ ...formData, title: e.target.value })} placeholder="place Title" className="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all" required disabled={loading} />
-                  </div>
-                  {/* URL Title */}
-                  <div className="md:col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">URL Title <span className="text-red-500">*</span></label>
-                    <input type="text" value={formData.urlTitle} onChange={e => setFormData({ ...formData, urlTitle: e.target.value })} placeholder="place URL Title" className="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all" required disabled={loading} />
-                  </div>
-                  {/* Slug (auto) */}
-                  <div className="md:col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Slug</label>
-                    <input type="text" value={formData.slug} readOnly className="w-full px-4 py-2.5 rounded-lg bg-gray-100 border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all" disabled />
-                  </div>
-                  {/* Parent place */}
-                  <div className="md:col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Parent place(s)</label>
-                    <div
-                      className="border border-gray-200 rounded-lg bg-white cursor-pointer"
-                      onClick={() => setShowAccordion(!showAccordion)}
-                    >
-                      <div className="py-2.5 px-4 flex items-center justify-between">
-                        <span className="text-sm text-gray-900">
-                          {formData.parentId.length === 0 ? (
-                            <span className="text-gray-500">None (Top Level)</span>
-                          ) : (
-                            <span>
-                              {formData.parentId.map((id) => {
-                                const findplace = (places: any[]): any => {
-                                  for (const place of places) {
-                                    if (String(place.id) === id) return place;
-                                    if (place.children) {
-                                      const found = findplace(place.children);
-                                      if (found) return found;
-                                    }
-                                  }
-                                  return null;
-                                };
-                                const place = findplace(organizeplaces(parentOptions));
-                                return place?.title || id;
-                              }).join(', ')}
-                            </span>
-                          )}
-                        </span>
-                        {showAccordion ? (
-                          <ChevronDown className="h-4 w-4 text-gray-500" />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Title */}
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Title <span className="text-red-500">*</span></label>
+                  <input type="text" value={formData.title} onChange={e => setFormData({ ...formData, title: e.target.value })} placeholder="place Title" className="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all" required disabled={loading} />
+                </div>
+                {/* URL Title */}
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">URL Title <span className="text-red-500">*</span></label>
+                  <input type="text" value={formData.urlTitle} onChange={e => setFormData({ ...formData, urlTitle: e.target.value })} placeholder="place URL Title" className="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all" required disabled={loading} />
+                </div>
+                {/* Slug (auto) */}
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Slug</label>
+                  <input type="text" value={formData.slug} readOnly className="w-full px-4 py-2.5 rounded-lg bg-gray-100 border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all" disabled />
+                </div>
+                {/* Parent place */}
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Parent place(s)</label>
+                  <div
+                    className="border border-gray-200 rounded-lg bg-white cursor-pointer"
+                    onClick={() => setShowAccordion(!showAccordion)}
+                  >
+                    <div className="py-2.5 px-4 flex items-center justify-between">
+                      <span className="text-sm text-gray-900">
+                        {formData.parentId.length === 0 ? (
+                          <span className="text-gray-500">None (Top Level)</span>
                         ) : (
-                          <ChevronRight className="h-4 w-4 text-gray-500" />
+                          <span>
+                            {formData.parentId.map((id) => {
+                              const findplace = (places: any[]): any => {
+                                for (const place of places) {
+                                  if (String(place.id) === id) return place;
+                                  if (place.children) {
+                                    const found = findplace(place.children);
+                                    if (found) return found;
+                                  }
+                                }
+                                return null;
+                              };
+                              const place = findplace(organizeplaces(parentOptions));
+                              return place?.title || id;
+                            }).join(', ')}
+                          </span>
                         )}
-                      </div>
-                      {showAccordion && (
-                        <div className="border-t border-gray-200 max-h-64 overflow-y-auto" onClick={(e) => e.stopPropagation()}>
-                          <div
-                            className={`py-2 px-3 cursor-pointer transition-colors ${formData.parentId.length === 0 ? 'bg-primary/10 border-t border-b border-primary' : 'hover:bg-gray-50'
-                              }`}
-                            onClick={() => setFormData({ ...formData, parentId: [] })}
-                          >
-                            <span className="text-sm text-gray-900 font-medium">None (Top Level)</span>
-                          </div>
-                          {organizeplaces(parentOptions).map((place) => renderParentOption(place))}
-                        </div>
+                      </span>
+                      {showAccordion ? (
+                        <ChevronDown className="h-4 w-4 text-gray-500" />
+                      ) : (
+                        <ChevronRight className="h-4 w-4 text-gray-500" />
                       )}
                     </div>
-                  </div>
-
-
-                  {/* Status */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
-                    <div className="flex items-center gap-3 h-[42px]">
-                      <Switch
-                        checked={formData.status}
-                        onCheckedChange={(checked) => setFormData({ ...formData, status: checked })}
-                        disabled={loading}
-                      />
-                      <span className="text-sm text-gray-600">
-                        {formData.status ? 'Active' : 'Not Active'}
-                      </span>
-                    </div>
+                    {showAccordion && (
+                      <div className="border-t border-gray-200 max-h-64 overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+                        <div
+                          className={`py-2 px-3 cursor-pointer transition-colors ${formData.parentId.length === 0 ? 'bg-primary/10 border-t border-b border-primary' : 'hover:bg-gray-50'
+                            }`}
+                          onClick={() => setFormData({ ...formData, parentId: [] })}
+                        >
+                          <span className="text-sm text-gray-900 font-medium">None (Top Level)</span>
+                        </div>
+                        {organizeplaces(parentOptions).map((place) => renderParentOption(place))}
+                      </div>
+                    )}
                   </div>
                 </div>
-                {/* Meta Information */}
-                <div className="border-t border-gray-200 pt-8">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-6">Meta Information</h3>
-                  <div className="space-y-6">
-                    {/* Meta Title */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Meta Title</label>
-                      <input type="text" value={formData.metaTitle} onChange={e => setFormData({ ...formData, metaTitle: e.target.value })} placeholder="Meta title for SEO" className="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all" disabled={loading} />
-                    </div>
-                    {/* Meta Keywords */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Meta Keywords</label>
-                      <input type="text" value={formData.metaKeywords} onChange={e => setFormData({ ...formData, metaKeywords: e.target.value })} placeholder="keyword1, keyword2, keyword3" className="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all" disabled={loading} />
-                    </div>
-                    {/* Meta Description */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Meta Description</label>
-                      <textarea value={formData.metaDescription} onChange={e => setFormData({ ...formData, metaDescription: e.target.value })} placeholder="Meta description for SEO..." rows={3} className="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all resize-none" disabled={loading} />
-                    </div>
-                  </div>
-                </div>
-                {/* Description */}
+
+
+                {/* Status */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
-                  <RichTextEditor
-                    content={formData.description}
-                    onChange={(content) => setFormData({ ...formData, description: content })}
-                    placeholder="place content..."
-                  />
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
+                  <div className="flex items-center gap-3 h-[42px]">
+                    <Switch
+                      checked={formData.status}
+                      onCheckedChange={(checked) => setFormData({ ...formData, status: checked })}
+                      disabled={loading}
+                    />
+                    <span className="text-sm text-gray-600">
+                      {formData.status ? 'Active' : 'Not Active'}
+                    </span>
+                  </div>
                 </div>
-                {/* Featured Image */}
-                <FeaturedImage
-                  label="Featured Image"
-                  imageUrl={formData.featuredImage}
-                  imageAlt={formData.featuredImageAlt}
-                  imageCaption={formData.featuredImageCaption}
-                  onImageSelect={(file) => {
-                    setSelectedImageFile(file);
-                    setShowImageCrop(true);
-                  }}
-                  onImageRemove={async () => {
-                    await deleteImage(formData.featuredImage);
-                    setFormData({ ...formData, featuredImage: '' });
-                  }}
-                  onAltChange={(value) => setFormData({ ...formData, featuredImageAlt: value })}
-                  onCaptionChange={(value) => setFormData({ ...formData, featuredImageCaption: value })}
-                  helperText="PNG, JPG up to 5MB"
-                  disabled={loading}
-                />
-
-                {/* Banner Image */}
-                <BannerImage
-                  label="Banner Image"
-                  imageUrl={formData.bannerImageUrl}
-                  imageAlt={formData.bannerImageAlt}
-                  imageCaption={formData.bannerImageCaption}
-                  onImageSelect={(file) => {
-                    const reader = new FileReader();
-                    reader.onload = (event) => {
-                      const base64 = event.target?.result as string;
-                      // Store base64, will upload on submit
-                      setFormData({ ...formData, bannerImageUrl: base64 });
-                    };
-                    reader.readAsDataURL(file);
-                  }}
-                  onImageRemove={async () => {
-                    await deleteImage(formData.bannerImageUrl);
-                    setFormData({ ...formData, bannerImageUrl: '' });
-                  }}
-                  onAltChange={(value) => setFormData({ ...formData, bannerImageAlt: value })}
-                  onCaptionChange={(value) => setFormData({ ...formData, bannerImageCaption: value })}
-                  helperText="PNG, JPG up to 5MB (no aspect ratio)"
-                  disabled={loading}
+              </div>
+              {/* Meta Information */}
+              <div className="border-t border-gray-200 pt-8">
+                <h3 className="text-lg font-semibold text-gray-900 mb-6">Meta Information</h3>
+                <div className="space-y-6">
+                  {/* Meta Title */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Meta Title</label>
+                    <input type="text" value={formData.metaTitle} onChange={e => setFormData({ ...formData, metaTitle: e.target.value })} placeholder="Meta title for SEO" className="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all" disabled={loading} />
+                  </div>
+                  {/* Meta Keywords */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Meta Keywords</label>
+                    <input type="text" value={formData.metaKeywords} onChange={e => setFormData({ ...formData, metaKeywords: e.target.value })} placeholder="keyword1, keyword2, keyword3" className="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all" disabled={loading} />
+                  </div>
+                  {/* Meta Description */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Meta Description</label>
+                    <textarea value={formData.metaDescription} onChange={e => setFormData({ ...formData, metaDescription: e.target.value })} placeholder="Meta description for SEO..." rows={3} className="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all resize-none" disabled={loading} />
+                  </div>
+                </div>
+              </div>
+              {/* Description */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
+                <RichTextEditor
+                  content={formData.description}
+                  onChange={(content) => setFormData({ ...formData, description: content })}
+                  placeholder="place content..."
                 />
               </div>
-            </form>
-          </div>
+              {/* Featured Image */}
+              <FeaturedImage
+                label="Featured Image"
+                imageUrl={formData.featuredImage}
+                imageAlt={formData.featuredImageAlt}
+                imageCaption={formData.featuredImageCaption}
+                onImageSelect={(file) => {
+                  setSelectedImageFile(file);
+                  setShowImageCrop(true);
+                }}
+                onImageRemove={async () => {
+                  await deleteImage(formData.featuredImage);
+                  setFormData({ ...formData, featuredImage: '' });
+                }}
+                onAltChange={(value) => setFormData({ ...formData, featuredImageAlt: value })}
+                onCaptionChange={(value) => setFormData({ ...formData, featuredImageCaption: value })}
+                helperText="PNG, JPG up to 5MB"
+                disabled={loading}
+              />
+
+              {/* Banner Image */}
+              <BannerImage
+                label="Banner Image"
+                imageUrl={formData.bannerImageUrl}
+                imageAlt={formData.bannerImageAlt}
+                imageCaption={formData.bannerImageCaption}
+                onImageSelect={(file) => {
+                  const reader = new FileReader();
+                  reader.onload = (event) => {
+                    const base64 = event.target?.result as string;
+                    // Store base64, will upload on submit
+                    setFormData({ ...formData, bannerImageUrl: base64 });
+                  };
+                  reader.readAsDataURL(file);
+                }}
+                onImageRemove={async () => {
+                  await deleteImage(formData.bannerImageUrl);
+                  setFormData({ ...formData, bannerImageUrl: '' });
+                }}
+                onAltChange={(value) => setFormData({ ...formData, bannerImageAlt: value })}
+                onCaptionChange={(value) => setFormData({ ...formData, bannerImageCaption: value })}
+                helperText="PNG, JPG up to 5MB (no aspect ratio)"
+                disabled={loading}
+              />
+            </div>
+          </form>
         </div>
       </div>
 
@@ -585,6 +582,6 @@ export default function AddplacePage() {
           </div>
         </div>
       )}
-    </div>
+    </MainLayout>
   );
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import { Sidebar } from '@/components/Sidebar';
+import { MainLayout } from '@/components/MainLayout';
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
@@ -279,7 +279,7 @@ export default function AddArticlePage() {
         body: JSON.stringify(payload),
       });
       const data = await response.json();
-      
+
       if (!response.ok) {
         // Cleanup uploaded images if server validation failed
         if (uploadedImagePaths.length > 0) {
@@ -296,7 +296,7 @@ export default function AddArticlePage() {
         setLoading(false);
         return;
       }
-      
+
       setShowSuccessModal(true);
     } catch (err: any) {
       setError(err.message || 'An error occurred while creating the article');
@@ -320,8 +320,7 @@ export default function AddArticlePage() {
   const handleDiscard = () => router.push('/articles');
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
-      <Sidebar />
+    <MainLayout>
       <div className="flex-1 transition-all duration-300 w-full">
         <div className="pt-16 pb-6 px-4 md:py-12 md:px-6 max-w-7xl mx-auto">
           <div className="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-0">
@@ -584,6 +583,6 @@ export default function AddArticlePage() {
           </div>
         </div>
       )}
-    </div>
+    </MainLayout>
   );
 }
