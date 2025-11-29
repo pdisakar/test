@@ -25,6 +25,34 @@ const deleteImageFile = (imageUrl) => {
   });
 };
 
+// Helper to check if slug exists globally across all content types
+const checkSlugExists = async (slug, excludeTable = null, excludeId = null) => {
+  const tables = ['places', 'packages', 'articles', 'blogs'];
+
+  for (const table of tables) {
+    // Skip the table we're updating (if provided)
+    if (table === excludeTable && excludeId) {
+      const existing = await getAsync(
+        `SELECT id FROM ${table} WHERE slug = ? AND id != ? AND deletedAt IS NULL`,
+        [slug, excludeId]
+      );
+      if (existing) {
+        return { exists: true, table, id: existing.id };
+      }
+    } else if (table !== excludeTable) {
+      const existing = await getAsync(
+        `SELECT id FROM ${table} WHERE slug = ? AND deletedAt IS NULL`,
+        [slug]
+      );
+      if (existing) {
+        return { exists: true, table, id: existing.id };
+      }
+    }
+  }
+
+  return { exists: false };
+};
+
 // Admin creation moved to after server start
 
 // Login endpoint
@@ -375,10 +403,13 @@ app.post('/api/articles', async (req, res) => {
   }
 
   try {
-    // Check if slug exists
-    const existing = await getAsync('SELECT id FROM articles WHERE slug = ?', [slug]);
-    if (existing) {
-      return res.status(400).json({ success: false, message: 'Slug already exists' });
+    // Check if slug exists globally across all content types
+    const slugCheck = await checkSlugExists(slug);
+    if (slugCheck.exists) {
+      return res.status(400).json({
+        success: false,
+        message: `Slug already exists in ${slugCheck.table}`
+      });
     }
 
     const now = new Date().toISOString();
@@ -428,11 +459,14 @@ app.put('/api/articles/:id', async (req, res) => {
       return res.status(404).json({ success: false, message: 'Article not found' });
     }
 
-    // Check slug uniqueness if changed
+    // Check slug uniqueness globally if changed
     if (slug !== existingArticle.slug) {
-      const slugCheck = await getAsync('SELECT id FROM articles WHERE slug = ? AND id != ?', [slug, id]);
-      if (slugCheck) {
-        return res.status(400).json({ success: false, message: 'Slug already exists' });
+      const slugCheck = await checkSlugExists(slug, 'articles', id);
+      if (slugCheck.exists) {
+        return res.status(400).json({
+          success: false,
+          message: `Slug already exists in ${slugCheck.table}`
+        });
       }
     }
 
@@ -742,10 +776,13 @@ app.post('/api/places', async (req, res) => {
   }
 
   try {
-    // Check if slug exists
-    const existing = await getAsync('SELECT id FROM places WHERE slug = ?', [slug]);
-    if (existing) {
-      return res.status(400).json({ success: false, message: 'Slug already exists' });
+    // Check if slug exists globally across all content types
+    const slugCheck = await checkSlugExists(slug);
+    if (slugCheck.exists) {
+      return res.status(400).json({
+        success: false,
+        message: `Slug already exists in ${slugCheck.table}`
+      });
     }
 
     const now = new Date().toISOString();
@@ -795,11 +832,14 @@ app.put('/api/places/:id', async (req, res) => {
       return res.status(404).json({ success: false, message: 'Place not found' });
     }
 
-    // Check slug uniqueness if changed
+    // Check slug uniqueness globally if changed
     if (slug !== existingPlace.slug) {
-      const slugCheck = await getAsync('SELECT id FROM places WHERE slug = ? AND id != ?', [slug, id]);
-      if (slugCheck) {
-        return res.status(400).json({ success: false, message: 'Slug already exists' });
+      const slugCheck = await checkSlugExists(slug, 'places', id);
+      if (slugCheck.exists) {
+        return res.status(400).json({
+          success: false,
+          message: `Slug already exists in ${slugCheck.table}`
+        });
       }
     }
 
@@ -1176,10 +1216,13 @@ app.post('/api/packages', async (req, res) => {
   }
 
   try {
-    // Check if slug exists
-    const existing = await getAsync('SELECT id FROM packages WHERE slug = ?', [slug]);
-    if (existing) {
-      return res.status(400).json({ success: false, message: 'Slug already exists' });
+    // Check if slug exists globally across all content types
+    const slugCheck = await checkSlugExists(slug);
+    if (slugCheck.exists) {
+      return res.status(400).json({
+        success: false,
+        message: `Slug already exists in ${slugCheck.table}`
+      });
     }
 
     const now = new Date().toISOString();
@@ -1429,10 +1472,15 @@ app.put('/api/packages/:id', async (req, res) => {
       return res.status(404).json({ success: false, message: 'Package not found' });
     }
 
-    // Check if slug exists (excluding current package)
-    const slugCheck = await getAsync('SELECT id FROM packages WHERE slug = ? AND id != ?', [slug, id]);
-    if (slugCheck) {
-      return res.status(400).json({ success: false, message: 'Slug already exists' });
+    // Check slug uniqueness globally if changed
+    if (slug !== existingPackage.slug) {
+      const slugCheck = await checkSlugExists(slug, 'packages', id);
+      if (slugCheck.exists) {
+        return res.status(400).json({
+          success: false,
+          message: `Slug already exists in ${slugCheck.table}`
+        });
+      }
     }
 
     // Handle image cleanup (if new image provided, delete old)
@@ -2139,9 +2187,13 @@ app.post('/api/blogs', async (req, res) => {
   }
 
   try {
-    const existing = await getAsync('SELECT id FROM blogs WHERE slug = ?', [slug]);
-    if (existing) {
-      return res.status(400).json({ success: false, message: 'Slug already exists' });
+    // Check if slug exists globally across all content types
+    const slugCheck = await checkSlugExists(slug);
+    if (slugCheck.exists) {
+      return res.status(400).json({
+        success: false,
+        message: `Slug already exists in ${slugCheck.table}`
+      });
     }
 
     const now = new Date().toISOString();
@@ -2194,10 +2246,14 @@ app.put('/api/blogs/:id', async (req, res) => {
       return res.status(404).json({ success: false, message: 'Blog not found' });
     }
 
+    // Check slug uniqueness globally if changed
     if (slug !== existingBlog.slug) {
-      const slugCheck = await getAsync('SELECT id FROM blogs WHERE slug = ? AND id != ?', [slug, id]);
-      if (slugCheck) {
-        return res.status(400).json({ success: false, message: 'Slug already exists' });
+      const slugCheck = await checkSlugExists(slug, 'blogs', id);
+      if (slugCheck.exists) {
+        return res.status(400).json({
+          success: false,
+          message: `Slug already exists in ${slugCheck.table}`
+        });
       }
     }
 
