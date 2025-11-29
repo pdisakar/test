@@ -166,7 +166,7 @@ app.put('/api/users/:id', async (req, res) => {
     // Build update query - only update password if provided
     let updateSQL = '';
     let params = [];
-    
+
     if (password && password.trim().length > 0) {
       if (password.length < 6) {
         return res.status(400).json({ success: false, message: 'Password must be at least 6 characters long' });
@@ -242,10 +242,10 @@ app.post('/api/users/bulk-delete', async (req, res) => {
     // Create placeholders for SQL query
     const placeholders = ids.map(() => '?').join(',');
     const deleteSQL = `DELETE FROM users WHERE id IN (${placeholders})`;
-    
+
     const result = await runAsync(deleteSQL, ids);
-    res.status(200).json({ 
-      success: true, 
+    res.status(200).json({
+      success: true,
       message: `${result.changes} user(s) deleted successfully`,
       deletedCount: result.changes
     });
@@ -289,10 +289,10 @@ app.post('/api/upload/image', async (req, res) => {
 
     // Return the public URL path
     const publicPath = `/uploads/${filename}`;
-    res.status(200).json({ 
-      success: true, 
+    res.status(200).json({
+      success: true,
       message: 'Image uploaded successfully',
-      path: publicPath 
+      path: publicPath
     });
   } catch (err) {
     console.error('Error uploading image:', err);
@@ -303,7 +303,7 @@ app.post('/api/upload/image', async (req, res) => {
 // Delete image
 app.delete('/api/upload/image', (req, res) => {
   const { path: imagePath } = req.body;
-  
+
   if (!imagePath) {
     return res.status(400).json({ success: false, message: 'No image path provided' });
   }
@@ -361,12 +361,12 @@ app.get('/api/articles/:id', async (req, res) => {
 
 // Create new article
 app.post('/api/articles', async (req, res) => {
-  const { 
-    title, urlTitle, slug, parentId, 
-    metaTitle, metaKeywords, metaDescription, 
+  const {
+    title, urlTitle, slug, parentId,
+    metaTitle, metaKeywords, metaDescription,
     description, featuredImage, featuredImageAlt, featuredImageCaption,
     bannerImage, bannerImageAlt, bannerImageCaption,
-    status 
+    status
   } = req.body;
 
   // Basic validation
@@ -391,18 +391,18 @@ app.post('/api/articles', async (req, res) => {
         status, createdAt, updatedAt
       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
-        title, urlTitle, slug, parentId || null, 
-        metaTitle, metaKeywords, metaDescription, 
+        title, urlTitle, slug, parentId || null,
+        metaTitle, metaKeywords, metaDescription,
         description, featuredImage, featuredImageAlt, featuredImageCaption,
         bannerImage, bannerImageAlt, bannerImageCaption,
         status ? 1 : 0, now, now
       ]
     );
 
-    res.status(201).json({ 
-      success: true, 
+    res.status(201).json({
+      success: true,
       message: 'Article created successfully',
-      articleId: result.lastID 
+      articleId: result.lastID
     });
   } catch (err) {
     console.error('Error creating article:', err);
@@ -413,12 +413,12 @@ app.post('/api/articles', async (req, res) => {
 // Update article
 app.put('/api/articles/:id', async (req, res) => {
   const { id } = req.params;
-  const { 
-    title, urlTitle, slug, parentId, 
-    metaTitle, metaKeywords, metaDescription, 
+  const {
+    title, urlTitle, slug, parentId,
+    metaTitle, metaKeywords, metaDescription,
     description, featuredImage, featuredImageAlt, featuredImageCaption,
     bannerImage, bannerImageAlt, bannerImageCaption,
-    status 
+    status
   } = req.body;
 
   try {
@@ -454,8 +454,8 @@ app.put('/api/articles/:id', async (req, res) => {
         status = ?, updatedAt = ?
        WHERE id = ?`,
       [
-        title, urlTitle, slug, parentId || null, 
-        metaTitle, metaKeywords, metaDescription, 
+        title, urlTitle, slug, parentId || null,
+        metaTitle, metaKeywords, metaDescription,
         description, featuredImage, featuredImageAlt, featuredImageCaption,
         bannerImage, bannerImageAlt, bannerImageCaption,
         status ? 1 : 0, now, id
@@ -501,11 +501,11 @@ app.delete('/api/articles/:id', async (req, res) => {
 
     const placeholders = idsToDelete.map(() => '?').join(',');
     await runAsync(`UPDATE articles SET deletedAt = ? WHERE id IN (${placeholders})`, [now, ...idsToDelete]);
-    
-    res.status(200).json({ 
-      success: true, 
+
+    res.status(200).json({
+      success: true,
       message: `Article and ${descendantIds.length} descendants moved to trash`,
-      deletedCount: idsToDelete.length 
+      deletedCount: idsToDelete.length
     });
   } catch (err) {
     console.error('Error deleting article:', err);
@@ -538,11 +538,11 @@ app.delete('/api/articles/:id/permanent', async (req, res) => {
     });
 
     await runAsync(`DELETE FROM articles WHERE id IN (${placeholders})`, idsToDelete);
-    
-    res.status(200).json({ 
-      success: true, 
+
+    res.status(200).json({
+      success: true,
       message: `Article and ${descendantIds.length} descendants permanently deleted`,
-      deletedCount: idsToDelete.length 
+      deletedCount: idsToDelete.length
     });
   } catch (err) {
     console.error('Error permanently deleting article:', err);
@@ -565,11 +565,11 @@ app.post('/api/articles/:id/restore', async (req, res) => {
 
     const placeholders = idsToRestore.map(() => '?').join(',');
     await runAsync(`UPDATE articles SET deletedAt = NULL WHERE id IN (${placeholders})`, idsToRestore);
-    
-    res.status(200).json({ 
-      success: true, 
+
+    res.status(200).json({
+      success: true,
       message: `Article and ${descendantIds.length} descendants restored`,
-      restoredCount: idsToRestore.length 
+      restoredCount: idsToRestore.length
     });
   } catch (err) {
     console.error('Error restoring article:', err);
@@ -588,11 +588,11 @@ app.post('/api/articles/bulk-delete', async (req, res) => {
       const descendants = await getDescendantIds(id);
       descendants.forEach(dId => allIdsToDelete.add(dId));
     }
-    
+
     const finalIds = Array.from(allIdsToDelete);
     const now = new Date().toISOString();
     const placeholders = finalIds.map(() => '?').join(',');
-    
+
     const result = await runAsync(`UPDATE articles SET deletedAt = ? WHERE id IN (${placeholders})`, [now, ...finalIds]);
     res.status(200).json({ success: true, message: `${result.changes} articles moved to trash` });
   } catch (err) {
@@ -612,10 +612,10 @@ app.post('/api/articles/bulk-delete-permanent', async (req, res) => {
       const descendants = await getDescendantIds(id);
       descendants.forEach(dId => allIdsToDelete.add(dId));
     }
-    
+
     const finalIds = Array.from(allIdsToDelete);
     const placeholders = finalIds.map(() => '?').join(',');
-    
+
     // Delete associated images
     const articlesToDelete = await allAsync(`SELECT featuredImage, bannerImage FROM articles WHERE id IN (${placeholders})`, finalIds);
     articlesToDelete.forEach(article => {
@@ -642,10 +642,10 @@ app.post('/api/articles/bulk-restore', async (req, res) => {
       const descendants = await getDescendantIds(id);
       descendants.forEach(dId => allIdsToRestore.add(dId));
     }
-    
+
     const finalIds = Array.from(allIdsToRestore);
     const placeholders = finalIds.map(() => '?').join(',');
-    
+
     const result = await runAsync(`UPDATE articles SET deletedAt = NULL WHERE id IN (${placeholders})`, finalIds);
     res.status(200).json({ success: true, message: `${result.changes} articles restored` });
   } catch (err) {
@@ -713,12 +713,12 @@ app.get('/api/places/:id', async (req, res) => {
 
 // Create new place
 app.post('/api/places', async (req, res) => {
-  const { 
-    title, urlTitle, slug, parentId, 
-    metaTitle, metaKeywords, metaDescription, 
+  const {
+    title, urlTitle, slug, parentId,
+    metaTitle, metaKeywords, metaDescription,
     description, featuredImage, featuredImageAlt, featuredImageCaption,
     bannerImage, bannerImageAlt, bannerImageCaption,
-    status 
+    status
   } = req.body;
 
   // Basic validation
@@ -743,18 +743,18 @@ app.post('/api/places', async (req, res) => {
         status, createdAt, updatedAt
       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
-        title, urlTitle, slug, parentId || null, 
-        metaTitle, metaKeywords, metaDescription, 
+        title, urlTitle, slug, parentId || null,
+        metaTitle, metaKeywords, metaDescription,
         description, featuredImage, featuredImageAlt, featuredImageCaption,
         bannerImage, bannerImageAlt, bannerImageCaption,
         status ? 1 : 0, now, now
       ]
     );
 
-    res.status(201).json({ 
-      success: true, 
+    res.status(201).json({
+      success: true,
       message: 'Place created successfully',
-      placeId: result.lastID 
+      placeId: result.lastID
     });
   } catch (err) {
     console.error('Error creating place:', err);
@@ -765,12 +765,12 @@ app.post('/api/places', async (req, res) => {
 // Update place
 app.put('/api/places/:id', async (req, res) => {
   const { id } = req.params;
-  const { 
-    title, urlTitle, slug, parentId, 
-    metaTitle, metaKeywords, metaDescription, 
+  const {
+    title, urlTitle, slug, parentId,
+    metaTitle, metaKeywords, metaDescription,
     description, featuredImage, featuredImageAlt, featuredImageCaption,
     bannerImage, bannerImageAlt, bannerImageCaption,
-    status 
+    status
   } = req.body;
 
   try {
@@ -806,8 +806,8 @@ app.put('/api/places/:id', async (req, res) => {
         status = ?, updatedAt = ?
        WHERE id = ?`,
       [
-        title, urlTitle, slug, parentId || null, 
-        metaTitle, metaKeywords, metaDescription, 
+        title, urlTitle, slug, parentId || null,
+        metaTitle, metaKeywords, metaDescription,
         description, featuredImage, featuredImageAlt, featuredImageCaption,
         bannerImage, bannerImageAlt, bannerImageCaption,
         status ? 1 : 0, now, id
@@ -850,10 +850,10 @@ app.post('/api/attributes', async (req, res) => {
       'INSERT INTO package_attributes (name, type, createdAt, updatedAt) VALUES (?, ?, ?, ?)',
       [name, type, now, now]
     );
-    res.status(201).json({ 
-      success: true, 
-      message: 'Attribute created', 
-      attribute: { id: result.lastID, name, type } 
+    res.status(201).json({
+      success: true,
+      message: 'Attribute created',
+      attribute: { id: result.lastID, name, type }
     });
   } catch (err) {
     console.error('Error creating attribute:', err);
@@ -912,7 +912,7 @@ app.post('/api/fact-categories', async (req, res) => {
   try {
     const slug = label.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
     const now = new Date().toISOString();
-    
+
     // Check slug uniqueness
     const existing = await getAsync('SELECT id FROM trip_fact_categories WHERE slug = ?', [slug]);
     if (existing) return res.status(400).json({ success: false, message: 'Category already exists' });
@@ -921,10 +921,10 @@ app.post('/api/fact-categories', async (req, res) => {
       'INSERT INTO trip_fact_categories (label, slug, createdAt, updatedAt) VALUES (?, ?, ?, ?)',
       [label, slug, now, now]
     );
-    res.status(201).json({ 
-      success: true, 
-      message: 'Category created', 
-      category: { id: result.lastID, label, slug } 
+    res.status(201).json({
+      success: true,
+      message: 'Category created',
+      category: { id: result.lastID, label, slug }
     });
   } catch (err) {
     console.error('Error creating category:', err);
@@ -941,11 +941,11 @@ app.delete('/api/fact-categories/:id', async (req, res) => {
     if (!category) {
       return res.status(404).json({ success: false, message: 'Category not found' });
     }
-    
+
     if (category.isDefault) {
       return res.status(403).json({ success: false, message: 'Cannot delete default category' });
     }
-    
+
     // Also delete associated attributes
     await runAsync('DELETE FROM package_attributes WHERE type = ?', [category.slug]);
     await runAsync('DELETE FROM trip_fact_categories WHERE id = ?', [id]);
@@ -988,11 +988,11 @@ app.delete('/api/places/:id', async (req, res) => {
 
     const placeholders = idsToDelete.map(() => '?').join(',');
     await runAsync(`UPDATE places SET deletedAt = ? WHERE id IN (${placeholders})`, [now, ...idsToDelete]);
-    
-    res.status(200).json({ 
-      success: true, 
+
+    res.status(200).json({
+      success: true,
       message: `Place and ${descendantIds.length} descendants moved to trash`,
-      deletedCount: idsToDelete.length 
+      deletedCount: idsToDelete.length
     });
   } catch (err) {
     console.error('Error deleting place:', err);
@@ -1023,11 +1023,11 @@ app.delete('/api/places/:id/permanent', async (req, res) => {
     });
 
     await runAsync(`DELETE FROM places WHERE id IN (${placeholders})`, idsToDelete);
-    
-    res.status(200).json({ 
-      success: true, 
+
+    res.status(200).json({
+      success: true,
       message: `Place and ${descendantIds.length} descendants permanently deleted`,
-      deletedCount: idsToDelete.length 
+      deletedCount: idsToDelete.length
     });
   } catch (err) {
     console.error('Error permanently deleting place:', err);
@@ -1050,11 +1050,11 @@ app.post('/api/places/:id/restore', async (req, res) => {
 
     const placeholders = idsToRestore.map(() => '?').join(',');
     await runAsync(`UPDATE places SET deletedAt = NULL WHERE id IN (${placeholders})`, idsToRestore);
-    
-    res.status(200).json({ 
-      success: true, 
+
+    res.status(200).json({
+      success: true,
       message: `Place and ${descendantIds.length} descendants restored`,
-      restoredCount: idsToRestore.length 
+      restoredCount: idsToRestore.length
     });
   } catch (err) {
     console.error('Error restoring place:', err);
@@ -1073,11 +1073,11 @@ app.post('/api/places/bulk-delete', async (req, res) => {
       const descendants = await getPlaceDescendantIds(id);
       descendants.forEach(dId => allIdsToDelete.add(dId));
     }
-    
+
     const finalIds = Array.from(allIdsToDelete);
     const now = new Date().toISOString();
     const placeholders = finalIds.map(() => '?').join(',');
-    
+
     const result = await runAsync(`UPDATE places SET deletedAt = ? WHERE id IN (${placeholders})`, [now, ...finalIds]);
     res.status(200).json({ success: true, message: `${result.changes} places moved to trash` });
   } catch (err) {
@@ -1097,10 +1097,10 @@ app.post('/api/places/bulk-delete-permanent', async (req, res) => {
       const descendants = await getPlaceDescendantIds(id);
       descendants.forEach(dId => allIdsToDelete.add(dId));
     }
-    
+
     const finalIds = Array.from(allIdsToDelete);
     const placeholders = finalIds.map(() => '?').join(',');
-    
+
     // Delete associated images
     const placesToDelete = await allAsync(`SELECT featuredImage, bannerImage FROM places WHERE id IN (${placeholders})`, finalIds);
     placesToDelete.forEach(place => {
@@ -1127,10 +1127,10 @@ app.post('/api/places/bulk-restore', async (req, res) => {
       const descendants = await getPlaceDescendantIds(id);
       descendants.forEach(dId => allIdsToRestore.add(dId));
     }
-    
+
     const finalIds = Array.from(allIdsToRestore);
     const placeholders = finalIds.map(() => '?').join(',');
-    
+
     const result = await runAsync(`UPDATE places SET deletedAt = NULL WHERE id IN (${placeholders})`, finalIds);
     res.status(200).json({ success: true, message: `${result.changes} places restored` });
   } catch (err) {
@@ -1168,7 +1168,7 @@ app.post('/api/packages', async (req, res) => {
     }
 
     const now = new Date().toISOString();
-    
+
     // Insert package
     const result = await runAsync(
       `INSERT INTO packages (
@@ -1318,7 +1318,7 @@ app.get('/api/packages', async (req, res) => {
 // Get single package by ID or Slug
 app.get('/api/packages/:idOrSlug', async (req, res) => {
   const { idOrSlug } = req.params;
-  
+
   try {
     let packageData;
     if (!isNaN(idOrSlug)) {
@@ -1337,7 +1337,7 @@ app.get('/api/packages/:idOrSlug', async (req, res) => {
     const places = await allAsync(
       `SELECT p.* FROM places p 
        JOIN package_places pp ON p.id = pp.placeId 
-       WHERE pp.packageId = ?`, 
+       WHERE pp.packageId = ?`,
       [packageId]
     );
 
@@ -1519,10 +1519,10 @@ app.put('/api/packages/:id', async (req, res) => {
 
     // Update Gallery Images (Delete all and re-insert)
     console.log('[DEBUG] Received galleryImages:', req.body.galleryImages);
-    
+
     // Delete all from database
     await runAsync('DELETE FROM package_gallery WHERE packageId = ?', [id]);
-    
+
     // Insert new gallery images
     const newImageUrls = req.body.galleryImages || [];
     if (Array.isArray(newImageUrls)) {
@@ -1770,7 +1770,7 @@ app.put('/api/authors/:id', async (req, res) => {
   } catch (err) {
     console.error('Error updating author:', err);
     res.status(500).json({ success: false, message: 'Server error' });
-  
+
   }
 });
 
@@ -1836,6 +1836,228 @@ app.delete('/api/authors/:id/permanent', async (req, res) => {
     res.status(200).json({ success: true, message: 'Author permanently deleted' });
   } catch (err) {
     console.error('Error permanently deleting author:', err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// ========================
+// TEAMS API ENDPOINTS
+// ========================
+
+// Create new team member
+app.post('/api/teams', async (req, res) => {
+  const {
+    fullName, urlTitle, slug, email, description,
+    avatar, avatarAlt, avatarCaption, bannerImage, bannerImageAlt, bannerImageCaption,
+    metaTitle, metaKeywords, metaDescription, status
+  } = req.body;
+
+  // Validation
+  if (!fullName || !urlTitle || !slug || !email) {
+    return res.status(400).json({ success: false, message: 'Full Name, URL Title, Slug, and Email are required' });
+  }
+
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    return res.status(400).json({ success: false, message: 'Invalid email format' });
+  }
+
+  try {
+    // Check if email already exists
+    const existing = await getAsync('SELECT * FROM teams WHERE LOWER(email) = LOWER(?)', [email]);
+    if (existing) {
+      return res.status(400).json({ success: false, message: 'Email already exists' });
+    }
+
+    // Check if URL title already exists
+    const existingUrl = await getAsync('SELECT * FROM teams WHERE urlTitle = ?', [urlTitle]);
+    if (existingUrl) {
+      return res.status(400).json({ success: false, message: 'URL Title already exists' });
+    }
+
+    // Check if slug already exists
+    const existingSlug = await getAsync('SELECT * FROM teams WHERE slug = ?', [slug]);
+    if (existingSlug) {
+      return res.status(400).json({ success: false, message: 'Slug already exists' });
+    }
+
+    const now = new Date().toISOString();
+    const result = await runAsync(
+      `INSERT INTO teams (
+        fullName, urlTitle, slug, email, description,
+        avatar, avatarAlt, avatarCaption, bannerImage, bannerImageAlt, bannerImageCaption,
+        metaTitle, metaKeywords, metaDescription,
+        status, createdAt, updatedAt
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        fullName, urlTitle, slug, email, description,
+        avatar, avatarAlt, avatarCaption, bannerImage, bannerImageAlt, bannerImageCaption,
+        metaTitle, metaKeywords, metaDescription,
+        status !== undefined ? status : 1, now, now
+      ]
+    );
+
+    res.status(201).json({
+      success: true,
+      message: 'Team member created successfully',
+      teamId: result.lastID
+    });
+  } catch (err) {
+    console.error('Error creating team member:', err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// Get all team members (exclude deleted)
+app.get('/api/teams', async (req, res) => {
+  try {
+    const teams = await allAsync('SELECT * FROM teams WHERE deletedAt IS NULL ORDER BY createdAt DESC');
+    res.status(200).json(teams);
+  } catch (err) {
+    console.error('Error fetching team members:', err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// Get single team member by ID
+app.get('/api/teams/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    const team = await getAsync('SELECT * FROM teams WHERE id = ?', [id]);
+    if (!team) {
+      return res.status(404).json({ success: false, message: 'Team member not found' });
+    }
+    res.status(200).json(team);
+  } catch (err) {
+    console.error('Error fetching team member:', err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// Update team member
+app.put('/api/teams/:id', async (req, res) => {
+  const { id } = req.params;
+  const {
+    fullName, urlTitle, slug, email, description,
+    avatar, avatarAlt, avatarCaption, bannerImage, bannerImageAlt, bannerImageCaption,
+    metaTitle, metaKeywords, metaDescription, status
+  } = req.body;
+
+  // Validation
+  if (!fullName || !urlTitle || !slug || !email) {
+    return res.status(400).json({ success: false, message: 'Full Name, URL Title, Slug, and Email are required' });
+  }
+
+  try {
+    // Check if team member exists
+    const existing = await getAsync('SELECT * FROM teams WHERE id = ?', [id]);
+    if (!existing) {
+      return res.status(404).json({ success: false, message: 'Team member not found' });
+    }
+
+    // Check if email is taken by another team member
+    const emailCheck = await getAsync('SELECT * FROM teams WHERE LOWER(email) = LOWER(?) AND id != ?', [email, id]);
+    if (emailCheck) {
+      return res.status(400).json({ success: false, message: 'Email already exists' });
+    }
+
+    // Check if URL title is taken by another team member
+    const urlCheck = await getAsync('SELECT * FROM teams WHERE urlTitle = ? AND id != ?', [urlTitle, id]);
+    if (urlCheck) {
+      return res.status(400).json({ success: false, message: 'URL Title already exists' });
+    }
+
+    // Check if slug is taken by another team member
+    const slugCheck = await getAsync('SELECT * FROM teams WHERE slug = ? AND id != ?', [slug, id]);
+    if (slugCheck) {
+      return res.status(400).json({ success: false, message: 'Slug already exists' });
+    }
+
+    const now = new Date().toISOString();
+    await runAsync(
+      `UPDATE teams SET
+        fullName = ?, urlTitle = ?, slug = ?, email = ?, description = ?,
+        avatar = ?, avatarAlt = ?, avatarCaption = ?, bannerImage = ?, bannerImageAlt = ?, bannerImageCaption = ?,
+        metaTitle = ?, metaKeywords = ?, metaDescription = ?,
+        status = ?, updatedAt = ?
+      WHERE id = ?`,
+      [
+        fullName, urlTitle, slug, email, description,
+        avatar, avatarAlt, avatarCaption, bannerImage, bannerImageAlt, bannerImageCaption,
+        metaTitle, metaKeywords, metaDescription,
+        status, now, id
+      ]
+    );
+
+    res.status(200).json({ success: true, message: 'Team member updated successfully' });
+  } catch (err) {
+    console.error('Error updating team member:', err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// Delete team member (Soft delete)
+app.delete('/api/teams/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    const now = new Date().toISOString();
+    await runAsync('UPDATE teams SET deletedAt = ? WHERE id = ?', [now, id]);
+    res.status(200).json({ success: true, message: 'Team member deleted successfully' });
+  } catch (err) {
+    console.error('Error deleting team member:', err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// Get deleted team members (Trash)
+app.get('/api/teams/trash/all', async (req, res) => {
+  try {
+    const teams = await allAsync('SELECT * FROM teams WHERE deletedAt IS NOT NULL ORDER BY deletedAt DESC');
+    res.status(200).json(teams);
+  } catch (err) {
+    console.error('Error fetching trash:', err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// Restore team member
+app.put('/api/teams/:id/restore', async (req, res) => {
+  const { id } = req.params;
+  try {
+    await runAsync('UPDATE teams SET deletedAt = NULL WHERE id = ?', [id]);
+    res.status(200).json({ success: true, message: 'Team member restored successfully' });
+  } catch (err) {
+    console.error('Error restoring team member:', err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// Permanent delete team member
+app.delete('/api/teams/:id/permanent', async (req, res) => {
+  const { id } = req.params;
+  try {
+    // 1. Get team member to find images
+    const team = await getAsync('SELECT * FROM teams WHERE id = ?', [id]);
+    if (!team) {
+      return res.status(404).json({ success: false, message: 'Team member not found' });
+    }
+
+    // 2. Delete images from filesystem
+    const imagesToDelete = [
+      team.avatar,
+      team.bannerImage
+    ].filter(Boolean);
+
+    for (const imagePath of imagesToDelete) {
+      deleteImageFile(imagePath);
+    }
+
+    // 3. Delete from database
+    await runAsync('DELETE FROM teams WHERE id = ?', [id]);
+
+    res.status(200).json({ success: true, message: 'Team member permanently deleted' });
+  } catch (err) {
+    console.error('Error permanently deleting team member:', err);
     res.status(500).json({ success: false, message: 'Server error' });
   }
 });
@@ -2012,7 +2234,7 @@ app.post('/api/blogs/bulk-delete', async (req, res) => {
   try {
     const now = new Date().toISOString();
     const placeholders = ids.map(() => '?').join(',');
-    
+
     const result = await runAsync(`UPDATE blogs SET deletedAt = ? WHERE id IN (${placeholders})`, [now, ...ids]);
     res.status(200).json({ success: true, message: `${result.changes} blogs moved to trash` });
   } catch (err) {
@@ -2055,7 +2277,7 @@ app.post('/api/blogs/bulk-delete-permanent', async (req, res) => {
 
   try {
     const placeholders = ids.map(() => '?').join(',');
-    
+
     // Delete associated images
     const blogsToDelete = await allAsync(`SELECT featuredImage, bannerImage FROM blogs WHERE id IN (${placeholders})`, ids);
     blogsToDelete.forEach(blog => {

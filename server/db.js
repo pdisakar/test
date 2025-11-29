@@ -32,7 +32,7 @@ const init = () => {
       updatedAt TEXT NOT NULL
     );
   `;
-  
+
   const createArticlesTableSQL = `
     CREATE TABLE IF NOT EXISTS articles (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -57,7 +57,7 @@ const init = () => {
       FOREIGN KEY (parentId) REFERENCES articles(id)
     );
   `;
-  
+
   const createPlacesTableSQL = `
     CREATE TABLE IF NOT EXISTS places (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -82,17 +82,17 @@ const init = () => {
       FOREIGN KEY (parentId) REFERENCES places(id)
     );
   `;
-  
+
   db.run(createUsersTableSQL, (err) => {
     if (err) console.error('Error creating users table:', err);
     else console.log('Users table ready');
   });
-  
+
   db.run(createArticlesTableSQL, (err) => {
     if (err) console.error('Error creating articles table:', err);
     else console.log('Articles table ready');
   });
-  
+
   db.run(createPlacesTableSQL, (err) => {
     if (err) console.error('Error creating places table:', err);
     else console.log('Places table ready');
@@ -152,6 +152,35 @@ const init = () => {
   db.run(createAuthorsTableSQL, (err) => {
     if (err) console.error('Error creating authors table:', err);
     else console.log('Authors table ready');
+  });
+
+  const createTeamsTableSQL = `
+    CREATE TABLE IF NOT EXISTS teams (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      fullName TEXT NOT NULL,
+      urlTitle TEXT NOT NULL,
+      slug TEXT NOT NULL UNIQUE,
+      email TEXT NOT NULL UNIQUE,
+      description TEXT,
+      avatar TEXT,
+      avatarAlt TEXT,
+      avatarCaption TEXT,
+      bannerImage TEXT,
+      bannerImageAlt TEXT,
+      bannerImageCaption TEXT,
+      metaTitle TEXT,
+      metaKeywords TEXT,
+      metaDescription TEXT,
+      status INTEGER DEFAULT 1,
+      deletedAt TEXT,
+      createdAt TEXT NOT NULL,
+      updatedAt TEXT NOT NULL
+    );
+  `;
+
+  db.run(createTeamsTableSQL, (err) => {
+    if (err) console.error('Error creating teams table:', err);
+    else console.log('Teams table ready');
   });
 
   const createBlogsTableSQL = `

@@ -84,9 +84,9 @@ export function Sidebar({ className, isCollapsed, isMobileOpen, onMobileClose }:
           title: "Team",
           icon: User,
           sub: [
-            { label: "Add New", href: "/team/add" },
-            { label: "Team Members", href: "/team" },
-            { label: "Deleted Members", href: "/team/deleted" }
+            { label: "Add New", href: "/teams/add" },
+            { label: "Team Members", href: "/teams" },
+            { label: "Deleted Members", href: "/teams/trash" }
           ]
         },
         {
