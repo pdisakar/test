@@ -90,7 +90,8 @@ export function Sidebar({ className, isCollapsed, isMobileOpen, onMobileClose }:
           icon: MenuIcon,
           sub: [
             { label: "Add New", href: "/admin/menus/add" },
-            { label: "All Menus", href: "/admin/menus" }
+            { label: "All Menus", href: "/admin/menus" },
+            { label: "Deleted Menus", href: "/admin/menus/trash" }
           ]
         },
         {
