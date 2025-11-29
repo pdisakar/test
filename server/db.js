@@ -98,6 +98,145 @@ const init = () => {
     else console.log('Places table ready');
   });
 
+  const createPackagesTableSQL = `
+    CREATE TABLE IF NOT EXISTS packages (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      title TEXT NOT NULL,
+      urlTitle TEXT NOT NULL,
+      slug TEXT NOT NULL UNIQUE,
+      duration INTEGER NOT NULL,
+      durationUnit TEXT NOT NULL DEFAULT 'days',
+      metaTitle TEXT,
+      metaKeywords TEXT,
+      metaDescription TEXT,
+      abstract TEXT,
+      details TEXT,
+      defaultPrice REAL,
+      groupPriceEnabled INTEGER DEFAULT 0 CHECK(groupPriceEnabled IN (0,1)),
+      costInclude TEXT,
+      costExclude TEXT,
+      featuredImage TEXT,
+      featuredImageAlt TEXT,
+      featuredImageCaption TEXT,
+      bannerImage TEXT,
+      bannerImageAlt TEXT,
+      bannerImageCaption TEXT,
+      tripMapImage TEXT,
+      tripMapImageAlt TEXT,
+      tripMapImageCaption TEXT,
+      statusRibbon TEXT,
+      groupSize TEXT,
+      maxAltitude TEXT,
+      tripHighlights TEXT,
+      departureNote TEXT,
+      goodToKnow TEXT,
+      extraFAQs TEXT,
+      relatedTrip TEXT,
+      itineraryTitle TEXT,
+      status INTEGER DEFAULT 1 CHECK(status IN (0,1)),
+      featured INTEGER DEFAULT 0 CHECK(featured IN (0,1)),
+      pageType TEXT DEFAULT 'package',
+      createdAt TEXT NOT NULL,
+      updatedAt TEXT NOT NULL,
+      deletedAt TEXT
+    );
+  `;
+
+  const createPackagePlacesTableSQL = `
+    CREATE TABLE IF NOT EXISTS package_places (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      packageId INTEGER NOT NULL,
+      placeId INTEGER NOT NULL,
+      FOREIGN KEY (packageId) REFERENCES packages(id) ON DELETE CASCADE,
+      FOREIGN KEY (placeId) REFERENCES places(id) ON DELETE CASCADE,
+      UNIQUE(packageId, placeId)
+    );
+  `;
+
+  const createPackageTripFactsTableSQL = `
+    CREATE TABLE IF NOT EXISTS package_trip_facts (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      packageId INTEGER NOT NULL,
+      categorySlug TEXT NOT NULL,
+      attributeId INTEGER NOT NULL,
+      FOREIGN KEY (packageId) REFERENCES packages(id) ON DELETE CASCADE,
+      UNIQUE(packageId, categorySlug)
+    );
+  `;
+
+  const createPackageItineraryTableSQL = `
+    CREATE TABLE IF NOT EXISTS package_itinerary (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      packageId INTEGER NOT NULL,
+      dayNumber INTEGER NOT NULL,
+      title TEXT NOT NULL,
+      description TEXT,
+      meals TEXT,
+      accommodation TEXT,
+      distance TEXT,
+      origin TEXT,
+      destination TEXT,
+      originElevation TEXT,
+      destinationElevation TEXT,
+      walkingHours TEXT,
+      transportation TEXT,
+      FOREIGN KEY (packageId) REFERENCES packages(id) ON DELETE CASCADE,
+      UNIQUE(packageId, dayNumber)
+    );
+  `;
+
+  const createPackageGroupPricingTableSQL = `
+    CREATE TABLE IF NOT EXISTS package_group_pricing (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      packageId INTEGER NOT NULL,
+      minPerson INTEGER NOT NULL,
+      maxPerson INTEGER NOT NULL,
+      price REAL NOT NULL,
+      FOREIGN KEY (packageId) REFERENCES packages(id) ON DELETE CASCADE,
+      CHECK(minPerson <= maxPerson)
+    );
+  `;
+
+  const createPackageGalleryTableSQL = `
+    CREATE TABLE IF NOT EXISTS package_gallery (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      packageId INTEGER NOT NULL,
+      imageUrl TEXT NOT NULL,
+      caption TEXT,
+      FOREIGN KEY (packageId) REFERENCES packages(id) ON DELETE CASCADE
+    );
+  `;
+
+  db.run(createPackagesTableSQL, (err) => {
+    if (err) console.error('Error creating packages table:', err);
+    else console.log('Packages table ready');
+  });
+
+  db.run(createPackagePlacesTableSQL, (err) => {
+    if (err) console.error('Error creating package_places table:', err);
+    else console.log('Package places table ready');
+  });
+
+  db.run(createPackageTripFactsTableSQL, (err) => {
+    if (err) console.error('Error creating package_trip_facts table:', err);
+    else console.log('Package trip facts table ready');
+  });
+
+  db.run(createPackageItineraryTableSQL, (err) => {
+    if (err) console.error('Error creating package_itinerary table:', err);
+    else console.log('Package itinerary table ready');
+  });
+
+  db.run(createPackageGroupPricingTableSQL, (err) => {
+    if (err) console.error('Error creating package_group_pricing table:', err);
+    else console.log('Package group pricing table ready');
+  });
+
+  db.run(createPackageGalleryTableSQL, (err) => {
+    if (err) console.error('Error creating package_gallery table:', err);
+    else console.log('Package gallery table ready');
+  });
+
   const createPackageAttributesTableSQL = `
     CREATE TABLE IF NOT EXISTS package_attributes (
       id INTEGER PRIMARY KEY AUTOINCREMENT,

@@ -27,6 +27,18 @@ const deleteImageFile = (imageUrl) => {
 
 // Helper to check if slug exists globally across all content types
 const checkSlugExists = async (slug, excludeTable = null, excludeId = null) => {
+  // 1. Check Reserved Slugs
+  const reservedSlugs = [
+    'admin', 'login', 'about', 'contact', 'blogs', 'packages',
+    'api', 'uploads', '_next', 'favicon.ico', 'robots.txt', 'sitemap.xml',
+    'search', 'dashboard', 'profile', 'settings', 'auth'
+  ];
+
+  if (reservedSlugs.includes(slug.toLowerCase())) {
+    return { exists: true, table: 'System Route' };
+  }
+
+  // 2. Check Database Tables
   const tables = ['places', 'packages', 'articles', 'blogs'];
 
   for (const table of tables) {
