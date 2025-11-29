@@ -47,6 +47,7 @@ export default function AddplacePage() {
     bannerImageUrl: '',
     bannerImageAlt: '',
     bannerImageCaption: '',
+    pageType: 'place',
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -186,6 +187,7 @@ export default function AddplacePage() {
       bannerImageUrl: '',
       bannerImageAlt: '',
       bannerImageCaption: '',
+      pageType: 'place',
     });
     setError('');
     setSuccess('');
@@ -236,6 +238,7 @@ export default function AddplacePage() {
         bannerImageAlt: formData.bannerImageAlt,
         bannerImageCaption: formData.bannerImageCaption,
         status: formData.status ? 1 : 0,
+        pageType: formData.pageType,
       };
       const response = await fetch('http://localhost:3001/api/places', {
         method: 'POST',

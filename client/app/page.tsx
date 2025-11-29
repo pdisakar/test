@@ -138,7 +138,7 @@ export default function Home() {
                     <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-primary transition-colors">
                       {pkg.title}
                     </h3>
-                    <Link href={`/packages/${pkg.slug}`}>
+                    <Link href={`/${pkg.slug}`}>
                       <Button variant="outline" className="w-full mt-4 border-primary text-primary hover:bg-primary hover:text-white">
                         View Details
                       </Button>
@@ -241,7 +241,7 @@ export default function Home() {
                     <p className="text-gray-600 line-clamp-2 mb-4">
                       {blog.abstract}
                     </p>
-                    <Link href={`/blogs/${blog.slug}`} className="inline-flex items-center text-gray-900 font-medium hover:text-primary transition-colors">
+                    <Link href={`/${blog.slug}`} className="inline-flex items-center text-gray-900 font-medium hover:text-primary transition-colors">
                       Read More <ArrowRight className="ml-2 h-4 w-4" />
                     </Link>
                   </div>

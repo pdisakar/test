@@ -94,6 +94,7 @@ interface FormData {
   extraFAQs: string;
   relatedTrip: string;
   itineraryTitle: string;
+  pageType: string;
   [key: string]: any;
 }
 
@@ -141,6 +142,7 @@ export default function AddPackagePage() {
     relatedTrip: '',
     // Step 7 Fields
     itineraryTitle: '',
+    pageType: 'package',
   });
 
   const [galleryImages, setGalleryImages] = useState<GalleryImage[]>([]);
@@ -606,6 +608,7 @@ export default function AddPackagePage() {
         itineraryTitle: formData.itineraryTitle,
         status,
         featured,
+        pageType: 'package',
         tripFacts: tripFactsPayload,
         itinerary: itinerary.map(day => ({
           dayNumber: day.dayNumber,

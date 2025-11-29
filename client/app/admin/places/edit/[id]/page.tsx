@@ -49,6 +49,7 @@ export default function EditPlacePage() {
         bannerImageUrl: '',
         bannerImageAlt: '',
         bannerImageCaption: '',
+        pageType: 'place',
     });
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
@@ -131,6 +132,7 @@ export default function EditPlacePage() {
                 bannerImageUrl: data.place.bannerImage || '',
                 bannerImageAlt: data.place.bannerImageAlt || '',
                 bannerImageCaption: data.place.bannerImageCaption || '',
+                pageType: data.place.pageType || 'place',
             });
         } catch (err: any) {
             setError(err.message || 'An error occurred while fetching place data');
@@ -308,6 +310,7 @@ export default function EditPlacePage() {
                 bannerImageAlt: formData.bannerImageAlt,
                 bannerImageCaption: formData.bannerImageCaption,
                 status: formData.status ? 1 : 0,
+                pageType: formData.pageType,
             };
 
             const response = await fetch(`http://localhost:3001/api/places/${placeId}`, {

@@ -90,7 +90,7 @@ export default function BlogsPage() {
                                         <p className="text-gray-600 line-clamp-3 mb-4 text-sm flex-1">
                                             {blog.abstract}
                                         </p>
-                                        <Link href={`/blogs/${blog.slug}`} className="inline-flex items-center text-primary font-medium hover:underline mt-auto">
+                                        <Link href={`/${blog.slug}`} className="inline-flex items-center text-primary font-medium hover:underline mt-auto">
                                             Read Full Story <ArrowRight className="ml-2 h-4 w-4" />
                                         </Link>
                                     </div>

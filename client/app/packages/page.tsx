@@ -111,7 +111,7 @@ export default function PackagesPage() {
                                         <p className="text-gray-600 line-clamp-2 mb-4 text-sm">
                                             {pkg.description || 'Experience the beauty of this amazing destination with our comprehensive tour package.'}
                                         </p>
-                                        <Link href={`/packages/${pkg.slug}`}>
+                                        <Link href={`/${pkg.slug}`}>
                                             <Button variant="outline" className="w-full border-primary text-primary hover:bg-primary hover:text-white">
                                                 View Details
                                             </Button>

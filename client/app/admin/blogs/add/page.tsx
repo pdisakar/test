@@ -45,6 +45,7 @@ export default function AddBlogPage() {
         bannerImage: '',
         bannerImageAlt: '',
         bannerImageCaption: '',
+        pageType: 'blog',
     });
 
     const [authors, setAuthors] = useState<any[]>([]);
@@ -101,6 +102,7 @@ export default function AddBlogPage() {
             bannerImage: '',
             bannerImageAlt: '',
             bannerImageCaption: '',
+            pageType: 'blog',
         });
         setError('');
         setSuccess('');
@@ -170,6 +172,7 @@ export default function AddBlogPage() {
                 status: formData.status ? 1 : 0,
                 isFeatured: formData.isFeatured ? 1 : 0,
                 publishedDate: formData.publishedDate ? formData.publishedDate.toISOString() : null,
+                pageType: formData.pageType,
             };
 
             const res = await fetch('http://localhost:3001/api/blogs', {
@@ -343,8 +346,9 @@ export default function AddBlogPage() {
                                             </span>
                                         </div>
                                     </div>
-
                                 </div>
+
+
 
                                 {/* Meta Information */}
                                 <div className="border-t border-gray-200 dark:border-gray-700 pt-8">
@@ -456,80 +460,84 @@ export default function AddBlogPage() {
                         </form>
                     </div>
                 </div>
-            </div>
+            </div >
 
             {/* Success Modal */}
-            {showSuccessModal && (
-                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-                    <div className="bg-white dark:bg-gray-900 rounded-xl shadow-2xl p-6 max-w-md w-full mx-4">
-                        <div className="flex flex-col items-center text-center">
-                            <div className="h-12 w-12 bg-green-100 rounded-full flex items-center justify-center mb-4">
-                                <svg className="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                                </svg>
+            {
+                showSuccessModal && (
+                    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+                        <div className="bg-white dark:bg-gray-900 rounded-xl shadow-2xl p-6 max-w-md w-full mx-4">
+                            <div className="flex flex-col items-center text-center">
+                                <div className="h-12 w-12 bg-green-100 rounded-full flex items-center justify-center mb-4">
+                                    <svg className="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                    </svg>
+                                </div>
+                                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Success!</h3>
+                                <p className="text-gray-600 dark:text-gray-400 dark:text-gray-500 mb-6">
+                                    Blog has been created successfully.
+                                </p>
+                                <Button
+                                    onClick={handleCloseSuccessModal}
+                                    className="px-8 py-2 bg-primary hover:bg-primary/90 text-white w-full"
+                                >
+                                    OK
+                                </Button>
                             </div>
-                            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Success!</h3>
-                            <p className="text-gray-600 dark:text-gray-400 dark:text-gray-500 mb-6">
-                                Blog has been created successfully.
-                            </p>
-                            <Button
-                                onClick={handleCloseSuccessModal}
-                                className="px-8 py-2 bg-primary hover:bg-primary/90 text-white w-full"
-                            >
-                                OK
-                            </Button>
                         </div>
                     </div>
-                </div>
-            )}
+                )
+            }
 
             {/* Image Crop Modal */}
-            {showImageCrop && selectedImageFile && (
-                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-                    <div className="bg-white dark:bg-gray-900 rounded-lg max-w-2xl w-full p-6">
-                        <div className="flex items-center justify-between mb-4">
-                            <h3 className="text-lg font-semibold">Crop Image</h3>
-                            <button
-                                onClick={() => {
-                                    setShowImageCrop(false);
-                                    setSelectedImageFile(null);
-                                }}
-                                className="p-1 hover:bg-gray-100 dark:bg-gray-800 rounded"
-                            >
-                                <X className="h-5 w-5" />
-                            </button>
-                        </div>
-                        <ImageCrop
-                            file={selectedImageFile}
-                            onCrop={async (croppedImage) => {
-                                try {
-                                    setFormData(prev => ({ ...prev, featuredImage: croppedImage }));
-                                    setShowImageCrop(false);
-                                    setSelectedImageFile(null);
-                                } catch (err) {
-                                    setError('Failed to process image. Please try again.');
-                                    setShowImageCrop(false);
-                                    setSelectedImageFile(null);
-                                }
-                            }}
-                        >
-                            <div className="space-y-4">
-                                <ImageCropContent className="border border-gray-200 dark:border-gray-700 rounded" />
-                                <div className="flex gap-2 justify-end">
-                                    <ImageCropReset asChild>
-                                        <Button variant="outline" type="button">
-                                            Reset
-                                        </Button>
-                                    </ImageCropReset>
-                                    <ImageCropApply asChild>
-                                        <Button type="button">Apply Crop</Button>
-                                    </ImageCropApply>
-                                </div>
+            {
+                showImageCrop && selectedImageFile && (
+                    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+                        <div className="bg-white dark:bg-gray-900 rounded-lg max-w-2xl w-full p-6">
+                            <div className="flex items-center justify-between mb-4">
+                                <h3 className="text-lg font-semibold">Crop Image</h3>
+                                <button
+                                    onClick={() => {
+                                        setShowImageCrop(false);
+                                        setSelectedImageFile(null);
+                                    }}
+                                    className="p-1 hover:bg-gray-100 dark:bg-gray-800 rounded"
+                                >
+                                    <X className="h-5 w-5" />
+                                </button>
                             </div>
-                        </ImageCrop>
+                            <ImageCrop
+                                file={selectedImageFile}
+                                onCrop={async (croppedImage) => {
+                                    try {
+                                        setFormData(prev => ({ ...prev, featuredImage: croppedImage }));
+                                        setShowImageCrop(false);
+                                        setSelectedImageFile(null);
+                                    } catch (err) {
+                                        setError('Failed to process image. Please try again.');
+                                        setShowImageCrop(false);
+                                        setSelectedImageFile(null);
+                                    }
+                                }}
+                            >
+                                <div className="space-y-4">
+                                    <ImageCropContent className="border border-gray-200 dark:border-gray-700 rounded" />
+                                    <div className="flex gap-2 justify-end">
+                                        <ImageCropReset asChild>
+                                            <Button variant="outline" type="button">
+                                                Reset
+                                            </Button>
+                                        </ImageCropReset>
+                                        <ImageCropApply asChild>
+                                            <Button type="button">Apply Crop</Button>
+                                        </ImageCropApply>
+                                    </div>
+                                </div>
+                            </ImageCrop>
+                        </div>
                     </div>
-                </div>
-            )}
-        </MainLayout>
+                )
+            }
+        </MainLayout >
     );
 }

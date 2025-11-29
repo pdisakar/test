@@ -48,6 +48,7 @@ export default function EditBlogPage() {
     bannerImage: '',
     bannerImageAlt: '',
     bannerImageCaption: '',
+    pageType: 'blog',
   });
 
   const [authors, setAuthors] = useState<any[]>([]);
@@ -113,6 +114,7 @@ export default function EditBlogPage() {
         bannerImage: blog.bannerImage || '',
         bannerImageAlt: blog.bannerImageAlt || '',
         bannerImageCaption: blog.bannerImageCaption || '',
+        pageType: blog.pageType || 'blog',
       });
     } catch (err: any) {
       setError(err.message || 'An error occurred while fetching blog data');
@@ -187,6 +189,7 @@ export default function EditBlogPage() {
         status: formData.status ? 1 : 0,
         isFeatured: formData.isFeatured ? 1 : 0,
         publishedDate: formData.publishedDate ? formData.publishedDate.toISOString() : null,
+        pageType: formData.pageType,
       };
 
       const res = await fetch(`http://localhost:3001/api/blogs/${blogId}`, {

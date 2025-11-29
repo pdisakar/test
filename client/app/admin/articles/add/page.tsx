@@ -47,6 +47,7 @@ export default function AddArticlePage() {
     bannerImageUrl: '',
     bannerImageAlt: '',
     bannerImageCaption: '',
+    pageType: 'article',
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -186,6 +187,7 @@ export default function AddArticlePage() {
       bannerImageUrl: '',
       bannerImageAlt: '',
       bannerImageCaption: '',
+      pageType: 'article',
     });
     setError('');
     setSuccess('');
@@ -272,6 +274,7 @@ export default function AddArticlePage() {
         bannerImageAlt: formData.bannerImageAlt,
         bannerImageCaption: formData.bannerImageCaption,
         status: formData.status ? 1 : 0,
+        pageType: formData.pageType,
       };
       const response = await fetch('http://localhost:3001/api/articles', {
         method: 'POST',

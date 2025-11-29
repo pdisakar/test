@@ -94,6 +94,7 @@ interface FormData {
   extraFAQs: string;
   relatedTrip: string;
   itineraryTitle: string;
+  pageType: string;
   [key: string]: any;
 }
 
@@ -147,6 +148,7 @@ export default function EditPackagePage() {
     relatedTrip: '',
     // Step 7 Fields
     itineraryTitle: '',
+    pageType: 'package',
   });
 
   const [galleryImages, setGalleryImages] = useState<GalleryImage[]>([]);
@@ -294,6 +296,7 @@ export default function EditPackagePage() {
         extraFAQs: pkg.extraFAQs || '',
         relatedTrip: pkg.relatedTrip || '',
         itineraryTitle: pkg.itineraryTitle || '',
+        pageType: pkg.pageType || 'package',
       }));
 
       // Store raw trip facts to be processed when attributeOptions are ready
@@ -748,6 +751,7 @@ export default function EditPackagePage() {
         itineraryTitle: formData.itineraryTitle,
         status,
         featured,
+        pageType: 'package',
         tripFacts: tripFactsPayload,
         itinerary: itinerary.map(day => ({
           dayNumber: day.dayNumber,

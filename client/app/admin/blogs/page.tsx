@@ -67,7 +67,7 @@ export default function BlogsPage() {
     };
 
     const handleEdit = (id: number) => {
-        router.push(`/blogs/edit/${id}`);
+        router.push(`/admin/blogs/edit/${id}`);
     };
 
     const handleConfirmDelete = async () => {

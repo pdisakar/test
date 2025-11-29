@@ -50,6 +50,7 @@ export default function EditArticlePage() {
     bannerImageUrl: '',
     bannerImageAlt: '',
     bannerImageCaption: '',
+    pageType: 'article',
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -137,6 +138,7 @@ export default function EditArticlePage() {
         bannerImageUrl: data.article.bannerImage || '',
         bannerImageAlt: data.article.bannerImageAlt || '',
         bannerImageCaption: data.article.bannerImageCaption || '',
+        pageType: data.article.pageType || 'article',
       });
     } catch (err: any) {
       setError(err.message || 'An error occurred while fetching article data');
@@ -315,6 +317,7 @@ export default function EditArticlePage() {
         bannerImageAlt: formData.bannerImageAlt,
         bannerImageCaption: formData.bannerImageCaption,
         status: formData.status ? 1 : 0,
+        pageType: formData.pageType,
       };
 
       const response = await fetch(`http://localhost:3001/api/articles/${articleId}`, {

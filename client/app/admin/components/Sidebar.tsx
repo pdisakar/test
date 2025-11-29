@@ -90,7 +90,7 @@ export function Sidebar({ className, isCollapsed, isMobileOpen, onMobileClose }:
           icon: MenuIcon,
           sub: [
             { label: "Add New", href: "/admin/menus/add" },
-            { label: "Deleted Menu", href: "/admin/menus/deleted" }
+            { label: "All Menus", href: "/admin/menus" }
           ]
         },
         {
@@ -133,14 +133,6 @@ export function Sidebar({ className, isCollapsed, isMobileOpen, onMobileClose }:
             { label: "Add New", href: "/admin/blogs/add" },
             { label: "All Blogs", href: "/admin/blogs" },
             { label: "Deleted Blogs", href: "/admin/blogs/trash" }
-          ]
-        },
-        {
-          title: "Menus",
-          icon: Edit,
-          sub: [
-            { label: "Add New", href: "/admin/menus/add" },
-            { label: "All Menus", href: "/admin/menus" }
           ]
         },
       ]

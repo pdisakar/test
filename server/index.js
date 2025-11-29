@@ -388,14 +388,14 @@ app.post('/api/articles', async (req, res) => {
         metaTitle, metaKeywords, metaDescription, 
         description, featuredImage, featuredImageAlt, featuredImageCaption,
         bannerImage, bannerImageAlt, bannerImageCaption,
-        status, createdAt, updatedAt
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        status, pageType, createdAt, updatedAt
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         title, urlTitle, slug, parentId || null,
         metaTitle, metaKeywords, metaDescription,
         description, featuredImage, featuredImageAlt, featuredImageCaption,
         bannerImage, bannerImageAlt, bannerImageCaption,
-        status ? 1 : 0, now, now
+        status ? 1 : 0, req.body.pageType || 'default', now, now
       ]
     );
 
@@ -451,14 +451,14 @@ app.put('/api/articles/:id', async (req, res) => {
         metaTitle = ?, metaKeywords = ?, metaDescription = ?, 
         description = ?, featuredImage = ?, featuredImageAlt = ?, featuredImageCaption = ?,
         bannerImage = ?, bannerImageAlt = ?, bannerImageCaption = ?,
-        status = ?, updatedAt = ?
+        status = ?, pageType = ?, updatedAt = ?
        WHERE id = ?`,
       [
         title, urlTitle, slug, parentId || null,
         metaTitle, metaKeywords, metaDescription,
         description, featuredImage, featuredImageAlt, featuredImageCaption,
         bannerImage, bannerImageAlt, bannerImageCaption,
-        status ? 1 : 0, now, id
+        status ? 1 : 0, req.body.pageType || 'default', now, id
       ]
     );
 
@@ -711,6 +711,21 @@ app.get('/api/places/:id', async (req, res) => {
   }
 });
 
+// Get single place by slug
+app.get('/api/places/slug/:slug', async (req, res) => {
+  const { slug } = req.params;
+  try {
+    const place = await getAsync('SELECT * FROM places WHERE slug = ?', [slug]);
+    if (!place) {
+      return res.status(404).json({ success: false, message: 'Place not found' });
+    }
+    res.json({ success: true, place });
+  } catch (err) {
+    console.error('Error fetching place by slug:', err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
 // Create new place
 app.post('/api/places', async (req, res) => {
   const {
@@ -740,14 +755,14 @@ app.post('/api/places', async (req, res) => {
         metaTitle, metaKeywords, metaDescription, 
         description, featuredImage, featuredImageAlt, featuredImageCaption,
         bannerImage, bannerImageAlt, bannerImageCaption,
-        status, createdAt, updatedAt
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        status, pageType, createdAt, updatedAt
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         title, urlTitle, slug, parentId || null,
         metaTitle, metaKeywords, metaDescription,
         description, featuredImage, featuredImageAlt, featuredImageCaption,
         bannerImage, bannerImageAlt, bannerImageCaption,
-        status ? 1 : 0, now, now
+        status ? 1 : 0, req.body.pageType || 'default', now, now
       ]
     );
 
@@ -803,14 +818,14 @@ app.put('/api/places/:id', async (req, res) => {
         metaTitle = ?, metaKeywords = ?, metaDescription = ?, 
         description = ?, featuredImage = ?, featuredImageAlt = ?, featuredImageCaption = ?,
         bannerImage = ?, bannerImageAlt = ?, bannerImageCaption = ?,
-        status = ?, updatedAt = ?
+        status = ?, pageType = ?, updatedAt = ?
        WHERE id = ?`,
       [
         title, urlTitle, slug, parentId || null,
         metaTitle, metaKeywords, metaDescription,
         description, featuredImage, featuredImageAlt, featuredImageCaption,
         bannerImage, bannerImageAlt, bannerImageCaption,
-        status ? 1 : 0, now, id
+        status ? 1 : 0, req.body.pageType || 'default', now, id
       ]
     );
 
@@ -1181,9 +1196,9 @@ app.post('/api/packages', async (req, res) => {
         tripMapImage, tripMapImageAlt, tripMapImageCaption,
         statusRibbon, groupSize, maxAltitude,
         tripHighlights, departureNote, goodToKnow, extraFAQs,
-        relatedTrip, itineraryTitle, status, featured,
+        relatedTrip, itineraryTitle, status, featured, pageType,
         createdAt, updatedAt
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         packageTitle, urlTitle, slug, durationValue || 0, durationUnit || 'days',
         metaTitle, metaKeywords, metaDescription,
@@ -1194,7 +1209,7 @@ app.post('/api/packages', async (req, res) => {
         tripMapImage, tripMapImageAlt, tripMapImageCaption,
         statusRibbon, groupSize, maxAltitude,
         tripHighlights, departureNote, goodToKnow, extraFAQs,
-        relatedTrip, itineraryTitle, status ? 1 : 0, featured ? 1 : 0,
+        relatedTrip, itineraryTitle, status ? 1 : 0, featured ? 1 : 0, req.body.pageType || 'default',
         now, now
       ]
     );
@@ -1445,7 +1460,7 @@ app.put('/api/packages/:id', async (req, res) => {
         tripMapImage = ?, tripMapImageAlt = ?, tripMapImageCaption = ?,
         statusRibbon = ?, groupSize = ?, maxAltitude = ?,
         tripHighlights = ?, departureNote = ?, goodToKnow = ?, extraFAQs = ?,
-        relatedTrip = ?, itineraryTitle = ?, status = ?, featured = ?,
+        relatedTrip = ?, itineraryTitle = ?, status = ?, featured = ?, pageType = ?,
         updatedAt = ?
       WHERE id = ?`,
       [
@@ -1458,7 +1473,7 @@ app.put('/api/packages/:id', async (req, res) => {
         tripMapImage, tripMapImageAlt, tripMapImageCaption,
         statusRibbon, groupSize, maxAltitude,
         tripHighlights, departureNote, goodToKnow, extraFAQs,
-        relatedTrip, itineraryTitle, status ? 1 : 0, featured ? 1 : 0,
+        relatedTrip, itineraryTitle, status ? 1 : 0, featured ? 1 : 0, req.body.pageType || 'default',
         now, id
       ]
     );
@@ -2137,14 +2152,16 @@ app.post('/api/blogs', async (req, res) => {
         metaTitle, metaKeywords, metaDescription,
         featuredImage, featuredImageAlt, featuredImageCaption,
         bannerImage, bannerImageAlt, bannerImageCaption,
+        pageType,
         createdAt, updatedAt
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         title, urlTitle, slug, authorId || null, publishedDate,
         status ? 1 : 0, isFeatured ? 1 : 0, abstract, description,
         metaTitle, metaKeywords, metaDescription,
         featuredImage, featuredImageAlt, featuredImageCaption,
         bannerImage, bannerImageAlt, bannerImageCaption,
+        req.body.pageType || 'default',
         now, now
       ]
     );
@@ -2200,6 +2217,7 @@ app.put('/api/blogs/:id', async (req, res) => {
         metaTitle = ?, metaKeywords = ?, metaDescription = ?,
         featuredImage = ?, featuredImageAlt = ?, featuredImageCaption = ?,
         bannerImage = ?, bannerImageAlt = ?, bannerImageCaption = ?,
+        pageType = ?,
         updatedAt = ?
       WHERE id = ?`,
       [
@@ -2208,6 +2226,7 @@ app.put('/api/blogs/:id', async (req, res) => {
         metaTitle, metaKeywords, metaDescription,
         featuredImage, featuredImageAlt, featuredImageCaption,
         bannerImage, bannerImageAlt, bannerImageCaption,
+        req.body.pageType || 'default',
         now, id
       ]
     );
@@ -2666,6 +2685,72 @@ app.delete('/api/menus/:id', async (req, res) => {
     res.status(200).json({ success: true, message: 'Menu deleted successfully' });
   } catch (err) {
     console.error('Error deleting menu:', err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+
+// ========================
+// SLUG RESOLUTION
+// ========================
+
+app.get('/api/resolve-slug/:slug', async (req, res) => {
+  const { slug } = req.params;
+
+  try {
+    // 1. Check Places
+    const place = await getAsync('SELECT * FROM places WHERE slug = ? AND deletedAt IS NULL', [slug]);
+    if (place) {
+      return res.json({
+        datatype: 'place',
+        content: place
+      });
+    }
+
+    // 2. Check Packages
+    const pkg = await getAsync('SELECT * FROM packages WHERE slug = ? AND deletedAt IS NULL', [slug]);
+    if (pkg) {
+      // Fetch related data for package if needed (e.g., itinerary, gallery)
+      // For now, returning the main package object. The frontend might need to fetch more details 
+      // or we can fetch them here. Let's fetch basic relations.
+      const itinerary = await allAsync('SELECT * FROM package_itinerary WHERE packageId = ? ORDER BY dayNumber ASC', [pkg.id]);
+      const galleryImages = await allAsync('SELECT imageUrl FROM package_gallery WHERE packageId = ?', [pkg.id]);
+      const groupPrices = await allAsync('SELECT * FROM package_group_pricing WHERE packageId = ?', [pkg.id]);
+
+      return res.json({
+        datatype: 'package',
+        content: {
+          ...pkg,
+          itinerary,
+          galleryImages: galleryImages.map(img => img.imageUrl),
+          groupPrices
+        }
+      });
+    }
+
+    // 3. Check Articles
+    const article = await getAsync('SELECT * FROM articles WHERE slug = ? AND deletedAt IS NULL', [slug]);
+    if (article) {
+      return res.json({
+        datatype: 'article',
+        content: article
+      });
+    }
+
+    // 4. Check Blogs
+    const blog = await getAsync('SELECT * FROM blogs WHERE slug = ? AND deletedAt IS NULL', [slug]);
+    if (blog) {
+      return res.json({
+        datatype: 'blog',
+        content: blog
+      });
+    }
+
+    // If no match found
+    return res.status(404).json({ success: false, message: 'Content not found' });
+
+  } catch (err) {
+    console.error('Error resolving slug:', err);
     res.status(500).json({ success: false, message: 'Server error' });
   }
 });

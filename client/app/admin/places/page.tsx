@@ -77,7 +77,7 @@ export default function placesPage() {
   };
 
   const handleEdit = (id: number) => {
-    router.push(`/places/edit/${id}`);
+    router.push(`/admin/places/edit/${id}`);
   };
 
 

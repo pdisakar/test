@@ -1,7 +1,7 @@
 'use client';
 
 import { MainLayout } from '@/app/admin/components/MainLayout';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, use } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/app/admin/components/ui/button';
 import { Switch } from '@/app/admin/components/ui/switch';
@@ -10,6 +10,12 @@ interface Menu {
     id: number;
     title: string;
     type: string;
+    parentId: number | null;
+    urlSegmentType: string | null;
+    urlSegmentId: number | null;
+    url: string | null;
+    status: number;
+    displayOrder: number;
 }
 
 interface Article {
@@ -24,8 +30,9 @@ interface Place {
     slug: string;
 }
 
-export default function AddMenuPage() {
+export default function EditMenuPage({ params }: { params: Promise<{ id: string }> }) {
     const router = useRouter();
+    const { id } = use(params);
     const [title, setTitle] = useState('');
     const [type, setType] = useState('header');
     const [parentId, setParentId] = useState('');
@@ -33,6 +40,7 @@ export default function AddMenuPage() {
     const [urlSegmentId, setUrlSegmentId] = useState('');
     const [status, setStatus] = useState(true);
     const [saving, setSaving] = useState(false);
+    const [loading, setLoading] = useState(true);
 
     const [parentMenus, setParentMenus] = useState<Menu[]>([]);
     const [articles, setArticles] = useState<Article[]>([]);
@@ -45,25 +53,43 @@ export default function AddMenuPage() {
         } else {
             fetchData();
         }
-    }, [router]);
+    }, [router, id]);
 
     const fetchData = async () => {
         try {
-            const [menusRes, articlesRes, placesRes] = await Promise.all([
+            const [menuRes, menusRes, articlesRes, placesRes] = await Promise.all([
+                fetch(`http://localhost:3001/api/menus/${id}`),
                 fetch('http://localhost:3001/api/menus'),
                 fetch('http://localhost:3001/api/articles'),
                 fetch('http://localhost:3001/api/places')
             ]);
 
+            if (!menuRes.ok) {
+                alert('Menu not found');
+                router.push('/admin/menus');
+                return;
+            }
+
+            const menuData = await menuRes.json();
             const menusData = await menusRes.json();
             const articlesData = await articlesRes.json();
             const placesData = await placesRes.json();
+
+            // Set form data
+            setTitle(menuData.title);
+            setType(menuData.type);
+            setParentId(menuData.parentId ? menuData.parentId.toString() : '');
+            setUrlSegmentType(menuData.urlSegmentType || 'article');
+            setUrlSegmentId(menuData.urlSegmentId ? menuData.urlSegmentId.toString() : '');
+            setStatus(menuData.status === 1);
 
             setParentMenus(Array.isArray(menusData) ? menusData : []);
             setArticles(Array.isArray(articlesData) ? articlesData : []);
             setPlaces(Array.isArray(placesData) ? placesData : []);
         } catch (err) {
             console.error('Error fetching data:', err);
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -98,11 +124,11 @@ export default function AddMenuPage() {
                 urlSegmentId: urlSegmentId ? parseInt(urlSegmentId) : null,
                 url,
                 status,
-                displayOrder: 0
+                displayOrder: 0 // Preserve existing order? API might handle this
             };
 
-            const response = await fetch('http://localhost:3001/api/menus', {
-                method: 'POST',
+            const response = await fetch(`http://localhost:3001/api/menus/${id}`, {
+                method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
             });
@@ -111,23 +137,31 @@ export default function AddMenuPage() {
                 router.push('/admin/menus');
             } else {
                 const data = await response.json();
-                alert(data.message || 'Failed to create menu');
+                alert(data.message || 'Failed to update menu');
             }
         } catch (err) {
-            console.error('Error creating menu:', err);
+            console.error('Error updating menu:', err);
             alert('An error occurred');
         } finally {
             setSaving(false);
         }
     };
 
-    const availableParents = parentMenus.filter(m => m.type === type);
+    const availableParents = parentMenus.filter(m => m.type === type && m.id !== parseInt(id));
+
+    if (loading) {
+        return (
+            <MainLayout>
+                <div className="flex items-center justify-center h-screen">Loading...</div>
+            </MainLayout>
+        );
+    }
 
     return (
         <MainLayout>
             <div className="flex-1 transition-all duration-300 w-full">
                 <div className="pt-16 pb-6 px-4 md:py-12 md:px-6 max-w-4xl mx-auto">
-                    <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-8">Add Menu</h1>
+                    <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-8">Edit Menu</h1>
 
                     <form onSubmit={handleSubmit} className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 p-6 space-y-6">
                         {/* Title */}
@@ -247,7 +281,7 @@ export default function AddMenuPage() {
                                 disabled={saving}
                                 className="flex-1 bg-primary hover:bg-primary/90 text-white"
                             >
-                                {saving ? 'Creating...' : 'Create Menu'}
+                                {saving ? 'Saving...' : 'Save Changes'}
                             </Button>
                         </div>
                     </form>
