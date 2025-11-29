@@ -2708,26 +2708,80 @@ app.post('/api/menus', async (req, res) => {
     // Automatically import child places/articles as sub-menus
     if (urlSegmentType && urlSegmentId) {
       try {
-        let children = [];
+        // Recursive function to handle deep place hierarchy
+        const createPlaceHierarchy = async (parentEntityId, parentMenuId) => {
+          // 1. Find child places
+          const childPlaces = await allAsync('SELECT * FROM places WHERE parentId = ? AND deletedAt IS NULL', [parentEntityId]);
+
+          for (const child of childPlaces) {
+            const childUrl = `/${child.slug}`;
+            const res = await runAsync(
+              `INSERT INTO menus (title, type, parentId, urlSegmentType, urlSegmentId, url, status, displayOrder, createdAt, updatedAt) 
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+              [child.title, type, parentMenuId, 'place', child.id, childUrl, 1, 0, now, now]
+            );
+            const childMenuId = res.lastID;
+
+            // 2. Recurse for deeper places (Grandchildren, etc.)
+            await createPlaceHierarchy(child.id, childMenuId);
+
+            // 3. Add packages for this child place
+            const linkedPackages = await allAsync(`
+              SELECT p.* 
+              FROM packages p
+              JOIN package_places pp ON p.id = pp.packageId
+              WHERE pp.placeId = ? AND p.deletedAt IS NULL AND p.status = 1
+            `, [child.id]);
+
+            if (linkedPackages && linkedPackages.length > 0) {
+              for (const pkg of linkedPackages) {
+                const pkgUrl = `/${pkg.slug}`;
+                await runAsync(
+                  `INSERT INTO menus (title, type, parentId, urlSegmentType, urlSegmentId, url, status, displayOrder, createdAt, updatedAt) 
+                   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                  [pkg.title, type, childMenuId, 'package', pkg.id, pkgUrl, 1, 0, now, now]
+                );
+              }
+            }
+          }
+        };
 
         if (urlSegmentType === 'place') {
-          children = await allAsync('SELECT * FROM places WHERE parentId = ? AND deletedAt IS NULL', [urlSegmentId]);
+          // Start recursion for the root place
+          await createPlaceHierarchy(urlSegmentId, newMenuId);
+
+          // Also check for packages directly linked to the ROOT place
+          const rootPackages = await allAsync(`
+              SELECT p.* 
+              FROM packages p
+              JOIN package_places pp ON p.id = pp.packageId
+              WHERE pp.placeId = ? AND p.deletedAt IS NULL AND p.status = 1
+            `, [urlSegmentId]);
+
+          if (rootPackages && rootPackages.length > 0) {
+            for (const pkg of rootPackages) {
+              const pkgUrl = `/${pkg.slug}`;
+              await runAsync(
+                `INSERT INTO menus (title, type, parentId, urlSegmentType, urlSegmentId, url, status, displayOrder, createdAt, updatedAt) 
+                   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                [pkg.title, type, newMenuId, 'package', pkg.id, pkgUrl, 1, 0, now, now]
+              );
+            }
+          }
+
         } else if (urlSegmentType === 'article') {
-          children = await allAsync('SELECT * FROM articles WHERE parentId = ? AND deletedAt IS NULL', [urlSegmentId]);
-        }
-
-        if (children && children.length > 0) {
-          console.log(`[Auto-Menu] Found ${children.length} child ${urlSegmentType}(s) for ${urlSegmentType} ID ${urlSegmentId}. Creating sub-menus...`);
-
+          // Keep simple logic for articles (single level for now)
+          const children = await allAsync('SELECT * FROM articles WHERE parentId = ? AND deletedAt IS NULL', [urlSegmentId]);
           for (const child of children) {
             const childUrl = `/${child.slug}`;
             await runAsync(
               `INSERT INTO menus (title, type, parentId, urlSegmentType, urlSegmentId, url, status, displayOrder, createdAt, updatedAt) 
                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-              [child.title, type, newMenuId, urlSegmentType, child.id, childUrl, 1, 0, now, now]
+              [child.title, type, newMenuId, 'article', child.id, childUrl, 1, 0, now, now]
             );
           }
         }
+
       } catch (autoErr) {
         console.error('Error auto-creating sub-menus:', autoErr);
         // Don't fail the main request if auto-creation fails, but log it.
