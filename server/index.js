@@ -2293,6 +2293,192 @@ app.post('/api/blogs/bulk-delete-permanent', async (req, res) => {
   }
 });
 
+// ========================
+// TESTIMONIALS API ENDPOINTS
+// ========================
+
+// Create new testimonial
+app.post('/api/testimonials', async (req, res) => {
+  const {
+    reviewTitle, urlTitle, slug, fullName, address, packageId, teamId, date, credit, rating,
+    status, isFeatured, description, metaTitle, metaKeywords, metaDescription,
+    avatar, avatarAlt, avatarCaption
+  } = req.body;
+
+  // Validation
+  if (!reviewTitle || !urlTitle || !slug || !fullName || !date || !metaTitle) {
+    return res.status(400).json({ success: false, message: 'Review Title, URL Title, Slug, Full Name, Date, and Meta Title are required' });
+  }
+
+  try {
+    // Check if slug exists
+    const existing = await getAsync('SELECT id FROM testimonials WHERE slug = ?', [slug]);
+    if (existing) {
+      return res.status(400).json({ success: false, message: 'Slug already exists' });
+    }
+
+    const now = new Date().toISOString();
+    const result = await runAsync(
+      `INSERT INTO testimonials (
+        reviewTitle, urlTitle, slug, fullName, address, packageId, teamId, date, credit, rating,
+        status, isFeatured, description, metaTitle, metaKeywords, metaDescription,
+        avatar, avatarAlt, avatarCaption, createdAt, updatedAt
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        reviewTitle, urlTitle, slug, fullName, address, packageId || null, teamId || null, date, credit, rating,
+        status ? 1 : 0, isFeatured ? 1 : 0, description, metaTitle, metaKeywords, metaDescription,
+        avatar, avatarAlt, avatarCaption, now, now
+      ]
+    );
+
+    res.status(201).json({
+      success: true,
+      message: 'Testimonial created successfully',
+      testimonialId: result.lastID
+    });
+  } catch (err) {
+    console.error('Error creating testimonial:', err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// Get all testimonials (exclude deleted)
+app.get('/api/testimonials', async (req, res) => {
+  try {
+    const testimonials = await allAsync('SELECT * FROM testimonials WHERE deletedAt IS NULL ORDER BY createdAt DESC');
+    res.status(200).json(testimonials);
+  } catch (err) {
+    console.error('Error fetching testimonials:', err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// Get single testimonial by ID
+app.get('/api/testimonials/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    const testimonial = await getAsync('SELECT * FROM testimonials WHERE id = ?', [id]);
+    if (!testimonial) {
+      return res.status(404).json({ success: false, message: 'Testimonial not found' });
+    }
+    res.status(200).json(testimonial);
+  } catch (err) {
+    console.error('Error fetching testimonial:', err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// Update testimonial
+app.put('/api/testimonials/:id', async (req, res) => {
+  const { id } = req.params;
+  const {
+    reviewTitle, urlTitle, slug, fullName, address, packageId, teamId, date, credit, rating,
+    status, isFeatured, description, metaTitle, metaKeywords, metaDescription,
+    avatar, avatarAlt, avatarCaption
+  } = req.body;
+
+  // Validation
+  if (!reviewTitle || !urlTitle || !slug || !fullName || !date || !metaTitle) {
+    return res.status(400).json({ success: false, message: 'Review Title, URL Title, Slug, Full Name, Date, and Meta Title are required' });
+  }
+
+  try {
+    // Check if testimonial exists
+    const existing = await getAsync('SELECT * FROM testimonials WHERE id = ?', [id]);
+    if (!existing) {
+      return res.status(404).json({ success: false, message: 'Testimonial not found' });
+    }
+
+    // Check slug uniqueness if changed
+    if (slug !== existing.slug) {
+      const slugCheck = await getAsync('SELECT id FROM testimonials WHERE slug = ? AND id != ?', [slug, id]);
+      if (slugCheck) {
+        return res.status(400).json({ success: false, message: 'Slug already exists' });
+      }
+    }
+
+    const now = new Date().toISOString();
+    await runAsync(
+      `UPDATE testimonials SET
+        reviewTitle = ?, urlTitle = ?, slug = ?, fullName = ?, address = ?, packageId = ?, teamId = ?, date = ?, credit = ?, rating = ?,
+        status = ?, isFeatured = ?, description = ?, metaTitle = ?, metaKeywords = ?, metaDescription = ?,
+        avatar = ?, avatarAlt = ?, avatarCaption = ?, updatedAt = ?
+      WHERE id = ?`,
+      [
+        reviewTitle, urlTitle, slug, fullName, address, packageId || null, teamId || null, date, credit, rating,
+        status ? 1 : 0, isFeatured ? 1 : 0, description, metaTitle, metaKeywords, metaDescription,
+        avatar, avatarAlt, avatarCaption, now, id
+      ]
+    );
+
+    res.status(200).json({ success: true, message: 'Testimonial updated successfully' });
+  } catch (err) {
+    console.error('Error updating testimonial:', err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// Soft delete testimonial
+app.delete('/api/testimonials/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    const now = new Date().toISOString();
+    await runAsync('UPDATE testimonials SET deletedAt = ? WHERE id = ?', [now, id]);
+    res.status(200).json({ success: true, message: 'Testimonial deleted successfully' });
+  } catch (err) {
+    console.error('Error deleting testimonial:', err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// Get deleted testimonials (Trash)
+app.get('/api/testimonials/trash/all', async (req, res) => {
+  try {
+    const testimonials = await allAsync('SELECT * FROM testimonials WHERE deletedAt IS NOT NULL ORDER BY deletedAt DESC');
+    res.status(200).json(testimonials);
+  } catch (err) {
+    console.error('Error fetching trash:', err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// Restore testimonial
+app.put('/api/testimonials/:id/restore', async (req, res) => {
+  const { id } = req.params;
+  try {
+    await runAsync('UPDATE testimonials SET deletedAt = NULL WHERE id = ?', [id]);
+    res.status(200).json({ success: true, message: 'Testimonial restored successfully' });
+  } catch (err) {
+    console.error('Error restoring testimonial:', err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// Permanent delete testimonial
+app.delete('/api/testimonials/:id/permanent', async (req, res) => {
+  const { id } = req.params;
+  try {
+    // 1. Get testimonial to find images
+    const testimonial = await getAsync('SELECT * FROM testimonials WHERE id = ?', [id]);
+    if (!testimonial) {
+      return res.status(404).json({ success: false, message: 'Testimonial not found' });
+    }
+
+    // 2. Delete images from filesystem
+    if (testimonial.avatar) {
+      deleteImageFile(testimonial.avatar);
+    }
+
+    // 3. Delete from database
+    await runAsync('DELETE FROM testimonials WHERE id = ?', [id]);
+
+    res.status(200).json({ success: true, message: 'Testimonial permanently deleted' });
+  } catch (err) {
+    console.error('Error permanently deleting testimonial:', err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
 app.listen(PORT, async () => {
   console.log(`Server running on http://localhost:${PORT}`);
   // Ensure default admin user exists (id 1) after server start

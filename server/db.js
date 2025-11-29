@@ -215,6 +215,39 @@ const init = () => {
     if (err) console.error('Error creating blogs table:', err);
     else console.log('Blogs table ready');
   });
+
+  const createTestimonialsTableSQL = `
+    CREATE TABLE IF NOT EXISTS testimonials (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      reviewTitle TEXT NOT NULL,
+      urlTitle TEXT NOT NULL,
+      slug TEXT NOT NULL UNIQUE,
+      fullName TEXT NOT NULL,
+      address TEXT,
+      packageId INTEGER,
+      teamId INTEGER,
+      date TEXT NOT NULL,
+      credit TEXT,
+      rating INTEGER,
+      status INTEGER DEFAULT 0,
+      isFeatured INTEGER DEFAULT 0,
+      description TEXT,
+      metaTitle TEXT,
+      metaKeywords TEXT,
+      metaDescription TEXT,
+      avatar TEXT,
+      avatarAlt TEXT,
+      avatarCaption TEXT,
+      deletedAt TEXT,
+      createdAt TEXT NOT NULL,
+      updatedAt TEXT NOT NULL
+    );
+  `;
+
+  db.run(createTestimonialsTableSQL, (err) => {
+    if (err) console.error('Error creating testimonials table:', err);
+    else console.log('Testimonials table ready');
+  });
 };
 
 init();
