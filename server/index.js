@@ -1345,7 +1345,7 @@ app.post('/api/packages', async (req, res) => {
 
 // Get all packages (paginated)
 app.get('/api/packages', async (req, res) => {
-  const { page = 1, limit = 10, search, status } = req.query;
+  const { page = 1, limit = 10, search, status, featured } = req.query;
   const offset = (page - 1) * limit;
 
   try {
@@ -1363,6 +1363,13 @@ app.get('/api/packages', async (req, res) => {
       query += ' AND status = ?';
       countQuery += ' AND status = ?';
       params.push(status);
+    }
+
+    // New featured filter: only include packages where featured flag is true (1)
+    if (featured !== undefined) {
+      query += ' AND featured = ?';
+      countQuery += ' AND featured = ?';
+      params.push(featured);
     }
 
     query += ' ORDER BY createdAt DESC LIMIT ? OFFSET ?';
@@ -2143,8 +2150,16 @@ app.delete('/api/teams/:id/permanent', async (req, res) => {
 
 // Get all active blogs
 app.get('/api/blogs', async (req, res) => {
+  const { isFeatured } = req.query;
   try {
-    const blogs = await allAsync('SELECT * FROM blogs WHERE deletedAt IS NULL ORDER BY createdAt DESC');
+    let query = 'SELECT * FROM blogs WHERE deletedAt IS NULL';
+    const params = [];
+    if (isFeatured !== undefined) {
+      query += ' AND isFeatured = ?';
+      params.push(isFeatured);
+    }
+    query += ' ORDER BY createdAt DESC';
+    const blogs = await allAsync(query, params);
     res.json(blogs);
   } catch (err) {
     console.error('Error fetching blogs:', err);
@@ -2437,8 +2452,16 @@ app.post('/api/testimonials', async (req, res) => {
 
 // Get all testimonials (exclude deleted)
 app.get('/api/testimonials', async (req, res) => {
+  const { isFeatured } = req.query;
   try {
-    const testimonials = await allAsync('SELECT * FROM testimonials WHERE deletedAt IS NULL ORDER BY createdAt DESC');
+    let query = 'SELECT * FROM testimonials WHERE deletedAt IS NULL';
+    const params = [];
+    if (isFeatured !== undefined) {
+      query += ' AND isFeatured = ?';
+      params.push(isFeatured);
+    }
+    query += ' ORDER BY createdAt DESC';
+    const testimonials = await allAsync(query, params);
     res.status(200).json(testimonials);
   } catch (err) {
     console.error('Error fetching testimonials:', err);

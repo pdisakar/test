@@ -4,7 +4,7 @@ import { PublicHeader } from '@/components/PublicHeader';
 import { PublicFooter } from '@/components/PublicFooter';
 import { Button } from '@/components/Button';
 import Link from 'next/link';
-import { ArrowRight, MapPin, Calendar, Star } from 'lucide-react';
+import { ArrowRight, Calendar, Star, Quote } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 interface Package {
@@ -15,6 +15,7 @@ interface Package {
   durationUnit: string;
   defaultPrice: number;
   featuredImage: string;
+  featured: number;
 }
 
 interface Blog {
@@ -24,29 +25,51 @@ interface Blog {
   abstract: string;
   publishedDate: string;
   featuredImage: string;
+  isFeatured: number;
+}
+
+interface Testimonial {
+  id: number;
+  reviewTitle: string;
+  fullName: string;
+  rating: number;
+  description: string; // HTML content
+  avatar: string;
+  isFeatured: number;
+  address: string;
 }
 
 export default function Home() {
-  const [packages, setPackages] = useState<Package[]>([]);
-  const [blogs, setBlogs] = useState<Blog[]>([]);
+  const [featuredPackages, setFeaturedPackages] = useState<Package[]>([]);
+  const [featuredBlogs, setFeaturedBlogs] = useState<Blog[]>([]);
+  const [featuredTestimonials, setFeaturedTestimonials] = useState<Testimonial[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Fetch featured packages (simulated by taking first 3)
-        const packagesRes = await fetch('http://localhost:3001/api/packages');
+        const [packagesRes, blogsRes, testimonialsRes] = await Promise.all([
+          fetch('http://localhost:3001/api/packages?featured=1'),
+          fetch('http://localhost:3001/api/blogs?isFeatured=1'),
+          fetch('http://localhost:3001/api/testimonials?isFeatured=1')
+        ]);
+
         const packagesData = await packagesRes.json();
+        const blogsData = await blogsRes.json();
+        const testimonialsData = await testimonialsRes.json();
+
         if (packagesData.success && Array.isArray(packagesData.packages)) {
-          setPackages(packagesData.packages.slice(0, 3));
+          setFeaturedPackages(packagesData.packages.slice(0, 6));
         }
 
-        // Fetch latest blogs
-        const blogsRes = await fetch('http://localhost:3001/api/blogs');
-        const blogsData = await blogsRes.json();
         if (Array.isArray(blogsData)) {
-          setBlogs(blogsData.slice(0, 3));
+          setFeaturedBlogs(blogsData.slice(0, 3));
         }
+
+        if (Array.isArray(testimonialsData)) {
+          setFeaturedTestimonials(testimonialsData.slice(0, 3));
+        }
+
       } catch (error) {
         console.error('Error fetching data:', error);
       } finally {
@@ -96,9 +119,9 @@ export default function Home() {
         <section className="py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
           <div className="flex justify-between items-end mb-12">
             <div>
-              <h2 className="text-3xl font-bold text-gray-900 mb-4">Popular Destinations</h2>
+              <h2 className="text-3xl font-bold text-gray-900 mb-4">Featured Destinations</h2>
               <p className="text-gray-600 max-w-2xl">
-                Our most booked packages this season. Don't miss out on these amazing experiences.
+                Our most exclusive and top-rated packages, handpicked for you.
               </p>
             </div>
             <Link href="/packages" className="hidden md:flex items-center text-primary font-medium hover:underline">
@@ -111,8 +134,8 @@ export default function Home() {
               [1, 2, 3].map((i) => (
                 <div key={i} className="bg-gray-100 rounded-2xl h-[400px] animate-pulse"></div>
               ))
-            ) : packages.length > 0 ? (
-              packages.map((pkg) => (
+            ) : featuredPackages.length > 0 ? (
+              featuredPackages.map((pkg) => (
                 <div key={pkg.id} className="group bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-300">
                   <div className="relative h-64 overflow-hidden">
                     <img
@@ -148,7 +171,7 @@ export default function Home() {
               ))
             ) : (
               <div className="col-span-3 text-center py-12 text-gray-500">
-                No packages available at the moment.
+                No featured packages available at the moment.
               </div>
             )}
           </div>
@@ -160,60 +183,68 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Features Section */}
-        <section className="bg-gray-50 py-20">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center max-w-3xl mx-auto mb-16">
-              <h2 className="text-3xl font-bold text-gray-900 mb-4">Why Choose Us?</h2>
-              <p className="text-gray-600">
-                We go the extra mile to ensure your trip is perfect. Here's what sets us apart from the rest.
-              </p>
+        {/* Featured Blogs */}
+        <section className="bg-gray-50 py-20 px-4 sm:px-6 lg:px-8">
+          <div className="max-w-7xl mx-auto">
+            <div className="flex justify-between items-end mb-12">
+              <div>
+                <h2 className="text-3xl font-bold text-gray-900 mb-4">Featured Stories</h2>
+                <p className="text-gray-600 max-w-2xl">
+                  Inspiring travel stories and guides from our featured collection.
+                </p>
+              </div>
+              <Link href="/blogs" className="hidden md:flex items-center text-primary font-medium hover:underline">
+                Read all stories <ArrowRight className="ml-2 h-4 w-4" />
+              </Link>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 text-center">
-                <div className="h-16 w-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6">
-                  <MapPin className="h-8 w-8 text-primary" />
+              {loading ? (
+                [1, 2, 3].map((i) => (
+                  <div key={i} className="bg-gray-100 rounded-2xl h-[300px] animate-pulse"></div>
+                ))
+              ) : featuredBlogs.length > 0 ? (
+                featuredBlogs.map((blog) => (
+                  <div key={blog.id} className="group flex flex-col h-full bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300">
+                    <div className="relative h-56 overflow-hidden">
+                      <img
+                        src={blog.featuredImage || 'https://images.unsplash.com/photo-1433086966358-54859d0ed716?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'}
+                        alt={blog.title}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      />
+                    </div>
+                    <div className="p-6 flex-1 flex flex-col">
+                      <div className="text-sm text-primary font-medium mb-2">
+                        {new Date(blog.publishedDate).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+                      </div>
+                      <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-primary transition-colors">
+                        {blog.title}
+                      </h3>
+                      <p className="text-gray-600 line-clamp-2 mb-4 flex-1">
+                        {blog.abstract}
+                      </p>
+                      <Link href={`/${blog.slug}`} className="inline-flex items-center text-gray-900 font-medium hover:text-primary transition-colors mt-auto">
+                        Read More <ArrowRight className="ml-2 h-4 w-4" />
+                      </Link>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="col-span-3 text-center py-12 text-gray-500">
+                  No featured blogs available at the moment.
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-3">Handpicked Destinations</h3>
-                <p className="text-gray-600">
-                  We personally visit and verify every location to ensure you get the best experience possible.
-                </p>
-              </div>
-              <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 text-center">
-                <div className="h-16 w-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6">
-                  <Star className="h-8 w-8 text-primary" />
-                </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-3">Best Price Guarantee</h3>
-                <p className="text-gray-600">
-                  We negotiate directly with local providers to get you the best rates without compromising quality.
-                </p>
-              </div>
-              <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 text-center">
-                <div className="h-16 w-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6">
-                  <Calendar className="h-8 w-8 text-primary" />
-                </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-3">24/7 Support</h3>
-                <p className="text-gray-600">
-                  Our team is available round the clock to assist you with any queries or emergencies during your trip.
-                </p>
-              </div>
+              )}
             </div>
           </div>
         </section>
 
-        {/* Latest Blogs */}
+        {/* Featured Testimonials */}
         <section className="py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-          <div className="flex justify-between items-end mb-12">
-            <div>
-              <h2 className="text-3xl font-bold text-gray-900 mb-4">Travel Stories</h2>
-              <p className="text-gray-600 max-w-2xl">
-                Get inspired by our latest travel guides, tips, and stories from around the globe.
-              </p>
-            </div>
-            <Link href="/blogs" className="hidden md:flex items-center text-primary font-medium hover:underline">
-              Read all stories <ArrowRight className="ml-2 h-4 w-4" />
-            </Link>
+          <div className="text-center mb-16">
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">What Travelers Say</h2>
+            <p className="text-gray-600 max-w-2xl mx-auto">
+              Hear from our happy travelers who have explored the world with us.
+            </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -221,39 +252,43 @@ export default function Home() {
               [1, 2, 3].map((i) => (
                 <div key={i} className="bg-gray-100 rounded-2xl h-[300px] animate-pulse"></div>
               ))
-            ) : blogs.length > 0 ? (
-              blogs.map((blog) => (
-                <div key={blog.id} className="group flex flex-col h-full">
-                  <div className="relative h-56 rounded-2xl overflow-hidden mb-6">
-                    <img
-                      src={blog.featuredImage || 'https://images.unsplash.com/photo-1433086966358-54859d0ed716?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'}
-                      alt={blog.title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                    />
+            ) : featuredTestimonials.length > 0 ? (
+              featuredTestimonials.map((testimonial) => (
+                <div key={testimonial.id} className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 relative">
+                  <Quote className="h-10 w-10 text-primary/20 absolute top-6 right-6" />
+                  <div className="flex items-center gap-1 mb-4">
+                    {[...Array(5)].map((_, i) => (
+                      <Star
+                        key={i}
+                        className={`h-4 w-4 ${i < testimonial.rating ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300'}`}
+                      />
+                    ))}
                   </div>
-                  <div className="flex-1">
-                    <div className="text-sm text-primary font-medium mb-2">
-                      {new Date(blog.publishedDate).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+                  <div
+                    className="text-gray-700 mb-6 line-clamp-4 prose prose-sm"
+                    dangerouslySetInnerHTML={{ __html: testimonial.description }}
+                  />
+                  <div className="flex items-center gap-4 mt-auto">
+                    <img
+                      src={testimonial.avatar || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(testimonial.fullName)}
+                      alt={testimonial.fullName}
+                      className="h-12 w-12 rounded-full object-cover"
+                    />
+                    <div>
+                      <h4 className="font-bold text-gray-900">{testimonial.fullName}</h4>
+                      <p className="text-sm text-gray-500">{testimonial.address}</p>
                     </div>
-                    <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-primary transition-colors">
-                      {blog.title}
-                    </h3>
-                    <p className="text-gray-600 line-clamp-2 mb-4">
-                      {blog.abstract}
-                    </p>
-                    <Link href={`/${blog.slug}`} className="inline-flex items-center text-gray-900 font-medium hover:text-primary transition-colors">
-                      Read More <ArrowRight className="ml-2 h-4 w-4" />
-                    </Link>
                   </div>
                 </div>
               ))
             ) : (
               <div className="col-span-3 text-center py-12 text-gray-500">
-                No blogs available at the moment.
+                No featured testimonials available at the moment.
               </div>
             )}
           </div>
         </section>
+
       </main>
 
       <PublicFooter />
