@@ -120,7 +120,7 @@ export default function AddplacePage() {
     return (
       <React.Fragment key={place.id}>
         <div
-          className={`flex items-center gap-2 py-2 px-3 rounded-lg cursor-pointer transition-colors ${isSelected ? 'bg-primary/10 border border-primary' : 'hover:bg-gray-50'
+          className={`flex items-center gap-2 py-2 px-3 rounded-lg cursor-pointer transition-colors ${isSelected ? 'bg-primary/10 border border-primary' : 'hover:bg-gray-50 dark:bg-gray-950'
             }`}
           style={{ paddingLeft: `${depth * 24 + 12}px` }}
         >
@@ -134,9 +134,9 @@ export default function AddplacePage() {
               className="p-1 hover:bg-gray-200 rounded-full transition-colors"
             >
               {isExpanded ? (
-                <ChevronDown className="h-4 w-4 text-gray-500" />
+                <ChevronDown className="h-4 w-4 text-gray-500 dark:text-gray-400 dark:text-gray-500" />
               ) : (
-                <ChevronRight className="h-4 w-4 text-gray-500" />
+                <ChevronRight className="h-4 w-4 text-gray-500 dark:text-gray-400 dark:text-gray-500" />
               )}
             </button>
           ) : (
@@ -153,7 +153,7 @@ export default function AddplacePage() {
               }
             }}
           >
-            <span className="text-sm text-gray-900">{place.title}</span>
+            <span className="text-sm text-gray-900 dark:text-white">{place.title}</span>
           </div>
         </div>
         {isExpanded && place.children?.map((child) => renderParentOption(child, depth + 1))}
@@ -323,10 +323,10 @@ export default function AddplacePage() {
     <MainLayout>
       <div className="pt-16 pb-6 px-4 md:py-12 md:px-6 max-w-7xl mx-auto">
         <div className="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-0">
-          <h1 className="text-3xl font-bold text-gray-900">Add place</h1>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Add place</h1>
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-            <Button onClick={handleClearForm} variant="outline" className="px-6 py-2 border-gray-300 text-gray-700 hover:bg-gray-50" disabled={loading}>Clear Form</Button>
-            <Button onClick={handleDiscard} variant="outline" className="px-6 py-2 border-gray-300 text-gray-700 hover:bg-gray-50" disabled={loading}>Discard</Button>
+            <Button onClick={handleClearForm} variant="outline" className="px-6 py-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:bg-gray-950" disabled={loading}>Clear Form</Button>
+            <Button onClick={handleDiscard} variant="outline" className="px-6 py-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:bg-gray-950" disabled={loading}>Discard</Button>
             <Button onClick={handleSubmit} className="px-6 py-2 bg-primary hover:bg-primary/90 text-white" disabled={loading}>
               {loading ? 'Saving...' : 'Save'}
             </Button>
@@ -342,37 +342,37 @@ export default function AddplacePage() {
             <p className="text-green-800 text-sm">{success}</p>
           </div>
         )}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100">
+        <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800">
           <form onSubmit={handleSubmit} className="p-8">
             <div className="space-y-8">
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Title */}
                 <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Title <span className="text-red-500">*</span></label>
-                  <input type="text" value={formData.title} onChange={e => setFormData({ ...formData, title: e.target.value })} placeholder="place Title" className="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all" required disabled={loading} />
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Title <span className="text-red-500">*</span></label>
+                  <input type="text" value={formData.title} onChange={e => setFormData({ ...formData, title: e.target.value })} placeholder="place Title" className="w-full px-4 py-2.5 rounded-lg border border-gray-200 dark:border-gray-700 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all" required disabled={loading} />
                 </div>
                 {/* URL Title */}
                 <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">URL Title <span className="text-red-500">*</span></label>
-                  <input type="text" value={formData.urlTitle} onChange={e => setFormData({ ...formData, urlTitle: e.target.value })} placeholder="place URL Title" className="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all" required disabled={loading} />
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">URL Title <span className="text-red-500">*</span></label>
+                  <input type="text" value={formData.urlTitle} onChange={e => setFormData({ ...formData, urlTitle: e.target.value })} placeholder="place URL Title" className="w-full px-4 py-2.5 rounded-lg border border-gray-200 dark:border-gray-700 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all" required disabled={loading} />
                 </div>
                 {/* Slug (auto) */}
                 <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Slug</label>
-                  <input type="text" value={formData.slug} readOnly className="w-full px-4 py-2.5 rounded-lg bg-gray-100 border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all" disabled />
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Slug</label>
+                  <input type="text" value={formData.slug} readOnly className="w-full px-4 py-2.5 rounded-lg bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all" disabled />
                 </div>
                 {/* Parent place */}
                 <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Parent place(s)</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Parent place(s)</label>
                   <div
-                    className="border border-gray-200 rounded-lg bg-white cursor-pointer"
+                    className="border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-900 cursor-pointer"
                     onClick={() => setShowAccordion(!showAccordion)}
                   >
                     <div className="py-2.5 px-4 flex items-center justify-between">
-                      <span className="text-sm text-gray-900">
+                      <span className="text-sm text-gray-900 dark:text-white">
                         {formData.parentId.length === 0 ? (
-                          <span className="text-gray-500">None (Top Level)</span>
+                          <span className="text-gray-500 dark:text-gray-400 dark:text-gray-500">None (Top Level)</span>
                         ) : (
                           <span>
                             {formData.parentId.map((id) => {
@@ -393,19 +393,19 @@ export default function AddplacePage() {
                         )}
                       </span>
                       {showAccordion ? (
-                        <ChevronDown className="h-4 w-4 text-gray-500" />
+                        <ChevronDown className="h-4 w-4 text-gray-500 dark:text-gray-400 dark:text-gray-500" />
                       ) : (
-                        <ChevronRight className="h-4 w-4 text-gray-500" />
+                        <ChevronRight className="h-4 w-4 text-gray-500 dark:text-gray-400 dark:text-gray-500" />
                       )}
                     </div>
                     {showAccordion && (
-                      <div className="border-t border-gray-200 max-h-64 overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+                      <div className="border-t border-gray-200 dark:border-gray-700 max-h-64 overflow-y-auto" onClick={(e) => e.stopPropagation()}>
                         <div
-                          className={`py-2 px-3 cursor-pointer transition-colors ${formData.parentId.length === 0 ? 'bg-primary/10 border-t border-b border-primary' : 'hover:bg-gray-50'
+                          className={`py-2 px-3 cursor-pointer transition-colors ${formData.parentId.length === 0 ? 'bg-primary/10 border-t border-b border-primary' : 'hover:bg-gray-50 dark:bg-gray-950'
                             }`}
                           onClick={() => setFormData({ ...formData, parentId: [] })}
                         >
-                          <span className="text-sm text-gray-900 font-medium">None (Top Level)</span>
+                          <span className="text-sm text-gray-900 dark:text-white font-medium">None (Top Level)</span>
                         </div>
                         {organizeplaces(parentOptions).map((place) => renderParentOption(place))}
                       </div>
@@ -416,43 +416,43 @@ export default function AddplacePage() {
 
                 {/* Status */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Status</label>
                   <div className="flex items-center gap-3 h-[42px]">
                     <Switch
                       checked={formData.status}
                       onCheckedChange={(checked) => setFormData({ ...formData, status: checked })}
                       disabled={loading}
                     />
-                    <span className="text-sm text-gray-600">
+                    <span className="text-sm text-gray-600 dark:text-gray-400 dark:text-gray-500">
                       {formData.status ? 'Active' : 'Not Active'}
                     </span>
                   </div>
                 </div>
               </div>
               {/* Meta Information */}
-              <div className="border-t border-gray-200 pt-8">
-                <h3 className="text-lg font-semibold text-gray-900 mb-6">Meta Information</h3>
+              <div className="border-t border-gray-200 dark:border-gray-700 pt-8">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-6">Meta Information</h3>
                 <div className="space-y-6">
                   {/* Meta Title */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Meta Title</label>
-                    <input type="text" value={formData.metaTitle} onChange={e => setFormData({ ...formData, metaTitle: e.target.value })} placeholder="Meta title for SEO" className="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all" disabled={loading} />
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Meta Title</label>
+                    <input type="text" value={formData.metaTitle} onChange={e => setFormData({ ...formData, metaTitle: e.target.value })} placeholder="Meta title for SEO" className="w-full px-4 py-2.5 rounded-lg border border-gray-200 dark:border-gray-700 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all" disabled={loading} />
                   </div>
                   {/* Meta Keywords */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Meta Keywords</label>
-                    <input type="text" value={formData.metaKeywords} onChange={e => setFormData({ ...formData, metaKeywords: e.target.value })} placeholder="keyword1, keyword2, keyword3" className="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all" disabled={loading} />
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Meta Keywords</label>
+                    <input type="text" value={formData.metaKeywords} onChange={e => setFormData({ ...formData, metaKeywords: e.target.value })} placeholder="keyword1, keyword2, keyword3" className="w-full px-4 py-2.5 rounded-lg border border-gray-200 dark:border-gray-700 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all" disabled={loading} />
                   </div>
                   {/* Meta Description */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Meta Description</label>
-                    <textarea value={formData.metaDescription} onChange={e => setFormData({ ...formData, metaDescription: e.target.value })} placeholder="Meta description for SEO..." rows={3} className="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all resize-none" disabled={loading} />
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Meta Description</label>
+                    <textarea value={formData.metaDescription} onChange={e => setFormData({ ...formData, metaDescription: e.target.value })} placeholder="Meta description for SEO..." rows={3} className="w-full px-4 py-2.5 rounded-lg border border-gray-200 dark:border-gray-700 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all resize-none" disabled={loading} />
                   </div>
                 </div>
               </div>
               {/* Description */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Description</label>
                 <RichTextEditor
                   content={formData.description}
                   onChange={(content) => setFormData({ ...formData, description: content })}
@@ -511,7 +511,7 @@ export default function AddplacePage() {
       {/* Image Crop Modal */}
       {showImageCrop && selectedImageFile && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg max-w-2xl w-full p-6">
+          <div className="bg-white dark:bg-gray-900 rounded-lg max-w-2xl w-full p-6">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold">Crop Image</h3>
               <button
@@ -519,7 +519,7 @@ export default function AddplacePage() {
                   setShowImageCrop(false);
                   setSelectedImageFile(null);
                 }}
-                className="p-1 hover:bg-gray-100 rounded"
+                className="p-1 hover:bg-gray-100 dark:bg-gray-800 rounded"
               >
                 <X className="h-5 w-5" />
               </button>
@@ -541,7 +541,7 @@ export default function AddplacePage() {
               }}
             >
               <div className="space-y-4">
-                <ImageCropContent className="border border-gray-200 rounded" />
+                <ImageCropContent className="border border-gray-200 dark:border-gray-700 rounded" />
                 <div className="flex gap-2 justify-end">
                   <ImageCropReset asChild>
                     <Button variant="outline" type="button">
@@ -561,15 +561,15 @@ export default function AddplacePage() {
       {/* Success Modal */}
       {showSuccessModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-xl shadow-2xl p-6 max-w-md w-full mx-4">
+          <div className="bg-white dark:bg-gray-900 rounded-xl shadow-2xl p-6 max-w-md w-full mx-4">
             <div className="flex flex-col items-center text-center">
               <div className="h-12 w-12 bg-green-100 rounded-full flex items-center justify-center mb-4">
                 <svg className="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                 </svg>
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2">Success!</h3>
-              <p className="text-gray-600 mb-6">
+              <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Success!</h3>
+              <p className="text-gray-600 dark:text-gray-400 dark:text-gray-500 mb-6">
                 Place has been created successfully.
               </p>
               <Button

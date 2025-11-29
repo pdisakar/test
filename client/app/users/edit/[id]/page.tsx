@@ -156,7 +156,7 @@ export default function EditUserPage() {
     return (
       <MainLayout>
         <div className="flex-1 transition-all duration-300 flex items-center justify-center h-full">
-          <p className="text-gray-600">Loading user data...</p>
+          <p className="text-gray-600 dark:text-gray-400 dark:text-gray-500">Loading user data...</p>
         </div>
       </MainLayout>
     );
@@ -167,12 +167,12 @@ export default function EditUserPage() {
       <div className="py-12 px-6 max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8 flex items-center justify-between">
-          <h1 className="text-3xl font-bold text-gray-900">Edit User</h1>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Edit User</h1>
           <div className="flex items-center gap-3">
             <Button
               onClick={handleDiscard}
               variant="outline"
-              className="px-6 py-2 border-gray-300 text-gray-700 hover:bg-gray-50"
+              className="px-6 py-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:bg-gray-950"
               disabled={saving}
             >
               Discard
@@ -202,12 +202,12 @@ export default function EditUserPage() {
         )}
 
         {/* Form */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100">
+        <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800">
           <form onSubmit={handleSubmit} className="p-8">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Name */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Name <span className="text-red-500">*</span>
                 </label>
                 <input
@@ -215,7 +215,7 @@ export default function EditUserPage() {
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   placeholder="Full Name"
-                  className="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                  className="w-full px-4 py-2.5 rounded-lg border border-gray-200 dark:border-gray-700 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
                   required
                   disabled={saving}
                 />
@@ -223,7 +223,7 @@ export default function EditUserPage() {
 
               {/* Email */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   E-mail <span className="text-red-500">*</span>
                 </label>
                 <input
@@ -231,7 +231,7 @@ export default function EditUserPage() {
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                   placeholder="email@example.com"
-                  className="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                  className="w-full px-4 py-2.5 rounded-lg border border-gray-200 dark:border-gray-700 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
                   required
                   disabled={saving}
                 />
@@ -239,22 +239,22 @@ export default function EditUserPage() {
 
               {/* Password */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Password <span className="text-gray-400 text-xs">(Leave blank to keep current)</span>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Password <span className="text-gray-400 dark:text-gray-500 text-xs">(Leave blank to keep current)</span>
                 </label>
                 <input
                   type="password"
                   value={formData.password}
                   onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                   placeholder="••••••••"
-                  className="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                  className="w-full px-4 py-2.5 rounded-lg border border-gray-200 dark:border-gray-700 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
                   disabled={saving}
                 />
               </div>
 
               {/* Confirm Password */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Confirm Password
                 </label>
                 <input
@@ -262,20 +262,20 @@ export default function EditUserPage() {
                   value={formData.confirmPassword}
                   onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
                   placeholder="••••••••"
-                  className="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                  className="w-full px-4 py-2.5 rounded-lg border border-gray-200 dark:border-gray-700 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
                   disabled={saving}
                 />
               </div>
 
               {/* User Type */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   User Type <span className="text-red-500">*</span>
                 </label>
                 <select
                   value={formData.userType}
                   onChange={(e) => setFormData({ ...formData, userType: e.target.value })}
-                  className="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all bg-white"
+                  className="w-full px-4 py-2.5 rounded-lg border border-gray-200 dark:border-gray-700 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all bg-white dark:bg-gray-900"
                   required
                   disabled={saving}
                 >
@@ -287,7 +287,7 @@ export default function EditUserPage() {
 
               {/* Status */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Status
                 </label>
                 <div className="flex items-center gap-3 h-[42px]">
@@ -296,7 +296,7 @@ export default function EditUserPage() {
                     onCheckedChange={(checked) => setFormData({ ...formData, status: checked })}
                     disabled={saving}
                   />
-                  <span className="text-sm text-gray-600">
+                  <span className="text-sm text-gray-600 dark:text-gray-400 dark:text-gray-500">
                     {formData.status ? 'Active' : 'Not Active'}
                   </span>
                 </div>
@@ -309,15 +309,15 @@ export default function EditUserPage() {
       {/* Success Modal */}
       {showSuccessModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-xl shadow-2xl p-6 max-w-md w-full mx-4">
+          <div className="bg-white dark:bg-gray-900 rounded-xl shadow-2xl p-6 max-w-md w-full mx-4">
             <div className="flex flex-col items-center text-center">
               <div className="h-12 w-12 bg-green-100 rounded-full flex items-center justify-center mb-4">
                 <svg className="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                 </svg>
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2">Success!</h3>
-              <p className="text-gray-600 mb-6">
+              <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Success!</h3>
+              <p className="text-gray-600 dark:text-gray-400 dark:text-gray-500 mb-6">
                 User has been updated successfully.
               </p>
               <Button

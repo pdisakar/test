@@ -145,7 +145,7 @@ export function Sidebar({ className, isCollapsed, isMobileOpen, onMobileClose }:
   return (
     <div
       className={cn(
-        "fixed inset-y-0 left-0 z-50 flex flex-col h-screen bg-white border-r border-gray-100 transition-all duration-300 ease-in-out md:sticky md:top-0",
+        "fixed inset-y-0 left-0 z-50 flex flex-col h-screen bg-white dark:bg-gray-900 border-r border-gray-100 dark:border-gray-800 transition-all duration-300 ease-in-out md:sticky md:top-0",
         isCollapsed ? "md:w-20" : "md:w-72",
         // Mobile styles
         "w-72",
@@ -170,7 +170,7 @@ export function Sidebar({ className, isCollapsed, isMobileOpen, onMobileClose }:
             <div className="h-4 w-4 rounded-full border-2 border-primary"></div>
           </div>
           {(!isCollapsed || isMobileOpen) && (
-            <span className="font-bold text-xl text-gray-900 md:block">Flup</span>
+            <span className="font-bold text-xl text-gray-900 dark:text-white md:block">Flup</span>
           )}
         </div>
       </div>
@@ -181,7 +181,7 @@ export function Sidebar({ className, isCollapsed, isMobileOpen, onMobileClose }:
           {menuItems.map((section, idx) => (
             <div key={idx}>
               {(!isCollapsed || isMobileOpen) && (
-                <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 px-2">
+                <h3 className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-3 px-2">
                   {section.title}
                 </h3>
               )}
@@ -199,27 +199,27 @@ export function Sidebar({ className, isCollapsed, isMobileOpen, onMobileClose }:
                           "w-full justify-start h-11 rounded-xl transition-all duration-200 group",
                           isCollapsed ? "md:justify-center md:px-0" : "px-3",
                           openItem === item.title
-                            ? "bg-primary/5 text-primary"
-                            : "text-gray-500 hover:bg-gray-50 hover:text-gray-900"
+                            ? "bg-primary/5 dark:bg-primary/10 text-primary dark:text-primary"
+                            : "text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white"
                         )}
                       >
-                        <item.icon className={cn("h-5 w-5 shrink-0 transition-colors", (!isCollapsed || isMobileOpen) && "mr-3", openItem === item.title ? "text-primary" : "text-gray-400 group-hover:text-gray-600")} />
+                        <item.icon className={cn("h-5 w-5 shrink-0 transition-colors", (!isCollapsed || isMobileOpen) && "mr-3", openItem === item.title ? "text-primary" : "text-gray-400 dark:text-gray-500 group-hover:text-gray-600 dark:group-hover:text-gray-300")} />
                         {(!isCollapsed || isMobileOpen) && (
                           <div className="flex-1 flex items-center justify-between">
                             <span className="font-medium">{item.title}</span>
-                            <ChevronDown className={cn("h-4 w-4 text-gray-400 transition-transform duration-200", openItem === item.title && "transform rotate-180")} />
+                            <ChevronDown className={cn("h-4 w-4 text-gray-400 dark:text-gray-500 transition-transform duration-200", openItem === item.title && "transform rotate-180")} />
                           </div>
                         )}
                       </Button>
                     </CollapsibleTrigger>
                     <CollapsibleContent>
                       {(!isCollapsed || isMobileOpen) && (
-                        <div className="mt-1 ml-4 pl-4 border-l border-gray-100 space-y-1">
+                        <div className="mt-1 ml-4 pl-4 border-l border-gray-100 dark:border-gray-800 space-y-1">
                           {item.sub.map((subItem) => (
                             <Link
                               key={subItem.label}
                               href={subItem.href}
-                              className="flex items-center w-full h-9 px-3 text-sm text-gray-500 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-colors"
+                              className="flex items-center w-full h-9 px-3 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg transition-colors"
                             >
                               {subItem.label}
                             </Link>

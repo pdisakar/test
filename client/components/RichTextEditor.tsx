@@ -59,7 +59,7 @@ const RichTextEditor = ({ content, onChange, placeholder = 'Write something...' 
     content,
     editorProps: {
       attributes: {
-        class: 'prose prose-sm sm:prose lg:prose-lg xl:prose-2xl mx-auto focus:outline-none min-h-[200px] px-4 py-2',
+        class: 'prose prose-sm sm:prose lg:prose-lg xl:prose-2xl dark:prose-invert mx-auto focus:outline-none min-h-[200px] px-4 py-2 text-gray-900 dark:text-white',
       },
     },
     onUpdate: ({ editor }) => {
@@ -137,8 +137,8 @@ const RichTextEditor = ({ content, onChange, placeholder = 'Write something...' 
   }
 
   return (
-    <div className="border border-gray-200 rounded-lg overflow-hidden bg-white">
-      <div className="border-b border-gray-200 bg-gray-50 p-2 flex flex-wrap gap-1 items-center min-h-[40px]">
+    <div className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden bg-white dark:bg-gray-900">
+      <div className="border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 p-2 flex flex-wrap gap-1 items-center min-h-[40px]">
         {isLinkMode ? (
           <div className="flex items-center gap-2 w-full">
             <input
@@ -146,7 +146,7 @@ const RichTextEditor = ({ content, onChange, placeholder = 'Write something...' 
               value={linkUrl}
               onChange={(e) => setLinkUrl(e.target.value)}
               placeholder="Enter URL..."
-              className="flex-1 px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:border-primary"
+              className="flex-1 px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:border-primary bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
               autoFocus
               onKeyDown={(e) => {
                 if (e.key === 'Enter') {
@@ -171,7 +171,7 @@ const RichTextEditor = ({ content, onChange, placeholder = 'Write something...' 
               value={imageUrl}
               onChange={(e) => setImageUrl(e.target.value)}
               placeholder="Enter Image URL..."
-              className="flex-1 px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:border-primary"
+              className="flex-1 px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:border-primary bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
               autoFocus
               onKeyDown={(e) => {
                 if (e.key === 'Enter') {
@@ -196,7 +196,7 @@ const RichTextEditor = ({ content, onChange, placeholder = 'Write something...' 
               size="sm"
               onClick={() => editor.chain().focus().toggleBold().run()}
               disabled={!editor.can().chain().focus().toggleBold().run() || isSourceMode}
-              className={editor.isActive('bold') ? 'bg-gray-200' : ''}
+              className={editor.isActive('bold') ? 'bg-gray-200 dark:bg-gray-700' : ''}
               type="button"
             >
               <Bold className="h-4 w-4" />
@@ -206,7 +206,7 @@ const RichTextEditor = ({ content, onChange, placeholder = 'Write something...' 
               size="sm"
               onClick={() => editor.chain().focus().toggleItalic().run()}
               disabled={!editor.can().chain().focus().toggleItalic().run() || isSourceMode}
-              className={editor.isActive('italic') ? 'bg-gray-200' : ''}
+              className={editor.isActive('italic') ? 'bg-gray-200 dark:bg-gray-700' : ''}
               type="button"
             >
               <Italic className="h-4 w-4" />
@@ -216,18 +216,18 @@ const RichTextEditor = ({ content, onChange, placeholder = 'Write something...' 
               size="sm"
               onClick={() => editor.chain().focus().toggleStrike().run()}
               disabled={!editor.can().chain().focus().toggleStrike().run() || isSourceMode}
-              className={editor.isActive('strike') ? 'bg-gray-200' : ''}
+              className={editor.isActive('strike') ? 'bg-gray-200 dark:bg-gray-700' : ''}
               type="button"
             >
               <Strikethrough className="h-4 w-4" />
             </Button>
-            <div className="w-px h-6 bg-gray-300 mx-1 self-center" />
+            <div className="w-px h-6 bg-gray-300 dark:bg-gray-600 mx-1 self-center" />
             <Button
               variant="ghost"
               size="sm"
               onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
               disabled={isSourceMode}
-              className={editor.isActive('heading', { level: 1 }) ? 'bg-gray-200' : ''}
+              className={editor.isActive('heading', { level: 1 }) ? 'bg-gray-200 dark:bg-gray-700' : ''}
               type="button"
             >
               <Heading1 className="h-4 w-4" />
@@ -237,7 +237,7 @@ const RichTextEditor = ({ content, onChange, placeholder = 'Write something...' 
               size="sm"
               onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
               disabled={isSourceMode}
-              className={editor.isActive('heading', { level: 2 }) ? 'bg-gray-200' : ''}
+              className={editor.isActive('heading', { level: 2 }) ? 'bg-gray-200 dark:bg-gray-700' : ''}
               type="button"
             >
               <Heading2 className="h-4 w-4" />
@@ -247,7 +247,7 @@ const RichTextEditor = ({ content, onChange, placeholder = 'Write something...' 
               size="sm"
               onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
               disabled={isSourceMode}
-              className={editor.isActive('heading', { level: 3 }) ? 'bg-gray-200' : ''}
+              className={editor.isActive('heading', { level: 3 }) ? 'bg-gray-200 dark:bg-gray-700' : ''}
               type="button"
             >
               <Heading3 className="h-4 w-4" />
@@ -257,7 +257,7 @@ const RichTextEditor = ({ content, onChange, placeholder = 'Write something...' 
               size="sm"
               onClick={() => editor.chain().focus().toggleHeading({ level: 4 }).run()}
               disabled={isSourceMode}
-              className={editor.isActive('heading', { level: 4 }) ? 'bg-gray-200' : ''}
+              className={editor.isActive('heading', { level: 4 }) ? 'bg-gray-200 dark:bg-gray-700' : ''}
               type="button"
             >
               <Heading4 className="h-4 w-4" />
@@ -267,18 +267,18 @@ const RichTextEditor = ({ content, onChange, placeholder = 'Write something...' 
               size="sm"
               onClick={() => editor.chain().focus().toggleHeading({ level: 5 }).run()}
               disabled={isSourceMode}
-              className={editor.isActive('heading', { level: 5 }) ? 'bg-gray-200' : ''}
+              className={editor.isActive('heading', { level: 5 }) ? 'bg-gray-200 dark:bg-gray-700' : ''}
               type="button"
             >
               <Heading5 className="h-4 w-4" />
             </Button>
-            <div className="w-px h-6 bg-gray-300 mx-1 self-center" />
+            <div className="w-px h-6 bg-gray-300 dark:bg-gray-600 mx-1 self-center" />
             <Button
               variant="ghost"
               size="sm"
               onClick={() => editor.chain().focus().toggleBulletList().run()}
               disabled={isSourceMode}
-              className={editor.isActive('bulletList') ? 'bg-gray-200' : ''}
+              className={editor.isActive('bulletList') ? 'bg-gray-200 dark:bg-gray-700' : ''}
               type="button"
             >
               <List className="h-4 w-4" />
@@ -288,7 +288,7 @@ const RichTextEditor = ({ content, onChange, placeholder = 'Write something...' 
               size="sm"
               onClick={() => editor.chain().focus().toggleOrderedList().run()}
               disabled={isSourceMode}
-              className={editor.isActive('orderedList') ? 'bg-gray-200' : ''}
+              className={editor.isActive('orderedList') ? 'bg-gray-200 dark:bg-gray-700' : ''}
               type="button"
             >
               <ListOrdered className="h-4 w-4" />
@@ -298,18 +298,18 @@ const RichTextEditor = ({ content, onChange, placeholder = 'Write something...' 
               size="sm"
               onClick={() => editor.chain().focus().toggleBlockquote().run()}
               disabled={isSourceMode}
-              className={editor.isActive('blockquote') ? 'bg-gray-200' : ''}
+              className={editor.isActive('blockquote') ? 'bg-gray-200 dark:bg-gray-700' : ''}
               type="button"
             >
               <Quote className="h-4 w-4" />
             </Button>
-            <div className="w-px h-6 bg-gray-300 mx-1 self-center" />
+            <div className="w-px h-6 bg-gray-300 dark:bg-gray-600 mx-1 self-center" />
             <Button
               variant="ghost"
               size="sm"
               onClick={openLinkModal}
               disabled={isSourceMode}
-              className={editor.isActive('link') ? 'bg-gray-200' : ''}
+              className={editor.isActive('link') ? 'bg-gray-200 dark:bg-gray-700' : ''}
               type="button"
             >
               <LinkIcon className="h-4 w-4" />
@@ -323,7 +323,7 @@ const RichTextEditor = ({ content, onChange, placeholder = 'Write something...' 
             >
               <ImageIcon className="h-4 w-4" />
             </Button>
-            <div className="w-px h-6 bg-gray-300 mx-1 self-center" />
+            <div className="w-px h-6 bg-gray-300 dark:bg-gray-600 mx-1 self-center" />
             <Button
               variant="ghost"
               size="sm"
@@ -342,12 +342,12 @@ const RichTextEditor = ({ content, onChange, placeholder = 'Write something...' 
             >
               <Redo className="h-4 w-4" />
             </Button>
-            <div className="w-px h-6 bg-gray-300 mx-1 self-center" />
+            <div className="w-px h-6 bg-gray-300 dark:bg-gray-600 mx-1 self-center" />
             <Button
               variant="ghost"
               size="sm"
               onClick={toggleSourceMode}
-              className={isSourceMode ? 'bg-gray-200' : ''}
+              className={isSourceMode ? 'bg-gray-200 dark:bg-gray-700' : ''}
               type="button"
               title="View Source"
             >
@@ -360,7 +360,7 @@ const RichTextEditor = ({ content, onChange, placeholder = 'Write something...' 
         <textarea
           value={content}
           onChange={handleSourceChange}
-          className="w-full h-[500px] p-4 font-mono text-sm bg-gray-50 focus:outline-none resize-none"
+          className="w-full h-[500px] p-4 font-mono text-sm bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white focus:outline-none resize-none"
         />
       ) : (
         <EditorContent editor={editor} className="max-h-[500px] overflow-y-auto" />

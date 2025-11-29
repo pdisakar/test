@@ -39,10 +39,10 @@ export function FeaturedImage({
     };
 
     return (
-        <div className="space-y-6 p-6 bg-white/50 backdrop-blur-sm rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300">
+        <div className="space-y-6 p-6 bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-md transition-all duration-300">
             {/* Image Upload/Preview with 7:5 aspect ratio */}
             <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 flex items-center gap-2">
                     <ImageIcon className="w-4 h-4 text-primary" />
                     {label} {required && <span className="text-red-500">*</span>}
                 </label>
@@ -67,7 +67,7 @@ export function FeaturedImage({
                     ) : (
                         <div className="relative group w-full max-w-md mx-auto aspect-[1/1]" >
                             <div className="absolute -inset-0.5 bg-gradient-to-r from-primary/30 to-purple-400/30 rounded-2xl blur opacity-30 group-hover:opacity-75 transition duration-500" />
-                            <div className="relative h-full bg-white rounded-xl border-2 border-dashed border-gray-200 group-hover:border-transparent transition-all duration-300 overflow-hidden">
+                            <div className="relative h-full bg-white dark:bg-gray-900 rounded-xl border-2 border-dashed border-gray-200 dark:border-gray-700 group-hover:border-transparent transition-all duration-300 overflow-hidden">
                                 <input
                                     type="file"
                                     id={inputId}
@@ -84,16 +84,16 @@ export function FeaturedImage({
                                 />
                                 <label
                                     htmlFor={inputId}
-                                    className="cursor-pointer h-full flex flex-col items-center justify-center gap-4 p-6 hover:bg-gray-50/50 transition-colors"
+                                    className="cursor-pointer h-full flex flex-col items-center justify-center gap-4 p-6 hover:bg-gray-50/50 dark:hover:bg-gray-800/50 transition-colors"
                                 >
                                     <div className="p-4 bg-primary/5 rounded-full group-hover:scale-110 group-hover:bg-primary/10 transition-all duration-300">
                                         <UploadCloud className="w-10 h-10 text-primary/60 group-hover:text-primary transition-colors" />
                                     </div>
                                     <div className="text-center space-y-1">
-                                        <span className="text-sm font-medium text-gray-700 group-hover:text-primary transition-colors">
+                                        <span className="text-sm font-medium text-gray-700 dark:text-gray-300 group-hover:text-primary transition-colors">
                                             Click to upload image
                                         </span>
-                                        {helperText && <p className="text-xs text-gray-400">{helperText}</p>}
+                                        {helperText && <p className="text-xs text-gray-400 dark:text-gray-500">{helperText}</p>}
                                     </div>
                                 </label>
                             </div>
@@ -105,25 +105,25 @@ export function FeaturedImage({
             {/* Alt Text & Caption */}
             <div className="grid grid-cols-1 gap-4">
                 <div className="group">
-                    <label className="block text-xs font-medium text-gray-500 mb-1.5 ml-1 uppercase tracking-wider">Alt Text</label>
+                    <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1.5 ml-1 uppercase tracking-wider">Alt Text</label>
                     <input
                         type="text"
                         value={imageAlt}
                         onChange={e => onAltChange(e.target.value)}
                         placeholder="Describe the image for SEO..."
-                        className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:border-primary/50 focus:ring-4 focus:ring-primary/10 outline-none transition-all duration-300 placeholder:text-gray-400"
+                        className="w-full px-4 py-2.5 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl focus:bg-white dark:focus:bg-gray-800 focus:border-primary/50 focus:ring-4 focus:ring-primary/10 outline-none transition-all duration-300 placeholder:text-gray-400 dark:placeholder:text-gray-600 text-gray-900 dark:text-white"
                         disabled={disabled}
                     />
                 </div>
 
                 <div className="group">
-                    <label className="block text-xs font-medium text-gray-500 mb-1.5 ml-1 uppercase tracking-wider">Caption</label>
+                    <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1.5 ml-1 uppercase tracking-wider">Caption</label>
                     <input
                         type="text"
                         value={imageCaption}
                         onChange={e => onCaptionChange(e.target.value)}
                         placeholder="Add a caption..."
-                        className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:border-primary/50 focus:ring-4 focus:ring-primary/10 outline-none transition-all duration-300 placeholder:text-gray-400"
+                        className="w-full px-4 py-2.5 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl focus:bg-white dark:focus:bg-gray-800 focus:border-primary/50 focus:ring-4 focus:ring-primary/10 outline-none transition-all duration-300 placeholder:text-gray-400 dark:placeholder:text-gray-600 text-gray-900 dark:text-white"
                         disabled={disabled}
                     />
                 </div>

@@ -115,12 +115,12 @@ export default function AddUserPage() {
     <MainLayout>
       {/* Header */}
       <div className="mb-8 flex items-center justify-between">
-        <h1 className="text-3xl font-bold text-gray-900">Add User</h1>
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Add User</h1>
         <div className="flex items-center gap-3">
           <Button
             onClick={handleDiscard}
             variant="outline"
-            className="px-6 py-2 border-gray-300 text-gray-700 hover:bg-gray-50"
+            className="px-6 py-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:bg-gray-950"
             disabled={loading}
           >
             Discard
@@ -157,12 +157,12 @@ export default function AddUserPage() {
       )}
 
       {/* Form */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100">
+      <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800">
         <form onSubmit={(e) => handleSubmit(e, false)} className="p-8">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Name */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Name <span className="text-red-500">*</span>
               </label>
               <input
@@ -170,7 +170,7 @@ export default function AddUserPage() {
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 placeholder="Full Name"
-                className="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                className="w-full px-4 py-2.5 rounded-lg border border-gray-200 dark:border-gray-700 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
                 required
                 disabled={loading}
               />
@@ -178,7 +178,7 @@ export default function AddUserPage() {
 
             {/* Email */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 E-mail <span className="text-red-500">*</span>
               </label>
               <input
@@ -186,7 +186,7 @@ export default function AddUserPage() {
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                 placeholder="email@example.com"
-                className="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                className="w-full px-4 py-2.5 rounded-lg border border-gray-200 dark:border-gray-700 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
                 required
                 disabled={loading}
               />
@@ -194,7 +194,7 @@ export default function AddUserPage() {
 
             {/* Password */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Password <span className="text-red-500">*</span>
               </label>
               <input
@@ -202,7 +202,7 @@ export default function AddUserPage() {
                 value={formData.password}
                 onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                 placeholder="••••••••"
-                className="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                className="w-full px-4 py-2.5 rounded-lg border border-gray-200 dark:border-gray-700 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
                 required
                 disabled={loading}
               />
@@ -210,7 +210,7 @@ export default function AddUserPage() {
 
             {/* Confirm Password */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Confirm Password <span className="text-red-500">*</span>
               </label>
               <input
@@ -218,7 +218,7 @@ export default function AddUserPage() {
                 value={formData.confirmPassword}
                 onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
                 placeholder="••••••••"
-                className="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                className="w-full px-4 py-2.5 rounded-lg border border-gray-200 dark:border-gray-700 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
                 required
                 disabled={loading}
               />
@@ -226,13 +226,13 @@ export default function AddUserPage() {
 
             {/* User Type */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 User Type <span className="text-red-500">*</span>
               </label>
               <select
                 value={formData.userType}
                 onChange={(e) => setFormData({ ...formData, userType: e.target.value })}
-                className="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all bg-white"
+                className="w-full px-4 py-2.5 rounded-lg border border-gray-200 dark:border-gray-700 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all bg-white dark:bg-gray-900"
                 required
                 disabled={loading}
               >
@@ -244,7 +244,7 @@ export default function AddUserPage() {
 
             {/* Status */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Status
               </label>
               <div className="flex items-center gap-3 h-[42px]">
@@ -253,7 +253,7 @@ export default function AddUserPage() {
                   onCheckedChange={(checked) => setFormData({ ...formData, status: checked })}
                   disabled={loading}
                 />
-                <span className="text-sm text-gray-600">
+                <span className="text-sm text-gray-600 dark:text-gray-400 dark:text-gray-500">
                   {formData.status ? 'Active' : 'Not Active'}
                 </span>
               </div>

@@ -393,7 +393,7 @@ export default function EditPackagePage() {
     return (
       <React.Fragment key={place.id}>
         <div
-          className={`flex items-center gap-2 py-2 px-3 rounded-lg cursor-pointer transition-colors ${isSelected ? 'bg-primary/10 border border-primary' : 'hover:bg-gray-50'
+          className={`flex items-center gap-2 py-2 px-3 rounded-lg cursor-pointer transition-colors ${isSelected ? 'bg-primary/10 border border-primary' : 'hover:bg-gray-50 dark:bg-gray-950'
             }`}
           style={{ paddingLeft: `${depth * 24 + 12}px` }}
         >
@@ -407,9 +407,9 @@ export default function EditPackagePage() {
               className="p-1 hover:bg-gray-200 rounded-full transition-colors"
             >
               {isExpanded ? (
-                <ChevronDown className="h-4 w-4 text-gray-500" />
+                <ChevronDown className="h-4 w-4 text-gray-500 dark:text-gray-400 dark:text-gray-500" />
               ) : (
-                <ChevronRight className="h-4 w-4 text-gray-500" />
+                <ChevronRight className="h-4 w-4 text-gray-500 dark:text-gray-400 dark:text-gray-500" />
               )}
             </button>
           ) : (
@@ -426,7 +426,7 @@ export default function EditPackagePage() {
               }
             }}
           >
-            <span className="text-sm text-gray-900">{place.title}</span>
+            <span className="text-sm text-gray-900 dark:text-white">{place.title}</span>
           </div>
         </div>
         {isExpanded && place.children?.map((child) => renderPlaceOption(child, depth + 1))}
@@ -865,7 +865,7 @@ export default function EditPackagePage() {
     return (
       <MainLayout>
         <div className="flex-1 transition-all duration-300 flex items-center justify-center h-full">
-          <p className="text-gray-600">Loading package...</p>
+          <p className="text-gray-600 dark:text-gray-400 dark:text-gray-500">Loading package...</p>
         </div>
       </MainLayout>
     );
@@ -877,13 +877,13 @@ export default function EditPackagePage() {
         <div className="pt-16 pb-6 px-4 md:py-12 md:px-6 max-w-7xl mx-auto">
           {/* Header */}
           <div className="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-0">
-            <h1 className="text-3xl font-bold text-gray-900">Edit Package</h1>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Edit Package</h1>
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
               <Button
                 type="button"
                 onClick={handleDiscard}
                 variant="outline"
-                className="px-6 py-2 border-gray-300 text-gray-700 hover:bg-gray-50"
+                className="px-6 py-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:bg-gray-950"
               >
                 Discard
               </Button>
@@ -893,7 +893,7 @@ export default function EditPackagePage() {
                   type="button"
                   onClick={handleBack}
                   variant="outline"
-                  className="px-6 py-2 border-gray-300 text-gray-700 hover:bg-gray-50"
+                  className="px-6 py-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:bg-gray-950"
                 >
                   Back
                 </Button>
@@ -935,11 +935,11 @@ export default function EditPackagePage() {
             {currentStep === 1 && (
               <>
                 {/* Basic Information */}
-                <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-                  <h2 className="text-xl font-semibold text-gray-900 mb-6">Basic Information</h2>
+                <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 p-6">
+                  <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">Basic Information</h2>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                      <label htmlFor="packageTitle" className="block text-sm font-medium text-gray-700 mb-2">
+                      <label htmlFor="packageTitle" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                         Package Title <span className="text-red-500">*</span>
                       </label>
                       <input
@@ -948,13 +948,13 @@ export default function EditPackagePage() {
                         name="packageTitle"
                         value={formData.packageTitle}
                         onChange={handleInputChange}
-                        className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                        className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
                         required
                       />
                     </div>
 
                     <div>
-                      <label htmlFor="urlTitle" className="block text-sm font-medium text-gray-700 mb-2">
+                      <label htmlFor="urlTitle" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                         URL Title <span className="text-red-500">*</span>
                       </label>
                       <input
@@ -963,12 +963,12 @@ export default function EditPackagePage() {
                         name="urlTitle"
                         value={formData.urlTitle}
                         onChange={handleInputChange}
-                        className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                        className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
                       />
                     </div>
 
                     <div>
-                      <label htmlFor="slug" className="block text-sm font-medium text-gray-700 mb-2">
+                      <label htmlFor="slug" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                         Slug <span className="text-red-500">*</span>
                       </label>
                       <input
@@ -977,18 +977,18 @@ export default function EditPackagePage() {
                         name="slug"
                         value={formData.slug}
                         onChange={handleInputChange}
-                        className="w-full px-4 py-2 rounded-lg border border-gray-200 bg-gray-50 text-gray-500 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                        className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-950 text-gray-500 dark:text-gray-400 dark:text-gray-500 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
                       />
                     </div>
                   </div>
                 </div>
 
                 {/* Categorization */}
-                <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-                  <h2 className="text-xl font-semibold text-gray-900 mb-6">Categorization</h2>
+                <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 p-6">
+                  <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">Categorization</h2>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                         Package Durations <span className="text-red-500">*</span>
                       </label>
                       <div className="flex gap-4">
@@ -998,13 +998,13 @@ export default function EditPackagePage() {
                           value={formData.durationValue}
                           onChange={handleInputChange}
                           placeholder="Value"
-                          className="flex-1 px-4 py-2 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                          className="flex-1 px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
                         />
                         <select
                           name="durationUnit"
                           value={formData.durationUnit}
                           onChange={handleInputChange}
-                          className="w-32 px-4 py-2 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all bg-white"
+                          className="w-32 px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all bg-white dark:bg-gray-900"
                         >
                           <option value="days">Days</option>
                           <option value="hours">Hours</option>
@@ -1013,17 +1013,17 @@ export default function EditPackagePage() {
                     </div>
 
                     <div>
-                      <label htmlFor="placeId" className="block text-sm font-medium text-gray-700 mb-2">
+                      <label htmlFor="placeId" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                         Package Place <span className="text-red-500">*</span>
                       </label>
                       <div
-                        className="border border-gray-200 rounded-lg bg-white cursor-pointer"
+                        className="border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-900 cursor-pointer"
                         onClick={() => setShowPlaceAccordion(!showPlaceAccordion)}
                       >
                         <div className="py-2.5 px-4 flex items-center justify-between">
-                          <span className="text-sm text-gray-900">
+                          <span className="text-sm text-gray-900 dark:text-white">
                             {formData.placeIds.length === 0 ? (
-                              <span className="text-gray-500">Select places...</span>
+                              <span className="text-gray-500 dark:text-gray-400 dark:text-gray-500">Select places...</span>
                             ) : (
                               <span>
                                 {formData.placeIds.map((id) => {
@@ -1044,13 +1044,13 @@ export default function EditPackagePage() {
                             )}
                           </span>
                           {showPlaceAccordion ? (
-                            <ChevronDown className="h-4 w-4 text-gray-500" />
+                            <ChevronDown className="h-4 w-4 text-gray-500 dark:text-gray-400 dark:text-gray-500" />
                           ) : (
-                            <ChevronRight className="h-4 w-4 text-gray-500" />
+                            <ChevronRight className="h-4 w-4 text-gray-500 dark:text-gray-400 dark:text-gray-500" />
                           )}
                         </div>
                         {showPlaceAccordion && (
-                          <div className="border-t border-gray-200 max-h-64 overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+                          <div className="border-t border-gray-200 dark:border-gray-700 max-h-64 overflow-y-auto" onClick={(e) => e.stopPropagation()}>
                             {organizePlaces(places).map((place) => renderPlaceOption(place))}
                           </div>
                         )}
@@ -1060,8 +1060,8 @@ export default function EditPackagePage() {
                 </div>
 
                 {/* Group Price */}
-                <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-                  <h2 className="text-xl font-semibold text-gray-900 mb-6">Group Price</h2>
+                <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 p-6">
+                  <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">Group Price</h2>
 
                   {/* Group Price Toggle */}
                   <div className="mb-6">
@@ -1071,7 +1071,7 @@ export default function EditPackagePage() {
                         onClick={() => setGroupPriceEnabled(true)}
                         className={`px-6 py-2 rounded-lg font-medium transition-all ${groupPriceEnabled
                           ? 'bg-primary text-white'
-                          : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                          : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 dark:text-gray-500 hover:bg-gray-200'
                           }`}
                       >
                         Group
@@ -1081,7 +1081,7 @@ export default function EditPackagePage() {
                         onClick={() => setGroupPriceEnabled(false)}
                         className={`px-6 py-2 rounded-lg font-medium transition-all ${!groupPriceEnabled
                           ? 'bg-primary text-white'
-                          : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                          : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 dark:text-gray-500 hover:bg-gray-200'
                           }`}
                       >
                         No Group
@@ -1093,9 +1093,9 @@ export default function EditPackagePage() {
                   {groupPriceEnabled && (
                     <div className="space-y-6">
                       {groupPrices.map((gp, index) => (
-                        <div key={gp.id} className="space-y-3 pb-6 border-b border-gray-100 last:border-0">
+                        <div key={gp.id} className="space-y-3 pb-6 border-b border-gray-100 dark:border-gray-800 last:border-0">
                           <div className="flex items-center gap-3">
-                            <span className="text-sm font-bold text-gray-900 uppercase">Group Price #{index + 1}</span>
+                            <span className="text-sm font-bold text-gray-900 dark:text-white uppercase">Group Price #{index + 1}</span>
                             <button
                               type="button"
                               onClick={() => handleRemoveGroupPrice(gp.id)}
@@ -1113,7 +1113,7 @@ export default function EditPackagePage() {
                                 placeholder="Min Person"
                                 value={gp.minPerson}
                                 onChange={(e) => handleGroupPriceChange(gp.id, 'minPerson', e.target.value)}
-                                className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                                className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
                               />
                             </div>
                             <div className="flex-1 w-full">
@@ -1122,7 +1122,7 @@ export default function EditPackagePage() {
                                 placeholder="Max Person"
                                 value={gp.maxPerson}
                                 onChange={(e) => handleGroupPriceChange(gp.id, 'maxPerson', e.target.value)}
-                                className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                                className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
                               />
                             </div>
                             <div className="flex-1 w-full">
@@ -1131,7 +1131,7 @@ export default function EditPackagePage() {
                                 placeholder="Price"
                                 value={gp.price}
                                 onChange={(e) => handleGroupPriceChange(gp.id, 'price', e.target.value)}
-                                className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                                className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
                               />
                             </div>
 
@@ -1144,10 +1144,10 @@ export default function EditPackagePage() {
                               >
                                 <span
                                   className={`${gp.isDefault ? 'translate-x-6' : 'translate-x-1'
-                                    } inline-block h-4 w-4 transform rounded-full bg-white transition-transform`}
+                                    } inline-block h-4 w-4 transform rounded-full bg-white dark:bg-gray-900 transition-transform`}
                                 />
                               </button>
-                              <span className={`text-sm ${gp.isDefault ? 'text-green-600 font-medium' : 'text-gray-500'}`}>
+                              <span className={`text-sm ${gp.isDefault ? 'text-green-600 font-medium' : 'text-gray-500 dark:text-gray-400 dark:text-gray-500'}`}>
                                 {gp.isDefault ? 'Default Price' : 'Not Default Price'}
                               </span>
                             </div>
@@ -1170,7 +1170,7 @@ export default function EditPackagePage() {
                   {/* Single Price Form (No Group) */}
                   {!groupPriceEnabled && (
                     <div className="mt-6">
-                      <label htmlFor="price" className="block text-sm font-medium text-gray-700 mb-2">
+                      <label htmlFor="price" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                         Price <span className="text-red-500">*</span>
                       </label>
                       <input
@@ -1179,7 +1179,7 @@ export default function EditPackagePage() {
                         name="price"
                         value={formData.price}
                         onChange={handleInputChange}
-                        className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                        className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
                         placeholder="Enter package price"
                       />
                     </div>
@@ -1187,18 +1187,18 @@ export default function EditPackagePage() {
                 </div>
 
                 {/* Tour Status */}
-                <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-                  <h2 className="text-xl font-semibold text-gray-900 mb-6">Tour Status</h2>
+                <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 p-6">
+                  <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">Tour Status</h2>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {/* Status Toggle */}
                     <div>
-                      <label className="block text-sm font-bold text-gray-700 mb-3 uppercase">Status</label>
+                      <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-3 uppercase">Status</label>
                       <div className="flex items-center gap-3 h-[42px]">
                         <Switch
                           checked={status}
                           onCheckedChange={setStatus}
                         />
-                        <span className="text-sm text-gray-600">
+                        <span className="text-sm text-gray-600 dark:text-gray-400 dark:text-gray-500">
                           {status ? 'Publish' : 'Draft'}
                         </span>
                       </div>
@@ -1206,13 +1206,13 @@ export default function EditPackagePage() {
 
                     {/* Featured Toggle */}
                     <div>
-                      <label className="block text-sm font-bold text-gray-700 mb-3 uppercase">Featured</label>
+                      <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-3 uppercase">Featured</label>
                       <div className="flex items-center gap-3 h-[42px]">
                         <Switch
                           checked={featured}
                           onCheckedChange={setFeatured}
                         />
-                        <span className="text-sm text-gray-600">
+                        <span className="text-sm text-gray-600 dark:text-gray-400 dark:text-gray-500">
                           {featured ? 'Yes' : 'No'}
                         </span>
                       </div>
@@ -1226,11 +1226,11 @@ export default function EditPackagePage() {
             {currentStep === 2 && (
               <>
                 {/* Meta */}
-                <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-                  <h2 className="text-xl font-semibold text-gray-900 mb-6">Meta</h2>
+                <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 p-6">
+                  <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">Meta</h2>
                   <div className="space-y-6">
                     <div>
-                      <label htmlFor="metaTitle" className="block text-sm font-medium text-gray-700 mb-2">
+                      <label htmlFor="metaTitle" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                         Meta Title <span className="text-red-500">*</span>
                       </label>
                       <input
@@ -1239,12 +1239,12 @@ export default function EditPackagePage() {
                         name="metaTitle"
                         value={formData.metaTitle}
                         onChange={handleInputChange}
-                        className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                        className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
                         placeholder="Enter meta title..."
                       />
                     </div>
                     <div>
-                      <label htmlFor="metaDescription" className="block text-sm font-medium text-gray-700 mb-2">
+                      <label htmlFor="metaDescription" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                         Meta Description
                       </label>
                       <textarea
@@ -1253,7 +1253,7 @@ export default function EditPackagePage() {
                         value={formData.metaDescription}
                         onChange={handleInputChange}
                         rows={4}
-                        className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all resize-none"
+                        className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all resize-none"
                         placeholder="Enter meta description..."
                       />
                     </div>
@@ -1261,11 +1261,11 @@ export default function EditPackagePage() {
                 </div>
 
                 {/* Introduction */}
-                <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-                  <h2 className="text-xl font-semibold text-gray-900 mb-6">Introduction</h2>
+                <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 p-6">
+                  <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">Introduction</h2>
                   <div className="space-y-6">
                     <div>
-                      <label htmlFor="abstract" className="block text-sm font-medium text-gray-700 mb-2">
+                      <label htmlFor="abstract" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                         Abstract
                       </label>
                       <textarea
@@ -1274,12 +1274,12 @@ export default function EditPackagePage() {
                         value={formData.abstract}
                         onChange={handleInputChange}
                         rows={4}
-                        className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all resize-none"
+                        className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all resize-none"
                         placeholder="Enter abstract..."
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                         Details
                       </label>
                       <RichTextEditor
@@ -1297,10 +1297,10 @@ export default function EditPackagePage() {
             {currentStep === 3 && (
               <>
                 {/* Cost Include */}
-                <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-                  <h2 className="text-xl font-semibold text-gray-900 mb-6 uppercase">Cost Include</h2>
+                <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 p-6">
+                  <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6 uppercase">Cost Include</h2>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       Cost Includes - Default Design
                     </label>
                     <RichTextEditor
@@ -1312,10 +1312,10 @@ export default function EditPackagePage() {
                 </div>
 
                 {/* Cost Exclude */}
-                <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-                  <h2 className="text-xl font-semibold text-gray-900 mb-6 uppercase">Cost Exclude</h2>
+                <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 p-6">
+                  <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6 uppercase">Cost Exclude</h2>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       Cost Exclude
                     </label>
                     <RichTextEditor
@@ -1399,14 +1399,14 @@ export default function EditPackagePage() {
             {currentStep === 5 && (
               <>
                 {/* Trip Facts */}
-                <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-                  <h2 className="text-xl font-semibold text-gray-900 mb-6">Trip Facts</h2>
+                <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 p-6">
+                  <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">Trip Facts</h2>
                   <div className="space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       {/* Dynamic Categories */}
                       {categories.map((cat) => (
                         <div key={cat.id}>
-                          <label htmlFor={cat.slug} className="block text-sm font-medium text-gray-700 mb-2">
+                          <label htmlFor={cat.slug} className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                             {cat.label}
                           </label>
                           <select
@@ -1414,7 +1414,7 @@ export default function EditPackagePage() {
                             name={cat.slug}
                             value={formData[cat.slug] || ''}
                             onChange={handleInputChange}
-                            className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all bg-white"
+                            className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all bg-white dark:bg-gray-900"
                           >
                             <option value="">Select...</option>
                             {attributeOptions[cat.slug]?.map((attr) => (
@@ -1428,7 +1428,7 @@ export default function EditPackagePage() {
 
                       {/* Status (Ribbon) */}
                       <div>
-                        <label htmlFor="statusRibbon" className="block text-sm font-medium text-gray-700 mb-2">
+                        <label htmlFor="statusRibbon" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                           Status (Ribbon)
                         </label>
                         <input
@@ -1437,14 +1437,14 @@ export default function EditPackagePage() {
                           name="statusRibbon"
                           value={formData.statusRibbon}
                           onChange={handleInputChange}
-                          className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                          className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
                           placeholder="e.g., New, Popular, Bestseller"
                         />
                       </div>
 
                       {/* Group Size */}
                       <div>
-                        <label htmlFor="groupSize" className="block text-sm font-medium text-gray-700 mb-2">
+                        <label htmlFor="groupSize" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                           Group Size
                         </label>
                         <input
@@ -1453,14 +1453,14 @@ export default function EditPackagePage() {
                           name="groupSize"
                           value={formData.groupSize}
                           onChange={handleInputChange}
-                          className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                          className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
                           placeholder="e.g., 1-12 people"
                         />
                       </div>
 
                       {/* Max Altitude */}
                       <div>
-                        <label htmlFor="maxAltitude" className="block text-sm font-medium text-gray-700 mb-2">
+                        <label htmlFor="maxAltitude" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                           Max Altitude
                         </label>
                         <input
@@ -1469,7 +1469,7 @@ export default function EditPackagePage() {
                           name="maxAltitude"
                           value={formData.maxAltitude}
                           onChange={handleInputChange}
-                          className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                          className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
                           placeholder="e.g., 5,545m"
                         />
                       </div>
@@ -1478,10 +1478,10 @@ export default function EditPackagePage() {
                 </div>
 
                 {/* Trip Highlights */}
-                <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-                  <h2 className="text-xl font-semibold text-gray-900 mb-6">Trip Highlights</h2>
+                <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 p-6">
+                  <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">Trip Highlights</h2>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       Highlights
                     </label>
                     <RichTextEditor
@@ -1498,10 +1498,10 @@ export default function EditPackagePage() {
             {currentStep === 6 && (
               <>
                 {/* Departure Note */}
-                <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-                  <h2 className="text-xl font-semibold text-gray-900 mb-6">Departure Note</h2>
+                <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 p-6">
+                  <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">Departure Note</h2>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       Departure Note
                     </label>
                     <RichTextEditor
@@ -1513,10 +1513,10 @@ export default function EditPackagePage() {
                 </div>
 
                 {/* Good to Know */}
-                <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-                  <h2 className="text-xl font-semibold text-gray-900 mb-6">Good to Know</h2>
+                <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 p-6">
+                  <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">Good to Know</h2>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       Good to Know
                     </label>
                     <RichTextEditor
@@ -1533,10 +1533,10 @@ export default function EditPackagePage() {
             {currentStep === 7 && (
               <>
                 {/* Extra FAQs */}
-                <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-                  <h2 className="text-xl font-semibold text-gray-900 mb-6">Extra FAQS</h2>
+                <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 p-6">
+                  <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">Extra FAQS</h2>
                   <div>
-                    <p className="text-sm text-gray-600 mb-3">
+                    <p className="text-sm text-gray-600 dark:text-gray-400 dark:text-gray-500 mb-3">
                       Title <span className="text-blue-600">should be heading 3</span>, question <span className="text-blue-600">should be heading 4</span>, and answer <span className="text-blue-600">should be paragraph</span>
                     </p>
                     <RichTextEditor
@@ -1548,10 +1548,10 @@ export default function EditPackagePage() {
                 </div>
 
                 {/* Related */}
-                <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-                  <h2 className="text-xl font-semibold text-gray-900 mb-6">Related</h2>
+                <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 p-6">
+                  <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">Related</h2>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       Related Trip
                     </label>
                     <input
@@ -1559,7 +1559,7 @@ export default function EditPackagePage() {
                       name="relatedTrip"
                       value={formData.relatedTrip}
                       onChange={handleInputChange}
-                      className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                      className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
                       placeholder="Inserted are removed"
                     />
                   </div>
@@ -1570,9 +1570,9 @@ export default function EditPackagePage() {
             {/* Step 7 Content: Itinerary Management */}
             {currentStep === 8 && (
               <div className="space-y-6">
-                <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 p-6">
                   <div className="flex justify-between items-center mb-6">
-                    <h2 className="text-xl font-semibold text-gray-900">Itinerary</h2>
+                    <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Itinerary</h2>
                     <Button
                       type="button"
                       onClick={addDay}
@@ -1584,7 +1584,7 @@ export default function EditPackagePage() {
                   </div>
 
                   <div className="mb-8">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       Itinerary Title
                     </label>
                     <input
@@ -1592,14 +1592,14 @@ export default function EditPackagePage() {
                       name="itineraryTitle"
                       value={formData.itineraryTitle}
                       onChange={handleInputChange}
-                      className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                      className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
                       placeholder="e.g., 14 Days Everest Base Camp Trek Itinerary"
                     />
                   </div>
 
                   {itinerary.length === 0 ? (
-                    <div className="text-center py-12 bg-gray-50 rounded-lg border-2 border-dashed border-gray-200">
-                      <p className="text-gray-500 mb-4">No itinerary days added yet.</p>
+                    <div className="text-center py-12 bg-gray-50 dark:bg-gray-950 rounded-lg border-2 border-dashed border-gray-200 dark:border-gray-700">
+                      <p className="text-gray-500 dark:text-gray-400 dark:text-gray-500 mb-4">No itinerary days added yet.</p>
                       <Button
                         type="button"
                         onClick={addDay}
@@ -1612,10 +1612,10 @@ export default function EditPackagePage() {
                     <div className="space-y-8">
                       {itinerary.map((day, index) => (
                         <div key={day.id} className="relative">
-                          <div className={`bg-white rounded-lg border transition-all ${expandedDayId === day.id ? 'border-primary shadow-md' : 'border-gray-200 hover:border-gray-300'}`}>
+                          <div className={`bg-white dark:bg-gray-900 rounded-lg border transition-all ${expandedDayId === day.id ? 'border-primary shadow-md' : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:border-gray-600'}`}>
                             {/* Accordion Header */}
                             <div
-                              className="flex justify-between items-center p-4 cursor-pointer select-none bg-gray-50 rounded-t-lg"
+                              className="flex justify-between items-center p-4 cursor-pointer select-none bg-gray-50 dark:bg-gray-950 rounded-t-lg"
                               onClick={() => toggleDay(day.id)}
                             >
                               <div className="flex items-center gap-4 flex-1">
@@ -1623,11 +1623,11 @@ export default function EditPackagePage() {
                                   {day.dayNumber}
                                 </div>
                                 <div className="flex-1">
-                                  <h3 className="font-medium text-gray-900">
+                                  <h3 className="font-medium text-gray-900 dark:text-white">
                                     {day.title || `Day ${day.dayNumber}`}
                                   </h3>
                                   {!expandedDayId && day.title && (
-                                    <p className="text-sm text-gray-500 truncate mt-1 max-w-md">
+                                    <p className="text-sm text-gray-500 dark:text-gray-400 dark:text-gray-500 truncate mt-1 max-w-md">
                                       {day.description.replace(/<[^>]*>/g, '').substring(0, 60)}...
                                     </p>
                                   )}
@@ -1647,32 +1647,32 @@ export default function EditPackagePage() {
                                   <Trash2 className="h-4 w-4" />
                                 </Button>
                                 {expandedDayId === day.id ? (
-                                  <ChevronDown className="h-5 w-5 text-gray-400" />
+                                  <ChevronDown className="h-5 w-5 text-gray-400 dark:text-gray-500" />
                                 ) : (
-                                  <ChevronRight className="h-5 w-5 text-gray-400" />
+                                  <ChevronRight className="h-5 w-5 text-gray-400 dark:text-gray-500" />
                                 )}
                               </div>
                             </div>
 
                             {/* Accordion Content */}
                             {expandedDayId === day.id && (
-                              <div className="p-6 border-t border-gray-100 animate-in slide-in-from-top-2 duration-200">
+                              <div className="p-6 border-t border-gray-100 dark:border-gray-800 animate-in slide-in-from-top-2 duration-200">
                                 <div className="space-y-4">
                                   <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                       Title
                                     </label>
                                     <input
                                       type="text"
                                       value={day.title}
                                       onChange={(e) => updateDay(day.id, 'title', e.target.value)}
-                                      className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all bg-white"
+                                      className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all bg-white dark:bg-gray-900"
                                       placeholder="e.g., Arrival in Kathmandu"
                                       autoFocus
                                     />
                                   </div>
                                   <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                       Description
                                     </label>
                                     <RichTextEditor
@@ -1684,66 +1684,66 @@ export default function EditPackagePage() {
 
                                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div>
-                                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                         Meals
                                       </label>
                                       <input
                                         type="text"
                                         value={day.meals}
                                         onChange={(e) => updateDay(day.id, 'meals', e.target.value)}
-                                        className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                                        className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
                                         placeholder="Select a Meal"
                                       />
                                     </div>
                                     <div>
-                                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                         Accommodation
                                       </label>
                                       <input
                                         type="text"
                                         value={day.accommodation}
                                         onChange={(e) => updateDay(day.id, 'accommodation', e.target.value)}
-                                        className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                                        className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
                                         placeholder="Select an Accommodation"
                                       />
                                     </div>
                                   </div>
 
                                   <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                       Distance
                                     </label>
                                     <input
                                       type="text"
                                       value={day.distance}
                                       onChange={(e) => updateDay(day.id, 'distance', e.target.value)}
-                                      className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                                      className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
                                       placeholder="undefined"
                                     />
                                   </div>
 
                                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div>
-                                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                         Origin
                                       </label>
                                       <input
                                         type="text"
                                         value={day.origin}
                                         onChange={(e) => updateDay(day.id, 'origin', e.target.value)}
-                                        className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                                        className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
                                         placeholder="Origin"
                                       />
                                     </div>
                                     <div>
-                                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                         Destination
                                       </label>
                                       <input
                                         type="text"
                                         value={day.destination}
                                         onChange={(e) => updateDay(day.id, 'destination', e.target.value)}
-                                        className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                                        className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
                                         placeholder="Destination"
                                       />
                                     </div>
@@ -1751,26 +1751,26 @@ export default function EditPackagePage() {
 
                                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div>
-                                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                         Origin Elevation
                                       </label>
                                       <input
                                         type="text"
                                         value={day.originElevation}
                                         onChange={(e) => updateDay(day.id, 'originElevation', e.target.value)}
-                                        className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                                        className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
                                         placeholder="null"
                                       />
                                     </div>
                                     <div>
-                                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                         Destination Elevation
                                       </label>
                                       <input
                                         type="text"
                                         value={day.destinationElevation}
                                         onChange={(e) => updateDay(day.id, 'destinationElevation', e.target.value)}
-                                        className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                                        className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
                                         placeholder="null"
                                       />
                                     </div>
@@ -1778,26 +1778,26 @@ export default function EditPackagePage() {
 
                                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div>
-                                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                         Duration
                                       </label>
                                       <input
                                         type="text"
                                         value={day.duration}
                                         onChange={(e) => updateDay(day.id, 'duration', e.target.value)}
-                                        className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                                        className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
                                         placeholder="null"
                                       />
                                     </div>
                                     <div>
-                                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                         Mode of Transportation
                                       </label>
                                       <input
                                         type="text"
                                         value={day.transportation}
                                         onChange={(e) => updateDay(day.id, 'transportation', e.target.value)}
-                                        className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                                        className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
                                         placeholder="Car"
                                       />
                                     </div>
@@ -1814,7 +1814,7 @@ export default function EditPackagePage() {
                               onClick={() => addDayBetween(index)}
                               variant="outline"
                               size="sm"
-                              className="bg-white border-dashed border-gray-300 text-gray-500 hover:text-primary hover:border-primary rounded-full text-xs shadow-sm"
+                              className="bg-white dark:bg-gray-900 border-dashed border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400 dark:text-gray-500 hover:text-primary hover:border-primary rounded-full text-xs shadow-sm"
                               title="Insert day after this one"
                             >
                               <Plus className="h-3 w-3 mr-1" />
@@ -1829,7 +1829,7 @@ export default function EditPackagePage() {
               </div>
             )}
             {/* Navigation Buttons */}
-            <div className="flex justify-between pt-6 border-t border-gray-100 mt-8">
+            <div className="flex justify-between pt-6 border-t border-gray-100 dark:border-gray-800 mt-8">
               <Button
                 type="button"
                 variant="outline"
@@ -1865,7 +1865,7 @@ export default function EditPackagePage() {
       {/* Image Crop Modal */}
       {showImageCrop && selectedImageFile && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg max-w-2xl w-full p-6">
+          <div className="bg-white dark:bg-gray-900 rounded-lg max-w-2xl w-full p-6">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold">Crop Image</h3>
               <button
@@ -1873,7 +1873,7 @@ export default function EditPackagePage() {
                   setShowImageCrop(false);
                   setSelectedImageFile(null);
                 }}
-                className="p-1 hover:bg-gray-100 rounded"
+                className="p-1 hover:bg-gray-100 dark:bg-gray-800 rounded"
               >
                 <X className="h-5 w-5" />
               </button>
@@ -1900,7 +1900,7 @@ export default function EditPackagePage() {
               }}
             >
               <div className="space-y-4">
-                <ImageCropContent className="border border-gray-200 rounded" />
+                <ImageCropContent className="border border-gray-200 dark:border-gray-700 rounded" />
                 <div className="flex gap-2 justify-end">
                   <ImageCropReset asChild>
                     <Button variant="outline" type="button">
@@ -1922,16 +1922,16 @@ export default function EditPackagePage() {
       {
         showDiscardConfirm && (
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-            <div className="bg-white rounded-xl shadow-2xl p-6 max-w-md w-full mx-4">
-              <h3 className="text-xl font-bold text-gray-900 mb-4">Confirm Discard</h3>
-              <p className="text-gray-600 mb-6">
+            <div className="bg-white dark:bg-gray-900 rounded-xl shadow-2xl p-6 max-w-md w-full mx-4">
+              <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">Confirm Discard</h3>
+              <p className="text-gray-600 dark:text-gray-400 dark:text-gray-500 mb-6">
                 Are you sure you want to discard all changes? This action cannot be undone.
               </p>
               <div className="flex items-center gap-3 justify-end">
                 <Button
                   onClick={() => setShowDiscardConfirm(false)}
                   variant="outline"
-                  className="px-6 py-2 border-gray-300 text-gray-700 hover:bg-gray-50"
+                  className="px-6 py-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:bg-gray-950"
                 >
                   Cancel
                 </Button>
@@ -1951,15 +1951,15 @@ export default function EditPackagePage() {
       {
         showSuccessModal && (
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-            <div className="bg-white rounded-xl shadow-2xl p-6 max-w-md w-full mx-4">
+            <div className="bg-white dark:bg-gray-900 rounded-xl shadow-2xl p-6 max-w-md w-full mx-4">
               <div className="flex flex-col items-center text-center">
                 <div className="h-12 w-12 bg-green-100 rounded-full flex items-center justify-center mb-4">
                   <svg className="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-2">Success!</h3>
-                <p className="text-gray-600 mb-6">
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Success!</h3>
+                <p className="text-gray-600 dark:text-gray-400 dark:text-gray-500 mb-6">
                   Package has been updated successfully.
                 </p>
                 <Button

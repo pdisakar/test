@@ -61,7 +61,7 @@ function SortableImage({ img, onRemove, disabled, getSrc }: SortableImageProps) 
       style={style}
       {...attributes}
       {...listeners}
-      className="relative aspect-square rounded-lg overflow-hidden border border-gray-200 group touch-none"
+      className="relative aspect-square rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700 group touch-none"
     >
       <img
         src={getSrc(img.preview)}
@@ -77,7 +77,7 @@ function SortableImage({ img, onRemove, disabled, getSrc }: SortableImageProps) 
           }}
           onPointerDown={(e) => e.stopPropagation()} // Prevent drag start on button click
           disabled={disabled}
-          className="p-2 bg-white rounded-full text-red-500 hover:bg-red-50 transition-colors disabled:opacity-50 cursor-pointer"
+          className="p-2 bg-white dark:bg-gray-800 rounded-full text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors disabled:opacity-50 cursor-pointer"
         >
           <Trash2 className="h-4 w-4" />
         </button>
@@ -158,8 +158,8 @@ export function GalleryUpload({
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-      <h2 className="text-xl font-semibold text-gray-900 mb-6">{label}</h2>
+    <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 p-6">
+      <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">{label}</h2>
 
       <DndContext
         sensors={sensors}
@@ -183,7 +183,7 @@ export function GalleryUpload({
 
             <div
               onClick={() => !disabled && galleryInputRef.current?.click()}
-              className={`aspect-square rounded-lg border-2 border-dashed border-gray-300 hover:border-primary/50 hover:bg-gray-50 transition-all ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'} flex flex-col items-center justify-center gap-2 text-gray-500`}
+              className={`aspect-square rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-600 hover:border-primary/50 dark:hover:border-primary/40 hover:bg-gray-50 dark:hover:bg-gray-800 transition-all ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'} flex flex-col items-center justify-center gap-2 text-gray-500 dark:text-gray-400`}
             >
               <Plus className="h-8 w-8" />
               <span className="text-sm font-medium">Add Media</span>

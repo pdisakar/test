@@ -221,7 +221,7 @@ export default function EditBlogPage() {
     return (
       <MainLayout>
         <div className="flex-1 transition-all duration-300 flex items-center justify-center h-full">
-          <p className="text-gray-600">Loading blog...</p>
+          <p className="text-gray-600 dark:text-gray-400 dark:text-gray-500">Loading blog...</p>
         </div>
       </MainLayout>
     );
@@ -232,9 +232,9 @@ export default function EditBlogPage() {
       <div className="flex-1 transition-all duration-300 w-full">
         <div className="pt-16 pb-6 px-4 md:py-12 md:px-6 max-w-7xl mx-auto">
           <div className="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-0">
-            <h1 className="text-3xl font-bold text-gray-900">Edit Blog</h1>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Edit Blog</h1>
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-              <Button onClick={handleDiscard} variant="outline" className="px-6 py-2 border-gray-300 text-gray-700 hover:bg-gray-50" disabled={saving}>Discard</Button>
+              <Button onClick={handleDiscard} variant="outline" className="px-6 py-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:bg-gray-950" disabled={saving}>Discard</Button>
               <Button onClick={handleSubmit} className="px-6 py-2 bg-primary hover:bg-primary/90 text-white" disabled={saving}>
                 {saving ? 'Updating...' : 'Update'}
               </Button>
@@ -247,19 +247,19 @@ export default function EditBlogPage() {
             </div>
           )}
 
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100">
+          <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800">
             <form onSubmit={handleSubmit} className="p-8">
               <div className="space-y-8">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {/* Title */}
                   <div className="md:col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Title <span className="text-red-500">*</span></label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Title <span className="text-red-500">*</span></label>
                     <input
                       type="text"
                       value={formData.title}
                       onChange={e => setFormData({ ...formData, title: e.target.value })}
                       placeholder="Blog Title"
-                      className="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                      className="w-full px-4 py-2.5 rounded-lg border border-gray-200 dark:border-gray-700 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
                       required
                       disabled={saving}
                     />
@@ -267,13 +267,13 @@ export default function EditBlogPage() {
 
                   {/* URL Title */}
                   <div className="md:col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">URL Title <span className="text-red-500">*</span></label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">URL Title <span className="text-red-500">*</span></label>
                     <input
                       type="text"
                       value={formData.urlTitle}
                       onChange={e => setFormData({ ...formData, urlTitle: e.target.value })}
                       placeholder="Blog URL Title"
-                      className="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                      className="w-full px-4 py-2.5 rounded-lg border border-gray-200 dark:border-gray-700 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
                       required
                       disabled={saving}
                     />
@@ -281,23 +281,23 @@ export default function EditBlogPage() {
 
                   {/* Slug */}
                   <div className="md:col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Slug</label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Slug</label>
                     <input
                       type="text"
                       value={formData.slug}
                       readOnly
-                      className="w-full px-4 py-2.5 rounded-lg bg-gray-100 border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                      className="w-full px-4 py-2.5 rounded-lg bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
                       disabled
                     />
                   </div>
 
                   {/* Author */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Author <span className="text-red-500">*</span></label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Author <span className="text-red-500">*</span></label>
                     <select
                       value={formData.authorId}
                       onChange={e => setFormData({ ...formData, authorId: e.target.value })}
-                      className="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all bg-white"
+                      className="w-full px-4 py-2.5 rounded-lg border border-gray-200 dark:border-gray-700 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all bg-white dark:bg-gray-900"
                       disabled={saving}
                     >
                       <option value="">Select Author</option>
@@ -309,7 +309,7 @@ export default function EditBlogPage() {
 
                   {/* Date Picker */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Date <span className="text-red-500">*</span></label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Date <span className="text-red-500">*</span></label>
                     <Popover>
                       <PopoverTrigger asChild>
                         <Button
@@ -336,14 +336,14 @@ export default function EditBlogPage() {
 
                   {/* Status */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Status</label>
                     <div className="flex items-center gap-3 h-[42px]">
                       <Switch
                         checked={formData.status}
                         onCheckedChange={(checked) => setFormData({ ...formData, status: checked })}
                         disabled={saving}
                       />
-                      <span className="text-sm text-gray-600">
+                      <span className="text-sm text-gray-600 dark:text-gray-400 dark:text-gray-500">
                         {formData.status ? 'Active' : 'Not Active'}
                       </span>
                     </div>
@@ -351,14 +351,14 @@ export default function EditBlogPage() {
 
                   {/* Is Featured */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Is Featured?</label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Is Featured?</label>
                     <div className="flex items-center gap-3 h-[42px]">
                       <Switch
                         checked={formData.isFeatured}
                         onCheckedChange={(checked) => setFormData({ ...formData, isFeatured: checked })}
                         disabled={saving}
                       />
-                      <span className="text-sm text-gray-600">
+                      <span className="text-sm text-gray-600 dark:text-gray-400 dark:text-gray-500">
                         {formData.isFeatured ? 'Yes' : 'No'}
                       </span>
                     </div>
@@ -366,52 +366,52 @@ export default function EditBlogPage() {
 
                   {/* Abstract */}
                   <div className="md:col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Abstract</label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Abstract</label>
                     <textarea
                       value={formData.abstract}
                       onChange={e => setFormData({ ...formData, abstract: e.target.value })}
                       placeholder="Short summary..."
                       rows={3}
-                      className="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all resize-none"
+                      className="w-full px-4 py-2.5 rounded-lg border border-gray-200 dark:border-gray-700 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all resize-none"
                       disabled={saving}
                     />
                   </div>
                 </div>
 
                 {/* Meta Information */}
-                <div className="border-t border-gray-200 pt-8">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-6">Meta Information</h3>
+                <div className="border-t border-gray-200 dark:border-gray-700 pt-8">
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-6">Meta Information</h3>
                   <div className="space-y-6">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Meta Title <span className="text-red-500">*</span></label>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Meta Title <span className="text-red-500">*</span></label>
                       <input
                         type="text"
                         value={formData.metaTitle}
                         onChange={e => setFormData({ ...formData, metaTitle: e.target.value })}
                         placeholder="Meta title for SEO"
-                        className="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                        className="w-full px-4 py-2.5 rounded-lg border border-gray-200 dark:border-gray-700 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
                         disabled={saving}
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Meta Keywords</label>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Meta Keywords</label>
                       <input
                         type="text"
                         value={formData.metaKeywords}
                         onChange={e => setFormData({ ...formData, metaKeywords: e.target.value })}
                         placeholder="keyword1, keyword2, keyword3"
-                        className="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                        className="w-full px-4 py-2.5 rounded-lg border border-gray-200 dark:border-gray-700 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
                         disabled={saving}
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Meta Description</label>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Meta Description</label>
                       <textarea
                         value={formData.metaDescription}
                         onChange={e => setFormData({ ...formData, metaDescription: e.target.value })}
                         placeholder="Meta description for SEO..."
                         rows={3}
-                        className="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all resize-none"
+                        className="w-full px-4 py-2.5 rounded-lg border border-gray-200 dark:border-gray-700 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all resize-none"
                         disabled={saving}
                       />
                     </div>
@@ -420,7 +420,7 @@ export default function EditBlogPage() {
 
                 {/* Description */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Description</label>
                   <RichTextEditor
                     content={formData.description}
                     onChange={(content) => setFormData({ ...formData, description: content })}
@@ -479,15 +479,15 @@ export default function EditBlogPage() {
       {/* Success Modal */}
       {showSuccessModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-xl shadow-2xl p-6 max-w-md w-full mx-4">
+          <div className="bg-white dark:bg-gray-900 rounded-xl shadow-2xl p-6 max-w-md w-full mx-4">
             <div className="flex flex-col items-center text-center">
               <div className="h-12 w-12 bg-green-100 rounded-full flex items-center justify-center mb-4">
                 <svg className="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                 </svg>
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2">Success!</h3>
-              <p className="text-gray-600 mb-6">
+              <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Success!</h3>
+              <p className="text-gray-600 dark:text-gray-400 dark:text-gray-500 mb-6">
                 Blog has been updated successfully.
               </p>
               <Button
@@ -504,7 +504,7 @@ export default function EditBlogPage() {
       {/* Image Crop Modal */}
       {showImageCrop && selectedImageFile && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg max-w-2xl w-full p-6">
+          <div className="bg-white dark:bg-gray-900 rounded-lg max-w-2xl w-full p-6">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold">Crop Image</h3>
               <button
@@ -512,7 +512,7 @@ export default function EditBlogPage() {
                   setShowImageCrop(false);
                   setSelectedImageFile(null);
                 }}
-                className="p-1 hover:bg-gray-100 rounded"
+                className="p-1 hover:bg-gray-100 dark:bg-gray-800 rounded"
               >
                 <X className="h-5 w-5" />
               </button>
@@ -532,7 +532,7 @@ export default function EditBlogPage() {
               }}
             >
               <div className="space-y-4">
-                <ImageCropContent className="border border-gray-200 rounded" />
+                <ImageCropContent className="border border-gray-200 dark:border-gray-700 rounded" />
                 <div className="flex gap-2 justify-end">
                   <ImageCropReset asChild>
                     <Button variant="outline" type="button">

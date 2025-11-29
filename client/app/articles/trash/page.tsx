@@ -176,17 +176,17 @@ export default function TrashPage() {
 
     return (
       <React.Fragment key={article.id}>
-        <tr className={`hover:bg-gray-50 transition-colors ${depth > 0 ? 'bg-gray-50/50' : ''}`}>
+        <tr className={`hover:bg-gray-50 dark:bg-gray-950 transition-colors ${depth > 0 ? 'bg-gray-50 dark:bg-gray-950/50' : ''}`}>
           <td className="px-6 py-4">
             <input
               type="checkbox"
               checked={selectedArticles.includes(article.id)}
               onChange={() => handleToggleArticle(article.id)}
               disabled={isChildOfDeletedParent}
-              className={`h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary cursor-pointer ${isChildOfDeletedParent ? 'opacity-50 cursor-not-allowed' : ''}`}
+              className={`h-4 w-4 rounded border-gray-300 dark:border-gray-600 text-primary focus:ring-primary cursor-pointer ${isChildOfDeletedParent ? 'opacity-50 cursor-not-allowed' : ''}`}
             />
           </td>
-          <td className="px-6 py-4 text-sm text-gray-500">
+          <td className="px-6 py-4 text-sm text-gray-500 dark:text-gray-400 dark:text-gray-500">
             {index + 1}
           </td>
           <td className="px-6 py-4">
@@ -196,18 +196,18 @@ export default function TrashPage() {
                 className="p-1 hover:bg-gray-200 rounded transition-colors"
               >
                 {isExpanded ? (
-                  <ChevronDown className="h-4 w-4 text-gray-500" />
+                  <ChevronDown className="h-4 w-4 text-gray-500 dark:text-gray-400 dark:text-gray-500" />
                 ) : (
-                  <ChevronRight className="h-4 w-4 text-gray-500" />
+                  <ChevronRight className="h-4 w-4 text-gray-500 dark:text-gray-400 dark:text-gray-500" />
                 )}
               </button>
             )}
           </td>
           <td className="px-6 py-4">
             <div className="flex items-center" style={{ paddingLeft: `${depth * 24}px` }}>
-              <span className={`text-sm font-medium ${isChildOfDeletedParent ? 'text-gray-500' : 'text-gray-900'}`}>
+              <span className={`text-sm font-medium ${isChildOfDeletedParent ? 'text-gray-500 dark:text-gray-400 dark:text-gray-500' : 'text-gray-900 dark:text-white'}`}>
                 {article.title}
-                {isChildOfDeletedParent && <span className="ml-2 text-xs text-gray-400">(Child of deleted parent)</span>}
+                {isChildOfDeletedParent && <span className="ml-2 text-xs text-gray-400 dark:text-gray-500">(Child of deleted parent)</span>}
               </span>
             </div>
           </td>
@@ -216,7 +216,7 @@ export default function TrashPage() {
               Deleted
             </span>
           </td>
-          <td className="px-6 py-4 text-sm text-gray-600">{formatDate(article.deletedAt)}</td>
+          <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-400 dark:text-gray-500">{formatDate(article.deletedAt)}</td>
           <td className="px-6 py-4">
             <div className="flex gap-2">
               <Button
@@ -254,7 +254,7 @@ export default function TrashPage() {
               <Button onClick={() => router.push('/articles')} variant="ghost" size="icon">
                 <ArrowLeft className="h-5 w-5" />
               </Button>
-              <h1 className="text-3xl font-bold text-gray-900">Articles Trash</h1>
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Articles Trash</h1>
             </div>
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
               {selectedArticles.length > 0 && (
@@ -285,9 +285,9 @@ export default function TrashPage() {
           )}
 
           {/* Filters */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 md:p-6 mb-6">
+          <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 p-4 md:p-6 mb-6">
             <div className="flex flex-col md:flex-row md:items-center gap-4">
-              <div className="flex items-center gap-2 text-sm text-gray-600">
+              <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 dark:text-gray-500">
                 <div className="h-5 w-5 rounded-full border-2 border-orange-400 flex items-center justify-center">
                   <span className="text-orange-400 text-xs">i</span>
                 </div>
@@ -295,47 +295,47 @@ export default function TrashPage() {
               </div>
               <div className="flex-1"></div>
               <div className="flex items-center gap-2">
-                <label className="text-sm font-medium text-gray-700">Search:</label>
+                <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Search:</label>
                 <div className="relative">
                   <input
                     type="text"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     placeholder="Search..."
-                    className="pl-4 pr-10 py-2 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all text-sm w-full md:w-64"
+                    className="pl-4 pr-10 py-2 rounded-lg border border-gray-200 dark:border-gray-700 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all text-sm w-full md:w-64"
                   />
-                  <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
                 </div>
               </div>
             </div>
           </div>
 
           {/* Table */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden overflow-x-auto">
+          <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 overflow-hidden overflow-x-auto">
             <table className="w-full">
-              <thead className="bg-gray-50 border-b border-gray-100">
+              <thead className="bg-gray-50 dark:bg-gray-950 border-b border-gray-100 dark:border-gray-800">
                 <tr>
                   <th className="px-6 py-4 text-left w-12">
                     <input
                       type="checkbox"
                       checked={articles.length > 0 && selectedArticles.length === articles.length}
                       onChange={handleToggleAll}
-                      className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary cursor-pointer"
+                      className="h-4 w-4 rounded border-gray-300 dark:border-gray-600 text-primary focus:ring-primary cursor-pointer"
                     />
                   </th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">S.N</th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700 w-12"></th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Title</th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Status</th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Deleted At</th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Actions</th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700 dark:text-gray-300">S.N</th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700 dark:text-gray-300 w-12"></th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700 dark:text-gray-300">Title</th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700 dark:text-gray-300">Status</th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700 dark:text-gray-300">Deleted At</th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700 dark:text-gray-300">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
                 {loading ? (
-                  <tr><td colSpan={7} className="px-6 py-8 text-center text-gray-500">Loading trash...</td></tr>
+                  <tr><td colSpan={7} className="px-6 py-8 text-center text-gray-500 dark:text-gray-400 dark:text-gray-500">Loading trash...</td></tr>
                 ) : filteredArticles.length === 0 ? (
-                  <tr><td colSpan={7} className="px-6 py-8 text-center text-gray-500">Trash is empty</td></tr>
+                  <tr><td colSpan={7} className="px-6 py-8 text-center text-gray-500 dark:text-gray-400 dark:text-gray-500">Trash is empty</td></tr>
                 ) : (
                   filteredArticles.map((article, index) => renderArticleRow(article, index))
                 )}
@@ -347,9 +347,9 @@ export default function TrashPage() {
         {/* Restore Confirmation */}
         {showRestoreConfirm && (
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-            <div className="bg-white rounded-xl shadow-2xl p-6 max-w-md w-full mx-4">
-              <h3 className="text-xl font-bold text-gray-900 mb-4">Confirm Restore</h3>
-              <p className="text-gray-600 mb-6">Restore {selectedArticles.length} article(s)? They will appear in the main list again.</p>
+            <div className="bg-white dark:bg-gray-900 rounded-xl shadow-2xl p-6 max-w-md w-full mx-4">
+              <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">Confirm Restore</h3>
+              <p className="text-gray-600 dark:text-gray-400 dark:text-gray-500 mb-6">Restore {selectedArticles.length} article(s)? They will appear in the main list again.</p>
               <div className="flex gap-3 justify-end">
                 <Button onClick={() => setShowRestoreConfirm(false)} variant="outline">Cancel</Button>
                 <Button onClick={handleBulkRestore} className="bg-green-600 hover:bg-green-700 text-white">Restore</Button>
@@ -361,11 +361,11 @@ export default function TrashPage() {
         {/* Delete Confirmation */}
         {showDeleteConfirm && (
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-            <div className="bg-white rounded-xl shadow-2xl p-6 max-w-md w-full mx-4">
-              <h3 className="text-xl font-bold text-gray-900 mb-4">
+            <div className="bg-white dark:bg-gray-900 rounded-xl shadow-2xl p-6 max-w-md w-full mx-4">
+              <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
                 {bulkDeleteStep === 1 ? 'Confirm Permanent Delete' : 'Are you absolutely sure?'}
               </h3>
-              <p className="text-gray-600 mb-6">
+              <p className="text-gray-600 dark:text-gray-400 dark:text-gray-500 mb-6">
                 {bulkDeleteStep === 1
                   ? `Permanently delete ${selectedArticles.length} article(s)? This action CANNOT be undone.`
                   : 'This will permanently remove these articles and all their images. There is no going back. Confirm?'}

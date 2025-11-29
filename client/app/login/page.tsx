@@ -41,29 +41,29 @@ export default function LoginPage() {
       <div className="absolute top-[-10%] right-[-10%] w-96 h-96 bg-purple-300 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob animation-delay-2000"></div>
       <div className="absolute bottom-[-20%] left-[20%] w-96 h-96 bg-pink-300 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob animation-delay-4000"></div>
 
-      <div className="relative w-full max-w-md p-8 bg-white/30 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/20">
-        <h2 className="text-3xl font-bold text-center text-gray-800 mb-8">Welcome Back</h2>
+      <div className="relative w-full max-w-md p-8 bg-white dark:bg-gray-900/30 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/20">
+        <h2 className="text-3xl font-bold text-center text-gray-800 dark:text-gray-200 mb-8">Welcome Back</h2>
         
         <form onSubmit={handleLogin} className="space-y-6">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Email</label>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-4 py-3 rounded-lg bg-white/50 border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/50 outline-none transition-all"
+              className="w-full px-4 py-3 rounded-lg bg-white dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700 focus:border-primary focus:ring-2 focus:ring-primary/50 outline-none transition-all"
               placeholder="admin@mail.com"
               required
             />
           </div>
           
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Password</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Password</label>
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-3 rounded-lg bg-white/50 border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/50 outline-none transition-all"
+              className="w-full px-4 py-3 rounded-lg bg-white dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700 focus:border-primary focus:ring-2 focus:ring-primary/50 outline-none transition-all"
               placeholder="••••••••"
               required
             />

@@ -200,7 +200,7 @@ export default function TripFactsPage() {
       <div className="flex-1 p-8">
         <div className="max-w-4xl mx-auto">
           <div className="flex items-center justify-between mb-8">
-            <h1 className="text-2xl font-bold text-gray-900">Trip Facts Management</h1>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Trip Facts Management</h1>
             <Button onClick={() => setShowAddCategory(!showAddCategory)} variant="outline">
               <FolderPlus className="h-4 w-4 mr-2" />
               {showAddCategory ? 'Cancel' : 'New Category'}
@@ -208,14 +208,14 @@ export default function TripFactsPage() {
           </div>
 
           {showAddCategory && (
-            <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 mb-6 animate-in slide-in-from-top-2">
+            <div className="bg-white dark:bg-gray-900 p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 mb-6 animate-in slide-in-from-top-2">
               <form onSubmit={handleAddCategory} className="flex gap-4">
                 <input
                   type="text"
                   value={newCategory}
                   onChange={(e) => setNewCategory(e.target.value)}
                   placeholder="Category Name (e.g. Best Season)"
-                  className="flex-1 px-4 py-2 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none"
+                  className="flex-1 px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none"
                   autoFocus
                 />
                 <Button type="submit">Create</Button>
@@ -230,7 +230,7 @@ export default function TripFactsPage() {
                   onClick={() => setActiveTab(cat.slug)}
                   className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap ${cat.isDefault ? 'pr-4' : 'pr-8'} ${activeTab === cat.slug
                       ? 'bg-primary text-white shadow-sm'
-                      : 'bg-white text-gray-600 hover:bg-gray-100 border border-gray-200'
+                      : 'bg-white dark:bg-gray-900 text-gray-600 dark:text-gray-400 dark:text-gray-500 hover:bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700'
                     }`}
                 >
                   {cat.label}
@@ -241,7 +241,7 @@ export default function TripFactsPage() {
                       e.stopPropagation();
                       handleDeleteCategory(cat.id, cat.label);
                     }}
-                    className={`absolute right-1 top-1/2 -translate-y-1/2 p-1 rounded-full hover:bg-red-100 hover:text-red-600 transition-colors ${activeTab === cat.slug ? 'text-white/80 hover:text-white hover:bg-white/20' : 'text-gray-400'
+                    className={`absolute right-1 top-1/2 -translate-y-1/2 p-1 rounded-full hover:bg-red-100 hover:text-red-600 transition-colors ${activeTab === cat.slug ? 'text-white/80 hover:text-white hover:bg-white dark:bg-gray-900/20' : 'text-gray-400 dark:text-gray-500'
                       }`}
                   >
                     <X className="h-3 w-3" />
@@ -250,13 +250,13 @@ export default function TripFactsPage() {
               </div>
             ))}
             {categories.length === 0 && !loading && (
-              <div className="text-gray-500 text-sm py-2">No categories yet. Create one!</div>
+              <div className="text-gray-500 dark:text-gray-400 dark:text-gray-500 text-sm py-2">No categories yet. Create one!</div>
             )}
           </div>
 
           {activeTab && (
-            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-6">
+            <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 p-6">
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-6">
                 Manage {categories.find(c => c.slug === activeTab)?.label} Options
               </h2>
 
@@ -266,7 +266,7 @@ export default function TripFactsPage() {
                   value={newAttribute}
                   onChange={(e) => setNewAttribute(e.target.value)}
                   placeholder="Add new option..."
-                  className="flex-1 px-4 py-2 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                  className="flex-1 px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
                 />
                 <Button type="submit" disabled={!newAttribute.trim()}>
                   <Plus className="h-4 w-4 mr-2" />
@@ -276,14 +276,14 @@ export default function TripFactsPage() {
 
               <div className="space-y-3">
                 {loading ? (
-                  <div className="text-center py-8 text-gray-500">Loading...</div>
+                  <div className="text-center py-8 text-gray-500 dark:text-gray-400 dark:text-gray-500">Loading...</div>
                 ) : attributes.length === 0 ? (
-                  <div className="text-center py-8 text-gray-500 bg-gray-50 rounded-lg border border-dashed border-gray-200">
+                  <div className="text-center py-8 text-gray-500 dark:text-gray-400 dark:text-gray-500 bg-gray-50 dark:bg-gray-950 rounded-lg border border-dashed border-gray-200 dark:border-gray-700">
                     No options found. Add one above.
                   </div>
                 ) : (
                   attributes.map((attr) => (
-                    <div key={attr.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-100 group hover:border-primary/20 transition-colors">
+                    <div key={attr.id} className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-950 rounded-lg border border-gray-100 dark:border-gray-800 group hover:border-primary/20 transition-colors">
                       {editingId === attr.id ? (
                         <div className="flex-1 flex items-center gap-3 mr-4">
                           <input
@@ -296,20 +296,20 @@ export default function TripFactsPage() {
                           <button onClick={() => saveEdit(attr.id)} className="p-1.5 text-green-600 hover:bg-green-50 rounded">
                             <Check className="h-4 w-4" />
                           </button>
-                          <button onClick={cancelEdit} className="p-1.5 text-gray-500 hover:bg-gray-200 rounded">
+                          <button onClick={cancelEdit} className="p-1.5 text-gray-500 dark:text-gray-400 dark:text-gray-500 hover:bg-gray-200 rounded">
                             <X className="h-4 w-4" />
                           </button>
                         </div>
                       ) : (
-                        <span className="font-medium text-gray-700">{attr.name}</span>
+                        <span className="font-medium text-gray-700 dark:text-gray-300">{attr.name}</span>
                       )}
 
                       {editingId !== attr.id && (
                         <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                          <button onClick={() => startEdit(attr)} className="p-2 text-gray-400 hover:text-primary hover:bg-primary/5 rounded-lg transition-colors">
+                          <button onClick={() => startEdit(attr)} className="p-2 text-gray-400 dark:text-gray-500 hover:text-primary hover:bg-primary/5 rounded-lg transition-colors">
                             <Pencil className="h-4 w-4" />
                           </button>
-                          <button onClick={() => handleDeleteAttribute(attr.id, attr.name)} className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors">
+                          <button onClick={() => handleDeleteAttribute(attr.id, attr.name)} className="p-2 text-gray-400 dark:text-gray-500 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors">
                             <Trash2 className="h-4 w-4" />
                           </button>
                         </div>
@@ -325,11 +325,11 @@ export default function TripFactsPage() {
 
       {categoryToDelete && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-xl shadow-2xl p-6 max-w-md w-full mx-4">
-            <h3 className="text-xl font-bold text-gray-900 mb-4">
+          <div className="bg-white dark:bg-gray-900 rounded-xl shadow-2xl p-6 max-w-md w-full mx-4">
+            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
               {deleteStep === 1 ? 'Confirm Delete Category' : 'Are you absolutely sure?'}
             </h3>
-            <p className="text-gray-600 mb-6">
+            <p className="text-gray-600 dark:text-gray-400 dark:text-gray-500 mb-6">
               {deleteStep === 1
                 ? `Delete "${categoryToDelete.label}" and all its options? This action CANNOT be undone.`
                 : `This will permanently remove "${categoryToDelete.label}" category and all associated options from packages. There is no going back. Confirm?`}
@@ -348,11 +348,11 @@ export default function TripFactsPage() {
 
       {attributeToDelete && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-xl shadow-2xl p-6 max-w-md w-full mx-4">
-            <h3 className="text-xl font-bold text-gray-900 mb-4">
+          <div className="bg-white dark:bg-gray-900 rounded-xl shadow-2xl p-6 max-w-md w-full mx-4">
+            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
               {attributeDeleteStep === 1 ? 'Confirm Delete Option' : 'Are you absolutely sure?'}
             </h3>
-            <p className="text-gray-600 mb-6">
+            <p className="text-gray-600 dark:text-gray-400 dark:text-gray-500 mb-6">
               {attributeDeleteStep === 1
                 ? `Delete "${attributeToDelete.name}" option? This action CANNOT be undone.`
                 : `This will permanently remove "${attributeToDelete.name}" from all packages using it. There is no going back. Confirm?`}
