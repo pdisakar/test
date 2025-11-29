@@ -193,7 +193,7 @@ export default function ArticlesPage() {
 
     return (
       <React.Fragment key={article.id}>
-        <tr className={`hover:bg-gray-50 dark:bg-gray-950 transition-colors ${depth > 0 ? 'bg-gray-50 dark:bg-gray-950/50' : ''}`}>
+        <tr className={`hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors ${depth > 0 ? 'bg-gray-50 dark:bg-gray-950/50' : ''}`}>
           <td className="px-6 py-4">
             <input
               type="checkbox"
@@ -271,7 +271,7 @@ export default function ArticlesPage() {
               <Button
                 onClick={() => router.push('/articles/trash')}
                 variant="outline"
-                className="px-6 py-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:bg-gray-950"
+                className="px-6 py-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
               >
                 Trash
               </Button>
@@ -343,7 +343,7 @@ export default function ArticlesPage() {
                   <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700 dark:text-gray-300">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100">
+              <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
                 {loading ? (
                   <tr>
                     <td colSpan={7} className="px-6 py-8 text-center text-gray-500 dark:text-gray-400 dark:text-gray-500">
@@ -376,7 +376,7 @@ export default function ArticlesPage() {
                 <Button
                   onClick={() => setShowDeleteConfirm(false)}
                   variant="outline"
-                  className="px-6 py-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:bg-gray-950"
+                  className="px-6 py-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
                   disabled={deleting}
                 >
                   Cancel

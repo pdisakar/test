@@ -233,14 +233,14 @@ export default function TrashPage() {
                                     <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700 dark:text-gray-300">Actions</th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-gray-100">
+                            <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
                                 {loading ? (
                                     <tr><td colSpan={8} className="px-6 py-8 text-center text-gray-500 dark:text-gray-400 dark:text-gray-500">Loading trash...</td></tr>
                                 ) : filteredAuthors.length === 0 ? (
                                     <tr><td colSpan={8} className="px-6 py-8 text-center text-gray-500 dark:text-gray-400 dark:text-gray-500">Trash is empty</td></tr>
                                 ) : (
                                     filteredAuthors.map((author, index) => (
-                                        <tr key={author.id} className="hover:bg-gray-50 dark:bg-gray-950 transition-colors">
+                                        <tr key={author.id} className="hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
                                             <td className="px-6 py-4">
                                                 <input
                                                     type="checkbox"

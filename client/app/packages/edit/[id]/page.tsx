@@ -393,7 +393,7 @@ export default function EditPackagePage() {
     return (
       <React.Fragment key={place.id}>
         <div
-          className={`flex items-center gap-2 py-2 px-3 rounded-lg cursor-pointer transition-colors ${isSelected ? 'bg-primary/10 border border-primary' : 'hover:bg-gray-50 dark:bg-gray-950'
+          className={`flex items-center gap-2 py-2 px-3 rounded-lg cursor-pointer transition-colors ${isSelected ? 'bg-primary/10 border border-primary' : 'hover:bg-gray-50 dark:hover:bg-gray-800'
             }`}
           style={{ paddingLeft: `${depth * 24 + 12}px` }}
         >
@@ -883,7 +883,7 @@ export default function EditPackagePage() {
                 type="button"
                 onClick={handleDiscard}
                 variant="outline"
-                className="px-6 py-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:bg-gray-950"
+                className="px-6 py-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
               >
                 Discard
               </Button>
@@ -893,7 +893,7 @@ export default function EditPackagePage() {
                   type="button"
                   onClick={handleBack}
                   variant="outline"
-                  className="px-6 py-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:bg-gray-950"
+                  className="px-6 py-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
                 >
                   Back
                 </Button>
@@ -1931,7 +1931,7 @@ export default function EditPackagePage() {
                 <Button
                   onClick={() => setShowDiscardConfirm(false)}
                   variant="outline"
-                  className="px-6 py-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:bg-gray-950"
+                  className="px-6 py-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
                 >
                   Cancel
                 </Button>

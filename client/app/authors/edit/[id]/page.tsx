@@ -240,7 +240,7 @@ export default function EditAuthorPage() {
           <div className="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-0">
             <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Edit Author</h1>
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-              <Button onClick={handleDiscard} variant="outline" className="px-6 py-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:bg-gray-950" disabled={saving}>Discard</Button>
+              <Button onClick={handleDiscard} variant="outline" className="px-6 py-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800" disabled={saving}>Discard</Button>
               <Button onClick={handleSubmit} className="px-6 py-2 bg-primary hover:bg-primary/90 text-white" disabled={saving}>
                 {saving ? 'Saving...' : 'Update'}
               </Button>

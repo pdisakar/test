@@ -162,7 +162,7 @@ export default function AuthorsPage() {
                             <Button
                                 onClick={() => router.push('/authors/trash')}
                                 variant="outline"
-                                className="px-6 py-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:bg-gray-950"
+                                className="px-6 py-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
                             >
                                 Trash
                             </Button>
@@ -235,7 +235,7 @@ export default function AuthorsPage() {
                                     <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700 dark:text-gray-300">Actions</th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-gray-100">
+                            <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
                                 {loading ? (
                                     <tr>
                                         <td colSpan={8} className="px-6 py-8 text-center text-gray-500 dark:text-gray-400 dark:text-gray-500">
@@ -250,7 +250,7 @@ export default function AuthorsPage() {
                                     </tr>
                                 ) : (
                                     filteredAuthors.map((author, index) => (
-                                        <tr key={author.id} className="hover:bg-gray-50 dark:bg-gray-950 transition-colors">
+                                        <tr key={author.id} className="hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
                                             <td className="px-6 py-4">
                                                 <input
                                                     type="checkbox"
@@ -320,7 +320,7 @@ export default function AuthorsPage() {
                                 <Button
                                     onClick={() => setShowDeleteConfirm(false)}
                                     variant="outline"
-                                    className="px-6 py-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:bg-gray-950"
+                                    className="px-6 py-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
                                     disabled={deleting}
                                 >
                                     Cancel

@@ -172,7 +172,7 @@ export default function EditUserPage() {
             <Button
               onClick={handleDiscard}
               variant="outline"
-              className="px-6 py-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:bg-gray-950"
+              className="px-6 py-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
               disabled={saving}
             >
               Discard
