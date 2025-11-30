@@ -6,16 +6,9 @@ import { Button } from '@/components/Button';
 import Link from 'next/link';
 import { Calendar, User, ArrowRight } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { fetchAllBlogs, Blog } from '@/lib/api';
 
-interface Blog {
-    id: number;
-    title: string;
-    slug: string;
-    abstract: string;
-    publishedDate: string;
-    featuredImage: string;
-    authorId: number; // Could fetch author details if needed
-}
+// Blog interface is imported from lib/api.ts
 
 export default function BlogsPage() {
     const [blogs, setBlogs] = useState<Blog[]>([]);
@@ -24,11 +17,8 @@ export default function BlogsPage() {
     useEffect(() => {
         const fetchBlogs = async () => {
             try {
-                const response = await fetch('http://localhost:3001/api/blogs');
-                const data = await response.json();
-                if (Array.isArray(data)) {
-                    setBlogs(data);
-                }
+                const data = await fetchAllBlogs();
+                setBlogs(data);
             } catch (error) {
                 console.error('Error fetching blogs:', error);
             } finally {

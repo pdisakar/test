@@ -6,38 +6,9 @@ import { Button } from '@/components/Button';
 import Link from 'next/link';
 import { ArrowRight, Calendar, Star, Quote } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { fetchFeaturedPackages, fetchFeaturedBlogs, fetchFeaturedTestimonials, Package, Blog, Testimonial } from '@/lib/api';
 
-interface Package {
-  id: number;
-  title: string;
-  slug: string;
-  duration: number;
-  durationUnit: string;
-  defaultPrice: number;
-  featuredImage: string;
-  featured: number;
-}
-
-interface Blog {
-  id: number;
-  title: string;
-  slug: string;
-  abstract: string;
-  publishedDate: string;
-  featuredImage: string;
-  isFeatured: number;
-}
-
-interface Testimonial {
-  id: number;
-  reviewTitle: string;
-  fullName: string;
-  rating: number;
-  description: string; // HTML content
-  avatar: string;
-  isFeatured: number;
-  address: string;
-}
+// Types imported from lib/api.ts
 
 export default function Home() {
   const [featuredPackages, setFeaturedPackages] = useState<Package[]>([]);
@@ -48,27 +19,18 @@ export default function Home() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [packagesRes, blogsRes, testimonialsRes] = await Promise.all([
-          fetch('http://localhost:3001/api/packages?featured=1'),
-          fetch('http://localhost:3001/api/blogs?isFeatured=1'),
-          fetch('http://localhost:3001/api/testimonials?isFeatured=1')
+        const [packagesData, blogsData, testimonialsData] = await Promise.all([
+          fetchFeaturedPackages(),
+          fetchFeaturedBlogs(),
+          fetchFeaturedTestimonials()
         ]);
 
-        const packagesData = await packagesRes.json();
-        const blogsData = await blogsRes.json();
-        const testimonialsData = await testimonialsRes.json();
+        // API helpers return arrays directly
+        setFeaturedPackages(packagesData);
+        setFeaturedBlogs(blogsData);
+        setFeaturedTestimonials(testimonialsData);
 
-        if (packagesData.success && Array.isArray(packagesData.packages)) {
-          setFeaturedPackages(packagesData.packages.slice(0, 6));
-        }
 
-        if (Array.isArray(blogsData)) {
-          setFeaturedBlogs(blogsData.slice(0, 3));
-        }
-
-        if (Array.isArray(testimonialsData)) {
-          setFeaturedTestimonials(testimonialsData.slice(0, 3));
-        }
 
       } catch (error) {
         console.error('Error fetching data:', error);

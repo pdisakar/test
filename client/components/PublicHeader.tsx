@@ -5,16 +5,7 @@ import { Button } from '@/components/Button';
 import { Menu, X, ChevronDown, ChevronRight } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
 
-interface MenuItem {
-    id: number;
-    title: string;
-    type: string;
-    parentId: number | null;
-    url: string;
-    status: number;
-    displayOrder: number;
-    children?: MenuItem[];
-}
+import { fetchHeaderMenu, MenuItem } from '@/lib/api';
 
 // Recursive Menu Item for Desktop
 const DesktopMenuItem = ({ item, depth = 0 }: { item: MenuItem; depth?: number }) => {
@@ -126,10 +117,8 @@ export function PublicHeader() {
     useEffect(() => {
         const fetchMenus = async () => {
             try {
-                const response = await fetch('http://localhost:3001/api/menus/type/header');
-                if (response.ok) {
-                    const data = await response.json();
-
+                const data = await fetchHeaderMenu();
+                if (data) {
                     // Build hierarchy
                     const itemMap = new Map();
                     const rootItems: MenuItem[] = [];

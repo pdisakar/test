@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useParams, notFound } from 'next/navigation';
+import { fetchSlugData } from '@/lib/api';
 import { Places } from '@/components/Pages/Places/Places';
 import { Package } from '@/components/Pages/Package/Package';
 import { Article } from '@/components/Pages/Article/Article';
@@ -18,15 +19,12 @@ export default function DynamicPage() {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const res = await fetch(`http://localhost:3001/api/resolve-slug/${slug}`);
-                if (!res.ok) {
-                    if (res.status === 404) {
-                        setError(true); // Or redirect to 404 page
-                    }
-                    throw new Error('Failed to fetch data');
+                const result = await fetchSlugData(slug);
+                if (!result) {
+                    setError(true);
+                } else {
+                    setData(result);
                 }
-                const result = await res.json();
-                setData(result);
             } catch (err) {
                 console.error(err);
                 setError(true);

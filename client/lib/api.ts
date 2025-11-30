@@ -13,6 +13,7 @@ export interface Package {
     featuredImage: string;
     featured: number;
     carouselOrder?: number;
+    description?: string;
 }
 
 export interface Blog {
@@ -36,6 +37,17 @@ export interface Testimonial {
     isFeatured: number;
     address: string;
     carouselOrder?: number;
+}
+
+export interface MenuItem {
+    id: number;
+    title: string;
+    type: string;
+    parentId: number | null;
+    url: string;
+    status: number;
+    displayOrder: number;
+    children?: MenuItem[];
 }
 
 /** Fetch featured packages (server already filters by ?featured=1) */
@@ -97,4 +109,23 @@ export const fetchAllTestimonials = async (): Promise<Testimonial[]> => {
         return data;
     }
     return [];
+};
+
+/** Fetch data by slug (for dynamic pages) */
+export const fetchSlugData = async (slug: string): Promise<{ datatype: string; content: any } | null> => {
+    const res = await fetch(`${BASE_URL}/resolve-slug/${slug}`);
+    if (!res.ok) {
+        if (res.status === 404) return null;
+        throw new Error('Failed to fetch data');
+    }
+    return res.json();
+};
+
+/** Fetch header menu items */
+export const fetchHeaderMenu = async (): Promise<MenuItem[]> => {
+    const res = await fetch(`${BASE_URL}/menus/type/header`);
+    if (!res.ok) {
+        throw new Error('Failed to fetch menus');
+    }
+    return res.json();
 };
