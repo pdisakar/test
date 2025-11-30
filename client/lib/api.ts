@@ -4,16 +4,21 @@
 const BASE_URL = 'http://localhost:3001/api';
 
 export interface Package {
-    id: number;
-    title: string;
-    slug: string;
-    duration: number;
-    durationUnit: string;
-    defaultPrice: number;
-    featuredImage: string;
-    featured: number;
-    carouselOrder?: number;
-    description?: string;
+  id: number;
+  title: string;
+  slug: string;
+  duration: number;
+  durationUnit: string;
+  defaultPrice: number;
+  featuredImage: string;
+  featured: number;
+  carouselOrder?: number;
+  description?: string;
+  // New field: mapping of trip fact category slug to attribute name (label)
+  tripFacts?: Record<string, string | null>;
+  statusRibbon?: string;
+  groupSize?: number;
+  maxAltitude?: number;
 }
 
 export interface Blog {
@@ -63,7 +68,19 @@ export const fetchFeaturedPackages = async (): Promise<Package[]> => {
     const data = await res.json();
     // The endpoint returns { success, packages, ... }
     if (data.success && Array.isArray(data.packages)) {
-        return data.packages.slice(0, 6);
+        // Parse tripFacts JSON if present
+        const packages = data.packages.slice(0, 6).map((pkg: any) => {
+            if (typeof pkg.tripFacts === 'string') {
+                try {
+                    pkg.tripFacts = JSON.parse(pkg.tripFacts);
+                } catch (e) {
+                    console.error('Failed to parse tripFacts for package', pkg.id, e);
+                    pkg.tripFacts = {} as Record<string, string | null>;
+                }
+            }
+            return pkg as Package;
+        });
+        return packages;
     }
     return [];
 };
@@ -93,7 +110,18 @@ export const fetchAllPackages = async (): Promise<Package[]> => {
     const res = await fetch(`${BASE_URL}/packages`, { cache: 'force-cache' });
     const data = await res.json();
     if (data.success && Array.isArray(data.packages)) {
-        return data.packages;
+        const packages = data.packages.map((pkg: any) => {
+            if (typeof pkg.tripFacts === 'string') {
+                try {
+                    pkg.tripFacts = JSON.parse(pkg.tripFacts);
+                } catch (e) {
+                    console.error('Failed to parse tripFacts for package', pkg.id, e);
+                    pkg.tripFacts = {} as Record<string, number>;
+                }
+            }
+            return pkg as Package;
+        });
+        return packages;
     }
     return [];
 };

@@ -178,7 +178,7 @@ export default function EditPackagePage() {
 
   const [categories, setCategories] = useState<Category[]>([]);
   const [attributeOptions, setAttributeOptions] = useState<Record<string, Attribute[]>>({});
-  const [rawTripFacts, setRawTripFacts] = useState<Record<string, number>>({});
+  const [rawTripFacts, setRawTripFacts] = useState<Record<string, string | number | null>>({});
 
   // Fetch dynamic categories and attributes
   useEffect(() => {
@@ -209,12 +209,25 @@ export default function EditPackagePage() {
   useEffect(() => {
     if (Object.keys(rawTripFacts).length > 0 && Object.keys(attributeOptions).length > 0) {
       const tripFactUpdates: Record<string, string> = {};
-      Object.entries(rawTripFacts).forEach(([slug, attrId]) => {
+      Object.entries(rawTripFacts).forEach(([slug, value]) => {
+        if (value === null) return;
+
         const options = attributeOptions[slug];
         if (options) {
-          const attr = options.find((a: any) => a.id === attrId);
-          if (attr) {
-            tripFactUpdates[slug] = attr.name;
+          // Handle ID (legacy)
+          if (typeof value === 'number') {
+            const attr = options.find((a: any) => a.id === value);
+            if (attr) {
+              tripFactUpdates[slug] = attr.name;
+            }
+          } 
+          // Handle Name (new)
+          else if (typeof value === 'string') {
+             // Verify it exists in options to be safe
+             const attr = options.find((a: any) => a.name === value);
+             if (attr) {
+               tripFactUpdates[slug] = attr.name;
+             }
           }
         }
       });

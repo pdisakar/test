@@ -63,7 +63,8 @@ const migrate = async () => {
         featured INTEGER DEFAULT 0 CHECK(featured IN (0,1)),
         createdAt TEXT NOT NULL,
         updatedAt TEXT NOT NULL,
-        deletedAt TEXT
+        deletedAt TEXT,
+        tripFacts TEXT -- JSON mapping of categorySlug to attributeId
       );
     `);
     console.log('Created packages table');

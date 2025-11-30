@@ -1379,13 +1379,58 @@ app.get('/api/packages', async (req, res) => {
     const countResult = await getAsync(countQuery, params.slice(0, params.length - 2));
     const total = countResult.count;
 
+    // After fetching packages, enrich each with tripFacts JSON string
+    // Fetch all categories to ensure complete structure
+    const allCategories = await allAsync('SELECT slug FROM trip_fact_categories');
+
+    // After fetching packages, enrich each with tripFacts JSON string
+    const enrichedPackages = await Promise.all(packages.map(async (pkg) => {
+      try {
+        const facts = await allAsync(`
+          SELECT ptf.categorySlug, pa.name 
+          FROM package_trip_facts ptf
+          JOIN package_attributes pa ON ptf.attributeId = pa.id
+          WHERE ptf.packageId = ?
+        `, [pkg.id]);
+        
+        const tripFactsObj = {};
+        // Initialize all categories with null
+        allCategories.forEach(cat => {
+          tripFactsObj[cat.slug] = null;
+        });
+
+        // Populate with actual data
+        facts.forEach(f => {
+          if (f.categorySlug) tripFactsObj[f.categorySlug] = f.name;
+        });
+
+        // Inject static fields into tripFacts
+        tripFactsObj['status-ribbon'] = pkg.statusRibbon || null;
+        tripFactsObj['group-size'] = pkg.groupSize ? String(pkg.groupSize) : null;
+        tripFactsObj['max-altitude'] = pkg.maxAltitude ? String(pkg.maxAltitude) : null;
+
+        // Store as JSON string so client can parse it
+        pkg.tripFacts = JSON.stringify(tripFactsObj);
+      } catch (e) {
+        console.error('Error fetching tripFacts for package', pkg.id, e);
+        // Fallback with nulls
+        const tripFactsObj = {};
+        allCategories.forEach(cat => {
+          tripFactsObj[cat.slug] = null;
+        });
+        pkg.tripFacts = JSON.stringify(tripFactsObj);
+      }
+      return pkg;
+    }));
     res.status(200).json({
       success: true,
-      packages,
+      packages: enrichedPackages,
       total,
       page: parseInt(page),
       totalPages: Math.ceil(total / limit)
     });
+    return;
+
   } catch (err) {
     console.error('Error fetching packages:', err);
     res.status(500).json({ success: false, message: 'Server error' });
@@ -1418,10 +1463,7 @@ app.get('/api/packages/:idOrSlug', async (req, res) => {
       [packageId]
     );
 
-    const tripFacts = await allAsync(
-      `SELECT categorySlug, attributeId FROM package_trip_facts WHERE packageId = ?`,
-      [packageId]
-    );
+
 
     const itinerary = await allAsync(
       `SELECT * FROM package_itinerary WHERE packageId = ? ORDER BY dayNumber ASC`,
@@ -1433,16 +1475,36 @@ app.get('/api/packages/:idOrSlug', async (req, res) => {
       [packageId]
     );
 
+    const tripFacts = await allAsync(
+      `SELECT ptf.categorySlug, pa.name 
+       FROM package_trip_facts ptf
+       JOIN package_attributes pa ON ptf.attributeId = pa.id
+       WHERE ptf.packageId = ?`,
+      [packageId]
+    );
+
+    // Fetch all categories to ensure complete structure
+    const allCategories = await allAsync('SELECT slug FROM trip_fact_categories');
+
+    // Format trip facts as object { categorySlug: attributeName }
+    const tripFactsObj = {};
+    allCategories.forEach(cat => {
+      tripFactsObj[cat.slug] = null;
+    });
+
+    tripFacts.forEach(tf => {
+      tripFactsObj[tf.categorySlug] = tf.name;
+    });
+
+    // Inject static fields into tripFacts
+    tripFactsObj['status-ribbon'] = packageData.statusRibbon || null;
+    tripFactsObj['group-size'] = packageData.groupSize ? String(packageData.groupSize) : null;
+    tripFactsObj['max-altitude'] = packageData.maxAltitude ? String(packageData.maxAltitude) : null;
+
     const galleryImages = await allAsync(
       `SELECT imageUrl FROM package_gallery WHERE packageId = ? ORDER BY createdAt ASC`,
       [packageId]
     );
-
-    // Format trip facts as object { categorySlug: attributeId }
-    const tripFactsObj = {};
-    tripFacts.forEach(tf => {
-      tripFactsObj[tf.categorySlug] = tf.attributeId;
-    });
 
     res.status(200).json({
       success: true,
@@ -2997,13 +3059,41 @@ app.get('/api/resolve-slug/:slug', async (req, res) => {
       const galleryImages = await allAsync('SELECT imageUrl FROM package_gallery WHERE packageId = ?', [pkg.id]);
       const groupPrices = await allAsync('SELECT * FROM package_group_pricing WHERE packageId = ?', [pkg.id]);
 
+      // Fetch trip facts with labels
+      const tripFacts = await allAsync(
+        `SELECT ptf.categorySlug, pa.name 
+         FROM package_trip_facts ptf
+         JOIN package_attributes pa ON ptf.attributeId = pa.id
+         WHERE ptf.packageId = ?`,
+        [pkg.id]
+      );
+
+      // Fetch all categories to ensure complete structure
+      const allCategories = await allAsync('SELECT slug FROM trip_fact_categories');
+
+      // Format trip facts as object { categorySlug: attributeName }
+      const tripFactsObj = {};
+      allCategories.forEach(cat => {
+        tripFactsObj[cat.slug] = null;
+      });
+
+      tripFacts.forEach(tf => {
+        tripFactsObj[tf.categorySlug] = tf.name;
+      });
+
+      // Inject static fields into tripFacts
+      tripFactsObj['status-ribbon'] = pkg.statusRibbon || null;
+      tripFactsObj['group-size'] = pkg.groupSize ? String(pkg.groupSize) : null;
+      tripFactsObj['max-altitude'] = pkg.maxAltitude ? String(pkg.maxAltitude) : null;
+
       return res.json({
         datatype: 'package',
         content: {
           ...pkg,
           itinerary,
           galleryImages: galleryImages.map(img => img.imageUrl),
-          groupPrices
+          groupPrices,
+          tripFacts: tripFactsObj
         }
       });
     }
