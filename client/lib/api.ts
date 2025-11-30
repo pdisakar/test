@@ -57,9 +57,9 @@ export interface HeroSectionData {
     subtitle: string;
 }
 
-/** Fetch featured packages (server already filters by ?featured=1) */
+// Fetch featured packages (build‑time only)
 export const fetchFeaturedPackages = async (): Promise<Package[]> => {
-    const res = await fetch(`${BASE_URL}/packages?featured=1`);
+    const res = await fetch(`${BASE_URL}/packages?featured=1`, { cache: 'force-cache' });
     const data = await res.json();
     // The endpoint returns { success, packages, ... }
     if (data.success && Array.isArray(data.packages)) {
@@ -68,9 +68,9 @@ export const fetchFeaturedPackages = async (): Promise<Package[]> => {
     return [];
 };
 
-/** Fetch featured blogs */
+// Fetch featured blogs (build‑time only)
 export const fetchFeaturedBlogs = async (): Promise<Blog[]> => {
-    const res = await fetch(`${BASE_URL}/blogs?isFeatured=1`);
+    const res = await fetch(`${BASE_URL}/blogs?isFeatured=1`, { cache: 'force-cache' });
     const data = await res.json();
     if (Array.isArray(data)) {
         return data.slice(0, 3);
@@ -78,9 +78,9 @@ export const fetchFeaturedBlogs = async (): Promise<Blog[]> => {
     return [];
 };
 
-/** Fetch featured testimonials */
+// Fetch featured testimonials (build‑time only)
 export const fetchFeaturedTestimonials = async (): Promise<Testimonial[]> => {
-    const res = await fetch(`${BASE_URL}/testimonials?isFeatured=1`);
+    const res = await fetch(`${BASE_URL}/testimonials?isFeatured=1`, { cache: 'force-cache' });
     const data = await res.json();
     if (Array.isArray(data)) {
         return data.slice(0, 3);
@@ -88,9 +88,9 @@ export const fetchFeaturedTestimonials = async (): Promise<Testimonial[]> => {
     return [];
 };
 
-/** Fetch all packages (no filter) */
+// Fetch all packages (build‑time only)
 export const fetchAllPackages = async (): Promise<Package[]> => {
-    const res = await fetch(`${BASE_URL}/packages`);
+    const res = await fetch(`${BASE_URL}/packages`, { cache: 'force-cache' });
     const data = await res.json();
     if (data.success && Array.isArray(data.packages)) {
         return data.packages;
@@ -98,9 +98,9 @@ export const fetchAllPackages = async (): Promise<Package[]> => {
     return [];
 };
 
-/** Fetch all blogs (no filter) */
+// Fetch all blogs (build‑time only)
 export const fetchAllBlogs = async (): Promise<Blog[]> => {
-    const res = await fetch(`${BASE_URL}/blogs`);
+    const res = await fetch(`${BASE_URL}/blogs`, { cache: 'force-cache' });
     const data = await res.json();
     if (Array.isArray(data)) {
         return data;
@@ -108,9 +108,9 @@ export const fetchAllBlogs = async (): Promise<Blog[]> => {
     return [];
 };
 
-/** Fetch all testimonials (no filter) */
+// Fetch all testimonials (build‑time only)
 export const fetchAllTestimonials = async (): Promise<Testimonial[]> => {
-    const res = await fetch(`${BASE_URL}/testimonials`);
+    const res = await fetch(`${BASE_URL}/testimonials`, { cache: 'force-cache' });
     const data = await res.json();
     if (Array.isArray(data)) {
         return data;
@@ -128,18 +128,18 @@ export const fetchSlugData = async (slug: string): Promise<{ datatype: string; c
     return res.json();
 };
 
-/** Fetch header menu items */
+// Fetch header menu items (build‑time only)
 export const fetchHeaderMenu = async (): Promise<MenuItem[]> => {
-    const res = await fetch(`${BASE_URL}/menus/type/header`);
+    const res = await fetch(`${BASE_URL}/menus/type/header`, { cache: 'force-cache' });
     if (!res.ok) {
         throw new Error('Failed to fetch menus');
     }
     return res.json();
 };
 
-// Generic API fetch helper
+// Generic API fetch helper (still dynamic when used directly)
 export const fetchGlobalData = async (): Promise<any> => {
-    const res = await fetch(`${BASE_URL}/GlobalData`);
+    const res = await fetch(`${BASE_URL}/GlobalData`, { cache: 'force-cache' });
     if (!res.ok) {
         throw new Error('Failed to fetch global data');
     }
