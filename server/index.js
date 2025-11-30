@@ -3124,6 +3124,53 @@ app.post('/api/settings', async (req, res) => {
   }
 });
 
+// ========================
+// HERO SECTION API
+// ========================
+
+// Get hero section
+app.get('/api/hero', async (req, res) => {
+  try {
+    const hero = await getAsync('SELECT * FROM hero_sections ORDER BY id ASC LIMIT 1');
+    res.json(hero || {});
+  } catch (err) {
+    console.error('Error fetching hero section:', err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// Update hero section
+app.post('/api/hero', async (req, res) => {
+  const { image, title, subtitle } = req.body;
+
+  if (!image) {
+    return res.status(400).json({ success: false, message: 'Image is required' });
+  }
+
+  try {
+    const existing = await getAsync('SELECT id FROM hero_sections ORDER BY id ASC LIMIT 1');
+    const now = new Date().toISOString();
+
+    if (existing) {
+      await runAsync(`
+        UPDATE hero_sections SET
+          image = ?, title = ?, subtitle = ?, updatedAt = ?
+        WHERE id = ?
+      `, [image, title, subtitle, now, existing.id]);
+      res.json({ success: true, message: 'Hero section updated' });
+    } else {
+      await runAsync(`
+        INSERT INTO hero_sections (image, title, subtitle, updatedAt)
+        VALUES (?, ?, ?, ?)
+      `, [image, title, subtitle, now]);
+      res.json({ success: true, message: 'Hero section created' });
+    }
+  } catch (err) {
+    console.error('Error saving hero section:', err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
 app.listen(PORT, async () => {
   console.log(`Server running on http://localhost:${PORT}`);
   // Ensure default admin user exists (id 1) after server start

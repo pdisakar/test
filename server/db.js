@@ -445,6 +445,22 @@ const init = () => {
     if (err) console.error('Error creating settings table:', err);
     else console.log('Settings table ready');
   });
+
+  // Hero Sections table
+  const createHeroSectionsTableSQL = `
+    CREATE TABLE IF NOT EXISTS hero_sections (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      image TEXT NOT NULL,
+      title TEXT,
+      subtitle TEXT,
+      updatedAt TEXT
+    );
+  `;
+
+  db.run(createHeroSectionsTableSQL, (err) => {
+    if (err) console.error('Error creating hero_sections table:', err);
+    else console.log('Hero sections table ready');
+  });
 };
 
 init();
