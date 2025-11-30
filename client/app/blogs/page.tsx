@@ -1,8 +1,8 @@
 'use client';
 
-import { PublicHeader } from '@/components/PublicHeader';
+
 import { PublicFooter } from '@/components/PublicFooter';
-import { Button } from '@/components/Button';
+
 import Link from 'next/link';
 import { Calendar, User, ArrowRight } from 'lucide-react';
 import { useEffect, useState } from 'react';
@@ -31,7 +31,7 @@ export default function BlogsPage() {
 
     return (
         <div className="min-h-screen bg-white flex flex-col">
-            <PublicHeader />
+
 
             <main className="flex-1">
                 {/* Header */}

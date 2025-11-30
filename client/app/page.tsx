@@ -1,6 +1,4 @@
-'use client';
 
-import { PublicHeader } from '@/components/PublicHeader';
 import { fetchFeaturedPackages, fetchFeaturedBlogs, fetchFeaturedTestimonials, Package, Blog, Testimonial } from '@/lib/api';
 import HeroSection from '@/components/HeroSection/HeroSection';
 
@@ -11,14 +9,10 @@ export default function Home() {
 
   return (
     <div className="">
-      <PublicHeader />
 
       <main className="flex-1">
         {/* Hero Section */}
         <HeroSection />
-
-
-
 
       </main>
     </div>

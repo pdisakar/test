@@ -1,14 +1,14 @@
 'use client';
 
-import { PublicHeader } from '@/components/PublicHeader';
+
 import { PublicFooter } from '@/components/PublicFooter';
 import { MapPin, Phone, Mail, Globe } from 'lucide-react';
-import { Button } from '@/components/Button';
+
 
 export default function AboutPage() {
     return (
         <div className="min-h-screen bg-white flex flex-col">
-            <PublicHeader />
+
 
             <main className="flex-1">
                 {/* Hero */}
@@ -101,9 +101,9 @@ export default function AboutPage() {
                             <p className="text-gray-600 mb-8 max-w-2xl mx-auto">
                                 Join thousands of happy travelers who have discovered the world with us.
                             </p>
-                            <Button size="lg" className="bg-primary hover:bg-primary/90 text-white px-8 py-6 text-lg">
+                            <a href="/packages" className="inline-flex items-center justify-center rounded-md font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-primary hover:bg-primary/90 text-white px-8 py-6 text-lg">
                                 Explore Our Packages
-                            </Button>
+                            </a>
                         </section>
                     </div>
                 </div>
