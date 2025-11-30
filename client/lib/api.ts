@@ -62,6 +62,17 @@ export interface HeroSectionData {
     subtitle: string;
 }
 
+export interface Place {
+    id: number;
+    title: string;
+    slug: string;
+    featuredImage: string;
+    featuredImageAlt?: string;
+    featuredImageCaption?: string;
+    description?: string;
+    isFeatured: number;
+}
+
 // Fetch featured packages (build‑time only)
 export const fetchFeaturedPackages = async (): Promise<Package[]> => {
     const res = await fetch(`${BASE_URL}/packages?featured=1`, { cache: 'force-cache' });
@@ -91,6 +102,16 @@ export const fetchFeaturedBlogs = async (): Promise<Blog[]> => {
     const data = await res.json();
     if (Array.isArray(data)) {
         return data.slice(0, 3);
+    }
+    return [];
+};
+
+// Fetch featured places (build‑time only)
+export const fetchFeaturedPlaces = async (): Promise<Place[]> => {
+    const res = await fetch(`${BASE_URL}/places?isFeatured=1`, { cache: 'force-cache' });
+    const data = await res.json();
+    if (Array.isArray(data)) {
+        return data.slice(0, 6);
     }
     return [];
 };

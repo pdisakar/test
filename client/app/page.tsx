@@ -1,6 +1,7 @@
 import { fetchFeaturedPackages, fetchFeaturedBlogs, fetchFeaturedTestimonials, Package, Blog, Testimonial } from '@/lib/api';
 import HeroSection from '@/components/HeroSection/HeroSection';
 import FeaturedPackages from '@/components/FeaturedPackages/FeaturedPackages';
+import { FeaturedPlaces } from '@/components/FeaturedPlaces/FeaturedPlaces';
 
 // Types imported from lib/api.ts
 
@@ -15,6 +16,8 @@ export default function Home() {
         <HeroSection />
         {/* Featured Packages */}
         <FeaturedPackages />
+        {/* Featured Places */}
+        <FeaturedPlaces />
       </main>
     </div>
   );
