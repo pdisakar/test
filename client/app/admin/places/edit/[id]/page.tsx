@@ -38,6 +38,7 @@ export default function EditPlacePage() {
         slug: '',
         description: '',
         status: false,
+        isFeatured: false,
         parentId: [] as string[],
         metaTitle: '',
         metaInfo: '',
@@ -121,6 +122,7 @@ export default function EditPlacePage() {
                 slug: data.place.slug || '',
                 description: data.place.description || '',
                 status: Boolean(data.place.status === 1 || data.place.status === true),
+                isFeatured: Boolean(data.place.isFeatured === 1 || data.place.isFeatured === true),
                 parentId: data.place.parentId ? [String(data.place.parentId)] : [],
                 metaTitle: data.place.metaTitle || '',
                 metaInfo: data.place.metaInfo || '',
@@ -310,6 +312,7 @@ export default function EditPlacePage() {
                 bannerImageAlt: formData.bannerImageAlt,
                 bannerImageCaption: formData.bannerImageCaption,
                 status: formData.status ? 1 : 0,
+                isFeatured: formData.isFeatured ? 1 : 0,
                 pageType: formData.pageType,
             };
 
@@ -445,6 +448,20 @@ export default function EditPlacePage() {
                                         />
                                         <span className="text-sm text-gray-600 dark:text-gray-400 dark:text-gray-500">
                                             {formData.status ? 'Published' : 'Draft'}
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Featured</label>
+                                    <div className="flex items-center gap-3 h-[42px]">
+                                        <Switch
+                                            checked={formData.isFeatured}
+                                            onCheckedChange={(checked) => setFormData({ ...formData, isFeatured: checked })}
+                                            disabled={saving}
+                                        />
+                                        <span className="text-sm text-gray-600 dark:text-gray-400 dark:text-gray-500">
+                                            {formData.isFeatured ? 'Featured' : 'Standard'}
                                         </span>
                                     </div>
                                 </div>

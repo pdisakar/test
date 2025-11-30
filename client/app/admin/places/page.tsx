@@ -18,6 +18,7 @@ interface place {
   metaDescription: string;
   featuredImage: string;
   status: number;
+  isFeatured: number;
   createdAt: string;
   updatedAt: string;
 }
@@ -230,6 +231,12 @@ export default function placesPage() {
               {place.status === 1 ? 'Active' : 'Inactive'}
             </span>
           </td>
+          <td className="px-6 py-4 text-sm text-gray-900 dark:text-white">
+            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${place.isFeatured === 1 ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200'
+              }`}>
+              {place.isFeatured === 1 ? 'Featured' : 'Standard'}
+            </span>
+          </td>
           <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-400 dark:text-gray-500">{formatDate(place.updatedAt)}</td>
           <td className="px-6 py-4">
             <Button
@@ -337,6 +344,7 @@ export default function placesPage() {
               <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700 dark:text-gray-300 w-12"></th>
               <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700 dark:text-gray-300">Title</th>
               <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700 dark:text-gray-300">Status</th>
+              <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700 dark:text-gray-300">Featured</th>
               <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700 dark:text-gray-300">Updated At</th>
               <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700 dark:text-gray-300">Actions</th>
             </tr>

@@ -722,8 +722,19 @@ const getPlaceDescendantIds = async (parentId) => {
 
 // Get all active places (not deleted)
 app.get('/api/places', async (req, res) => {
+  const { isFeatured } = req.query;
   try {
-    const places = await allAsync('SELECT * FROM places WHERE deletedAt IS NULL ORDER BY createdAt DESC');
+    let query = 'SELECT * FROM places WHERE deletedAt IS NULL';
+    const params = [];
+    
+    if (isFeatured !== undefined) {
+      query += ' AND isFeatured = ?';
+      params.push(isFeatured === 'true' || isFeatured === '1' ? 1 : 0);
+    }
+    
+    query += ' ORDER BY createdAt DESC';
+    
+    const places = await allAsync(query, params);
     res.json(places);
   } catch (err) {
     console.error('Error fetching places:', err);
@@ -779,7 +790,7 @@ app.post('/api/places', async (req, res) => {
     metaTitle, metaKeywords, metaDescription,
     description, featuredImage, featuredImageAlt, featuredImageCaption,
     bannerImage, bannerImageAlt, bannerImageCaption,
-    status
+    status, isFeatured
   } = req.body;
 
   // Basic validation
@@ -804,14 +815,14 @@ app.post('/api/places', async (req, res) => {
         metaTitle, metaKeywords, metaDescription, 
         description, featuredImage, featuredImageAlt, featuredImageCaption,
         bannerImage, bannerImageAlt, bannerImageCaption,
-        status, pageType, createdAt, updatedAt
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        status, isFeatured, pageType, createdAt, updatedAt
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         title, urlTitle, slug, parentId || null,
         metaTitle, metaKeywords, metaDescription,
         description, featuredImage, featuredImageAlt, featuredImageCaption,
         bannerImage, bannerImageAlt, bannerImageCaption,
-        status ? 1 : 0, req.body.pageType || 'default', now, now
+        status ? 1 : 0, isFeatured ? 1 : 0, req.body.pageType || 'default', now, now
       ]
     );
 
@@ -834,7 +845,7 @@ app.put('/api/places/:id', async (req, res) => {
     metaTitle, metaKeywords, metaDescription,
     description, featuredImage, featuredImageAlt, featuredImageCaption,
     bannerImage, bannerImageAlt, bannerImageCaption,
-    status
+    status, isFeatured
   } = req.body;
 
   try {
@@ -870,14 +881,14 @@ app.put('/api/places/:id', async (req, res) => {
         metaTitle = ?, metaKeywords = ?, metaDescription = ?, 
         description = ?, featuredImage = ?, featuredImageAlt = ?, featuredImageCaption = ?,
         bannerImage = ?, bannerImageAlt = ?, bannerImageCaption = ?,
-        status = ?, pageType = ?, updatedAt = ?
+        status = ?, isFeatured = ?, pageType = ?, updatedAt = ?
        WHERE id = ?`,
       [
         title, urlTitle, slug, parentId || null,
         metaTitle, metaKeywords, metaDescription,
         description, featuredImage, featuredImageAlt, featuredImageCaption,
         bannerImage, bannerImageAlt, bannerImageCaption,
-        status ? 1 : 0, req.body.pageType || 'default', now, id
+        status ? 1 : 0, isFeatured ? 1 : 0, req.body.pageType || 'default', now, id
       ]
     );
 
