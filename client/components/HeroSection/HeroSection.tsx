@@ -1,38 +1,11 @@
-'use client';
-
-import React, { useEffect, useState } from 'react';
-import { fetchHeroSection, HeroSectionData } from '@/lib/api';
+import React from 'react';
+import { fetchHeroSection } from '@/lib/api';
 import { IMAGE_URL } from '@/lib/constants';
 import Image from 'next/image';
 
-export function HeroSection() {
-    const [heroData, setHeroData] = useState<HeroSectionData | null>(null);
-    const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
-        const loadHero = async () => {
-            try {
-                const data = await fetchHeroSection();
-                if (data && data.image) {
-                    setHeroData(data);
-                }
-            } catch (error) {
-                console.error('Failed to load hero section:', error);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        loadHero();
-    }, []);
-
-    if (loading) {
-        return (
-            <div className="relative h-[600px] w-full bg-gray-100 animate-pulse flex items-center justify-center">
-                <span className="sr-only">Loading hero section...</span>
-            </div>
-        );
-    }
+export default async function HeroSection() {
+    // Fetch data server-side
+    const heroData = await fetchHeroSection();
 
     // Fallback if no data or no image
     if (!heroData) {
