@@ -3,7 +3,6 @@
 import { PublicHeader } from '@/components/PublicHeader';
 import { PublicFooter } from '@/components/PublicFooter';
 import { MapPin, Phone, Mail, Clock } from 'lucide-react';
-import { Button } from '@/components/Button';
 import { useState } from 'react';
 
 export default function ContactPage() {
@@ -201,13 +200,7 @@ export default function ContactPage() {
                                             />
                                         </div>
 
-                                        <Button
-                                            type="submit"
-                                            size="lg"
-                                            className="w-full bg-primary hover:bg-primary/90 text-white py-6 text-lg"
-                                        >
-                                            Send Message
-                                        </Button>
+
                                     </form>
                                 </div>
                             </div>

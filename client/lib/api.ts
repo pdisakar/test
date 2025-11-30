@@ -146,11 +146,11 @@ export const fetchGlobalData = async (): Promise<any> => {
     return res.json();
 };
 
-// Fetch hero section data with ISR support for Server Components
+// Fetch hero section data with static caching (build-time only)
 export const fetchHeroSection = async (): Promise<HeroSectionData | null> => {
     try {
         const res = await fetch(`${BASE_URL}/hero`, {
-            next: { revalidate: 60 } // ISR: Revalidate every 60 seconds
+            cache: 'force-cache' // Cache indefinitely, only fetch at build time
         });
         if (!res.ok) return null;
         return await res.json();

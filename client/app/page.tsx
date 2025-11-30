@@ -1,11 +1,6 @@
 'use client';
 
 import { PublicHeader } from '@/components/PublicHeader';
-import { PublicFooter } from '@/components/PublicFooter';
-import { Button } from '@/components/Button';
-import Link from 'next/link';
-import { ArrowRight, Calendar, Star, Quote } from 'lucide-react';
-import { useEffect, useState } from 'react';
 import { fetchFeaturedPackages, fetchFeaturedBlogs, fetchFeaturedTestimonials, Package, Blog, Testimonial } from '@/lib/api';
 import HeroSection from '@/components/HeroSection/HeroSection';
 
