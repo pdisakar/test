@@ -1392,7 +1392,7 @@ app.get('/api/packages', async (req, res) => {
           JOIN package_attributes pa ON ptf.attributeId = pa.id
           WHERE ptf.packageId = ?
         `, [pkg.id]);
-        
+
         const tripFactsObj = {};
         // Initialize all categories with null
         allCategories.forEach(cat => {
@@ -1420,6 +1420,18 @@ app.get('/api/packages', async (req, res) => {
         });
         pkg.tripFacts = JSON.stringify(tripFactsObj);
       }
+
+      // Fetch testimonials for this package
+      try {
+        const testimonials = await allAsync('SELECT * FROM testimonials WHERE packageId = ? AND deletedAt IS NULL', [pkg.id]);
+        pkg.testimonials = testimonials; // keep as array
+        pkg.total_testimonials = testimonials.length;
+      } catch (e) {
+        console.error('Error fetching testimonials for package', pkg.id, e);
+        pkg.testimonials = [];
+        pkg.total_testimonials = 0;
+      }
+
       return pkg;
     }));
     res.status(200).json({
@@ -1506,6 +1518,8 @@ app.get('/api/packages/:idOrSlug', async (req, res) => {
       [packageId]
     );
 
+    const testimonials = await allAsync('SELECT * FROM testimonials WHERE packageId = ? AND deletedAt IS NULL', [packageId]);
+
     res.status(200).json({
       success: true,
       package: {
@@ -1514,7 +1528,9 @@ app.get('/api/packages/:idOrSlug', async (req, res) => {
         tripFacts: tripFactsObj,
         itinerary,
         groupPrices,
-        galleryImages: galleryImages.map(g => g.imageUrl)
+        galleryImages: galleryImages.map(g => g.imageUrl),
+        testimonials,
+        total_testimonials: testimonials.length
       }
     });
 
@@ -3086,6 +3102,9 @@ app.get('/api/resolve-slug/:slug', async (req, res) => {
       tripFactsObj['group-size'] = pkg.groupSize ? String(pkg.groupSize) : null;
       tripFactsObj['max-altitude'] = pkg.maxAltitude ? String(pkg.maxAltitude) : null;
 
+      // Fetch testimonials for this package (exclude soft-deleted)
+      const testimonials = await allAsync('SELECT * FROM testimonials WHERE packageId = ? AND deletedAt IS NULL', [pkg.id]);
+
       return res.json({
         datatype: 'package',
         content: {
@@ -3093,7 +3112,9 @@ app.get('/api/resolve-slug/:slug', async (req, res) => {
           itinerary,
           galleryImages: galleryImages.map(img => img.imageUrl),
           groupPrices,
-          tripFacts: tripFactsObj
+          tripFacts: tripFactsObj,
+          testimonials,
+          total_testimonials: testimonials.length
         }
       });
     }

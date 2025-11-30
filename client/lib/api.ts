@@ -14,8 +14,8 @@ export interface Package {
   featured: number;
   carouselOrder?: number;
   description?: string;
-  // New field: mapping of trip fact category slug to attribute name (label)
-  tripFacts?: Record<string, string | null>;
+  testimonials?: any[];
+  total_testimonials?: number;
   statusRibbon?: string;
   groupSize?: number;
   maxAltitude?: number;
