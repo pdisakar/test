@@ -50,6 +50,13 @@ export interface MenuItem {
     children?: MenuItem[];
 }
 
+export interface HeroSectionData {
+    id: number;
+    image: string;
+    title: string;
+    subtitle: string;
+}
+
 /** Fetch featured packages (server already filters by ?featured=1) */
 export const fetchFeaturedPackages = async (): Promise<Package[]> => {
     const res = await fetch(`${BASE_URL}/packages?featured=1`);
@@ -137,6 +144,18 @@ export const fetchGlobalData = async (): Promise<any> => {
         throw new Error('Failed to fetch global data');
     }
     return res.json();
+};
+
+// Generic API fetch helper
+export const fetchHeroSection = async (): Promise<HeroSectionData | null> => {
+    try {
+        const res = await fetch(`${BASE_URL}/hero`);
+        if (!res.ok) return null;
+        return await res.json();
+    } catch (error) {
+        console.error('Failed to fetch hero section:', error);
+        return null;
+    }
 };
 
 export const apiFetch = async <T>(path: string, init?: RequestInit): Promise<T> => {

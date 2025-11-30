@@ -3,8 +3,9 @@
 import { MainLayout } from '@/app/admin/components/MainLayout';
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/app/admin/components/ui/button';
-import { Save, Loader2, Image as ImageIcon, Upload } from 'lucide-react';
+import { Save, Loader2 } from 'lucide-react';
 import { apiFetch } from '@/lib/api';
+import { BannerImage } from '@/app/admin/components/BannerImage';
 
 interface HeroSection {
     id?: number;
@@ -32,7 +33,7 @@ export default function HeroSectionPage() {
     const fetchHero = async () => {
         try {
             const data = await apiFetch<HeroSection>('/hero');
-            if (data && data.image) { // Check if data is valid (at least has image)
+            if (data && data.image) {
                 setHero({ ...initialHero, ...data });
             }
         } catch (error) {
@@ -47,31 +48,35 @@ export default function HeroSectionPage() {
         setHero(prev => ({ ...prev, [name]: value }));
     };
 
-    const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (!file) return;
+    // Function to delete image from backend
+    const deleteImage = async (imagePath: string) => {
+        if (!imagePath || imagePath.startsWith('data:')) return;
+        try {
+            await fetch('http://localhost:3001/api/upload/image', {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ path: imagePath }),
+            });
+        } catch (err) {
+            console.error('Failed to delete image:', err);
+        }
+    };
 
+    const handleImageSelect = (file: File) => {
         const reader = new FileReader();
-        reader.onloadend = async () => {
+        reader.onloadend = () => {
             const base64String = reader.result as string;
-            try {
-                const res = await fetch('http://localhost:3001/api/upload/image', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ image: base64String, type: 'hero' }),
-                });
-                const data = await res.json();
-                if (data.success) {
-                    setHero(prev => ({ ...prev, image: data.path }));
-                } else {
-                    setMessage({ type: 'error', text: 'Failed to upload image' });
-                }
-            } catch (error) {
-                console.error('Error uploading image:', error);
-                setMessage({ type: 'error', text: 'Error uploading image' });
-            }
+            // Just set state, don't upload yet
+            setHero(prev => ({ ...prev, image: base64String }));
         };
         reader.readAsDataURL(file);
+    };
+
+    const handleImageRemove = async () => {
+        if (hero.image) {
+            await deleteImage(hero.image);
+            setHero(prev => ({ ...prev, image: '' }));
+        }
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -86,15 +91,32 @@ export default function HeroSectionPage() {
         }
 
         try {
+            let imagePath = hero.image;
+            // Upload if it's a base64 string (new image)
+            if (hero.image.startsWith('data:')) {
+                const res = await fetch('http://localhost:3001/api/upload/image', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ image: hero.image, type: 'hero' }),
+                });
+                const data = await res.json();
+                if (!data.success) {
+                    throw new Error(data.message || 'Failed to upload image');
+                }
+                imagePath = data.path;
+                // Update state with new path
+                setHero(prev => ({ ...prev, image: imagePath }));
+            }
+
             await apiFetch('/hero', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(hero),
+                body: JSON.stringify({ ...hero, image: imagePath }),
             });
             setMessage({ type: 'success', text: 'Hero section saved successfully!' });
-        } catch (error) {
+        } catch (error: any) {
             console.error('Failed to save hero section:', error);
-            setMessage({ type: 'error', text: 'Failed to save hero section. Please try again.' });
+            setMessage({ type: 'error', text: error.message || 'Failed to save hero section. Please try again.' });
         } finally {
             setSaving(false);
         }
@@ -136,38 +158,21 @@ export default function HeroSectionPage() {
                     )}
 
                     <form onSubmit={handleSubmit} className="space-y-8">
-                        {/* Banner Image */}
-                        <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 p-6">
-                            <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">Banner Image</h2>
-                            <div className="space-y-4">
-                                <div className="flex items-center justify-center w-full">
-                                    <label className="flex flex-col items-center justify-center w-full h-64 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:hover:bg-bray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600 relative overflow-hidden group">
-                                        {hero.image ? (
-                                            <>
-                                                <img
-                                                    src={`http://localhost:3001${hero.image}`}
-                                                    alt="Hero Banner"
-                                                    className="w-full h-full object-cover"
-                                                />
-                                                <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                                                    <div className="flex flex-col items-center text-white">
-                                                        <Upload className="w-8 h-8 mb-2" />
-                                                        <p className="text-sm font-semibold">Click to replace</p>
-                                                    </div>
-                                                </div>
-                                            </>
-                                        ) : (
-                                            <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                                                <ImageIcon className="w-8 h-8 mb-4 text-gray-500 dark:text-gray-400" />
-                                                <p className="mb-2 text-sm text-gray-500 dark:text-gray-400"><span className="font-semibold">Click to upload</span> banner image</p>
-                                                <p className="text-xs text-gray-500 dark:text-gray-400">SVG, PNG, JPG or GIF (MAX. 1920x750)</p>
-                                            </div>
-                                        )}
-                                        <input type="file" className="hidden" accept="image/*" onChange={handleImageUpload} />
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
+                        {/* Banner Image Component */}
+                        <BannerImage
+                            label="Banner Image"
+                            imageUrl={hero.image}
+                            imageAlt="" // Hero section doesn't have alt/caption in DB yet, passing empty
+                            imageCaption=""
+                            onImageSelect={handleImageSelect}
+                            onImageRemove={handleImageRemove}
+                            onAltChange={() => { }} // No-op
+                            onCaptionChange={() => { }} // No-op
+                            helperText="SVG, PNG, JPG or GIF (MAX. 1920x750)"
+                            disabled={saving}
+                            hasAlt={false}
+                            hasCaption={false}
+                        />
 
                         {/* Text Content */}
                         <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 p-6">
