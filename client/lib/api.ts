@@ -98,6 +98,16 @@ export const fetchAllPackages = async (): Promise<Package[]> => {
     return [];
 };
 
+// Search packages
+export const searchPackages = async (query: string): Promise<Package[]> => {
+    const res = await fetch(`${BASE_URL}/packages?search=${encodeURIComponent(query)}`);
+    const data = await res.json();
+    if (data.success && Array.isArray(data.packages)) {
+        return data.packages;
+    }
+    return [];
+};
+
 // Fetch all blogs (build‑time only)
 export const fetchAllBlogs = async (): Promise<Blog[]> => {
     const res = await fetch(`${BASE_URL}/blogs`, { cache: 'force-cache' });
