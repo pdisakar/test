@@ -74,7 +74,7 @@ export default function HomeSearch() {
                             {results.map((pkg) => (
                                 <Link
                                     key={pkg.id}
-                                    href={`/packages/${pkg.slug}`}
+                                    href={`/${pkg.slug}`}
                                     className="flex items-center gap-4 p-4 hover:bg-gray-50 transition-colors"
                                     onClick={() => setIsOpen(false)}
                                 >
