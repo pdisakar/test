@@ -1,4 +1,3 @@
-import React from 'react';
 import { fetchHeroSection } from '@/lib/api';
 import { IMAGE_URL } from '@/lib/constants';
 import Image from 'next/image';

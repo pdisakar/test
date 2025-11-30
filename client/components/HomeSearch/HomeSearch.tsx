@@ -5,6 +5,7 @@ import { Search } from 'lucide-react';
 import { Package, searchPackages } from '@/lib/api';
 import Link from 'next/link';
 import { IMAGE_URL } from '@/lib/constants';
+import Image from 'next/image';
 
 export default function HomeSearch() {
     const [query, setQuery] = useState('');
@@ -78,9 +79,10 @@ export default function HomeSearch() {
                                     onClick={() => setIsOpen(false)}
                                 >
                                     <div className="h-16 w-24 relative flex-shrink-0 bg-gray-100 rounded-md overflow-hidden">
-                                        <img
+                                        <Image
                                             src={pkg.featuredImage ? `${IMAGE_URL}${pkg.featuredImage}` : '/placeholder.jpg'}
                                             alt={pkg.title}
+                                            fill
                                             className="w-full h-full object-cover"
                                         />
                                     </div>
