@@ -160,6 +160,8 @@ export default function EditPackagePage() {
   const [places, setPlaces] = useState<Place[]>([]);
   const [expandedPlaces, setExpandedPlaces] = useState<Set<number>>(new Set());
   const [showPlaceAccordion, setShowPlaceAccordion] = useState(false);
+  const [allPackages, setAllPackages] = useState<{ id: number; title: string }[]>([]);
+  const [relatedPackageSearch, setRelatedPackageSearch] = useState('');
 
   // Group price state
   const [groupPriceEnabled, setGroupPriceEnabled] = useState(false);
@@ -237,23 +239,30 @@ export default function EditPackagePage() {
     }
   }, [rawTripFacts, attributeOptions]);
 
-  // Fetch places on mount
+  // Fetch places and packages on mount
   useEffect(() => {
-    const fetchPlaces = async () => {
+    const fetchData = async () => {
       try {
-        const response = await fetch('http://localhost:3001/api/places');
-        if (response.ok) {
-          const data = await response.json();
+        const [placesRes, packagesRes] = await Promise.all([
+          fetch('http://localhost:3001/api/places'),
+          fetch('http://localhost:3001/api/packages')
+        ]);
+
+        if (placesRes.ok) {
+          const data = await placesRes.json();
           setPlaces(data);
-        } else {
-          console.error('Failed to fetch places');
+        }
+
+        if (packagesRes.ok) {
+          const data = await packagesRes.json();
+          setAllPackages(data.packages.map((p: any) => ({ id: p.id, title: p.title })));
         }
       } catch (err) {
-        console.error('Error fetching places:', err);
+        console.error('Error fetching initial data:', err);
       }
     };
 
-    fetchPlaces();
+    fetchData();
   }, []);
 
   // Fetch package data on mount
@@ -1571,14 +1580,63 @@ export default function EditPackagePage() {
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       Related Trip
                     </label>
-                    <input
-                      type="text"
-                      name="relatedTrip"
-                      value={formData.relatedTrip}
-                      onChange={handleInputChange}
-                      className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
-                      placeholder="Inserted are removed"
-                    />
+                    <div className="mb-2">
+                      <input
+                        type="text"
+                        placeholder="Search packages..."
+                        value={relatedPackageSearch}
+                        onChange={(e) => setRelatedPackageSearch(e.target.value)}
+                        className="w-full px-3 py-2 text-sm rounded-lg border border-gray-200 dark:border-gray-700 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all bg-white dark:bg-gray-900"
+                      />
+                    </div>
+                    <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 max-h-60 overflow-y-auto bg-white dark:bg-gray-900">
+                      {allPackages
+                        .filter(p => String(p.id) !== packageId) // Exclude current package
+                        .filter(p => p.title.toLowerCase().includes(relatedPackageSearch.toLowerCase()))
+                        .map((pkg) => {
+                          const isSelected = (() => {
+                            try {
+                              const ids = JSON.parse(formData.relatedTrip || '[]');
+                              return Array.isArray(ids) && ids.includes(pkg.id);
+                            } catch {
+                              return false;
+                            }
+                          })();
+
+                          return (
+                            <div key={pkg.id} className="flex items-center gap-3 py-2 border-b border-gray-100 dark:border-gray-800 last:border-0">
+                              <input
+                                type="checkbox"
+                                id={`related-${pkg.id}`}
+                                checked={isSelected}
+                                onChange={(e) => {
+                                  try {
+                                    let ids = JSON.parse(formData.relatedTrip || '[]');
+                                    if (!Array.isArray(ids)) ids = [];
+                                    
+                                    if (e.target.checked) {
+                                      if (!ids.includes(pkg.id)) ids.push(pkg.id);
+                                    } else {
+                                      ids = ids.filter((id: any) => id !== pkg.id);
+                                    }
+                                    setFormData(prev => ({ ...prev, relatedTrip: JSON.stringify(ids) }));
+                                  } catch {
+                                    setFormData(prev => ({ ...prev, relatedTrip: JSON.stringify(e.target.checked ? [pkg.id] : []) }));
+                                  }
+                                }}
+                                className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary cursor-pointer"
+                              />
+                              <label htmlFor={`related-${pkg.id}`} className="text-sm text-gray-700 dark:text-gray-300 cursor-pointer select-none flex-1">
+                                {pkg.title}
+                              </label>
+                            </div>
+                          );
+                        })}
+                      {allPackages.length <= 1 && (
+                        <p className="text-sm text-gray-500 text-center py-2">No other packages available</p>
+                      )}
+                    </div>
+                    <p className="text-xs text-gray-500 mt-2">Select packages to display as related trips.</p>
                   </div>
                 </div>
               </>

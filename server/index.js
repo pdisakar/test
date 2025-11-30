@@ -1432,7 +1432,26 @@ app.get('/api/packages', async (req, res) => {
         pkg.total_testimonials = 0;
       }
 
-      return pkg;
+      // Filter fields if it's a featured request (or just generally optimize)
+      // User requested: defaultPrice, duration, durationUnit, featuredImage, featuredImageAlt, featuredImageCaption, groupSize, slug, tripFacts
+      // And specifically asked to remove statusRibbon from root if it's there (it is in 'pkg' because 'pkg' is SELECT *).
+      
+      return {
+        id: pkg.id,
+        title: pkg.title, // Usually needed for display even if not explicitly listed, but I'll stick to the list + title/id for safety
+        defaultPrice: pkg.defaultPrice,
+        duration: pkg.duration,
+        durationUnit: pkg.durationUnit,
+        featuredImage: pkg.featuredImage,
+        featuredImageAlt: pkg.featuredImageAlt,
+        featuredImageCaption: pkg.featuredImageCaption,
+        // groupSize is excluded from root as it is in tripFacts
+        slug: pkg.slug,
+        tripFacts: pkg.tripFacts,
+        // statusRibbon is intentionally excluded from root
+        // testimonials array is excluded from featured/list view to save bandwidth
+        total_testimonials: pkg.total_testimonials
+      };
     }));
     res.status(200).json({
       success: true,
@@ -3105,10 +3124,13 @@ app.get('/api/resolve-slug/:slug', async (req, res) => {
       // Fetch testimonials for this package (exclude soft-deleted)
       const testimonials = await allAsync('SELECT * FROM testimonials WHERE packageId = ? AND deletedAt IS NULL', [pkg.id]);
 
+      // Remove statusRibbon from root package object as it's already in tripFacts
+      const { statusRibbon, ...pkgWithoutStatusRibbon } = pkg;
+
       return res.json({
         datatype: 'package',
         content: {
-          ...pkg,
+          ...pkgWithoutStatusRibbon,
           itinerary,
           galleryImages: galleryImages.map(img => img.imageUrl),
           groupPrices,
