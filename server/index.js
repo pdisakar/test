@@ -3035,6 +3035,95 @@ app.get('/api/resolve-slug/:slug', async (req, res) => {
   }
 });
 
+// ========================
+// GLOBAL SETTINGS API
+// ========================
+
+// Get global settings
+app.get('/api/settings', async (req, res) => {
+  try {
+    // We assume there's only one row for settings, or we take the first one
+    const settings = await getAsync('SELECT * FROM settings ORDER BY id ASC LIMIT 1');
+    res.json(settings || {});
+  } catch (err) {
+    console.error('Error fetching settings:', err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// Public Global Data endpoint
+app.get('/api/GlobalData', async (req, res) => {
+  try {
+    const settings = await getAsync('SELECT * FROM settings ORDER BY id ASC LIMIT 1');
+    res.json(settings || {});
+  } catch (err) {
+    console.error('Error fetching global data:', err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// Update global settings
+app.post('/api/settings', async (req, res) => {
+  const {
+    viatorLink, tourradarLink, tripAdvisorLink,
+    defaultMetaDescription, defaultMetaKeywords, defaultMetaTitle,
+    youtubeLink, pinterestLink, linkedinLink, instagramLink, twitterLink, facebookLink,
+    contactPerson1, contactPerson2, establishedYear, shortDescription,
+    mobileNumber1, mobileNumber2, phoneNumber, postBox, address, googleMapLocation, companyName
+  } = req.body;
+
+  try {
+    // Check if a row exists
+    const existing = await getAsync('SELECT id FROM settings ORDER BY id ASC LIMIT 1');
+    const now = new Date().toISOString();
+
+    if (existing) {
+      // Update existing
+      await runAsync(`
+        UPDATE settings SET
+          viatorLink = ?, tourradarLink = ?, tripAdvisorLink = ?,
+          defaultMetaDescription = ?, defaultMetaKeywords = ?, defaultMetaTitle = ?,
+          youtubeLink = ?, pinterestLink = ?, linkedinLink = ?, instagramLink = ?, twitterLink = ?, facebookLink = ?,
+          contactPerson1 = ?, contactPerson2 = ?, establishedYear = ?, shortDescription = ?,
+          mobileNumber1 = ?, mobileNumber2 = ?, phoneNumber = ?, postBox = ?, address = ?, googleMapLocation = ?, companyName = ?,
+          updatedAt = ?
+        WHERE id = ?
+      `, [
+        viatorLink, tourradarLink, tripAdvisorLink,
+        defaultMetaDescription, defaultMetaKeywords, defaultMetaTitle,
+        youtubeLink, pinterestLink, linkedinLink, instagramLink, twitterLink, facebookLink,
+        contactPerson1, contactPerson2, establishedYear, shortDescription,
+        mobileNumber1, mobileNumber2, phoneNumber, postBox, address, googleMapLocation, companyName,
+        now, existing.id
+      ]);
+      res.json({ success: true, message: 'Settings updated' });
+    } else {
+      // Insert new
+      await runAsync(`
+        INSERT INTO settings (
+          viatorLink, tourradarLink, tripAdvisorLink,
+          defaultMetaDescription, defaultMetaKeywords, defaultMetaTitle,
+          youtubeLink, pinterestLink, linkedinLink, instagramLink, twitterLink, facebookLink,
+          contactPerson1, contactPerson2, establishedYear, shortDescription,
+          mobileNumber1, mobileNumber2, phoneNumber, postBox, address, googleMapLocation, companyName,
+          updatedAt
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `, [
+        viatorLink, tourradarLink, tripAdvisorLink,
+        defaultMetaDescription, defaultMetaKeywords, defaultMetaTitle,
+        youtubeLink, pinterestLink, linkedinLink, instagramLink, twitterLink, facebookLink,
+        contactPerson1, contactPerson2, establishedYear, shortDescription,
+        mobileNumber1, mobileNumber2, phoneNumber, postBox, address, googleMapLocation, companyName,
+        now
+      ]);
+      res.json({ success: true, message: 'Settings created' });
+    }
+  } catch (err) {
+    console.error('Error saving settings:', err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
 app.listen(PORT, async () => {
   console.log(`Server running on http://localhost:${PORT}`);
   // Ensure default admin user exists (id 1) after server start

@@ -8,6 +8,7 @@ import {
     Sun,
     ChevronLeft,
     ChevronRight,
+    Settings,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/app/admin/components/ui/button';
@@ -54,6 +55,17 @@ export function Header({ isCollapsed, onToggleSidebar, onMobileMenuOpen }: Heade
                     <Switch checked={theme === 'dark'} onCheckedChange={toggleTheme} />
                     <Moon className="h-4 w-4 text-gray-400 dark:text-gray-500" />
                 </div>
+
+                {/* Settings Button */}
+                <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => window.location.href = '/admin/settings'}
+                    className="text-gray-500 dark:text-gray-400 hover:text-primary dark:hover:text-primary hover:bg-gray-50 dark:hover:bg-gray-800"
+                    title="Global Settings"
+                >
+                    <Settings className="h-5 w-5" />
+                </Button>
 
                 <div className="h-8 w-px bg-gray-100 dark:bg-gray-800" />
 

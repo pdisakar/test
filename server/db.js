@@ -409,6 +409,42 @@ const init = () => {
     if (err) console.error('Error creating menus table:', err);
     else console.log('Menus table ready');
   });
+
+  // Global Settings table
+  const createSettingsTableSQL = `
+    CREATE TABLE IF NOT EXISTS settings (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      viatorLink TEXT,
+      tourradarLink TEXT,
+      tripAdvisorLink TEXT,
+      defaultMetaDescription TEXT,
+      defaultMetaKeywords TEXT,
+      defaultMetaTitle TEXT,
+      youtubeLink TEXT,
+      pinterestLink TEXT,
+      linkedinLink TEXT,
+      instagramLink TEXT,
+      twitterLink TEXT,
+      facebookLink TEXT,
+      contactPerson1 TEXT,
+      contactPerson2 TEXT,
+      establishedYear TEXT,
+      shortDescription TEXT,
+      mobileNumber1 TEXT,
+      mobileNumber2 TEXT,
+      phoneNumber TEXT,
+      postBox TEXT,
+      address TEXT,
+      googleMapLocation TEXT,
+      companyName TEXT,
+      updatedAt TEXT
+    );
+  `;
+
+  db.run(createSettingsTableSQL, (err) => {
+    if (err) console.error('Error creating settings table:', err);
+    else console.log('Settings table ready');
+  });
 };
 
 init();

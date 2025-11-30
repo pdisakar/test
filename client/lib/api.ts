@@ -129,3 +129,21 @@ export const fetchHeaderMenu = async (): Promise<MenuItem[]> => {
     }
     return res.json();
 };
+
+// Generic API fetch helper
+export const fetchGlobalData = async (): Promise<any> => {
+    const res = await fetch(`${BASE_URL}/GlobalData`);
+    if (!res.ok) {
+        throw new Error('Failed to fetch global data');
+    }
+    return res.json();
+};
+
+export const apiFetch = async <T>(path: string, init?: RequestInit): Promise<T> => {
+    const res = await fetch(`${BASE_URL}${path}`, init);
+    if (!res.ok) {
+        const errorText = await res.text();
+        throw new Error(`API request failed: ${res.status} ${res.statusText} - ${errorText}`);
+    }
+    return res.json();
+};

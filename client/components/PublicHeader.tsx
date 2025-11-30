@@ -5,7 +5,7 @@ import { Button } from '@/components/Button';
 import { Menu, X, ChevronDown, ChevronRight } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
 
-import { fetchHeaderMenu, MenuItem } from '@/lib/api';
+import { fetchHeaderMenu, fetchGlobalData, MenuItem } from '@/lib/api';
 
 // Recursive Menu Item for Desktop
 const DesktopMenuItem = ({ item, depth = 0 }: { item: MenuItem; depth?: number }) => {
@@ -159,10 +159,21 @@ export function PublicHeader() {
             }
         };
 
+        const getGlobalData = async () => {
+            try {
+                const globalData = await fetchGlobalData();
+                console.log('Global Data:', globalData);
+            } catch (error) {
+                console.error('Failed to fetch global data:', error);
+            }
+        };
+
         fetchMenus();
+        getGlobalData();
     }, []);
 
     console.log(menuItems);
+
 
 
     return (
