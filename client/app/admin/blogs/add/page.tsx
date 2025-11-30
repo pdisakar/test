@@ -34,6 +34,7 @@ export default function AddBlogPage() {
         publishedDate: new Date(),
         status: false,
         isFeatured: false,
+        isBestselling: false,
         abstract: '',
         description: '',
         metaTitle: '',
@@ -91,6 +92,7 @@ export default function AddBlogPage() {
             publishedDate: new Date(),
             status: false,
             isFeatured: false,
+            isBestselling: false,
             abstract: '',
             description: '',
             metaTitle: '',
@@ -171,6 +173,7 @@ export default function AddBlogPage() {
                 bannerImage: bannerImageUrl,
                 status: formData.status ? 1 : 0,
                 isFeatured: formData.isFeatured ? 1 : 0,
+                isBestselling: formData.isBestselling ? 1 : 0,
                 publishedDate: formData.publishedDate ? formData.publishedDate.toISOString() : null,
                 pageType: formData.pageType,
             };
@@ -343,6 +346,21 @@ export default function AddBlogPage() {
                                             />
                                             <span className="text-sm text-gray-600 dark:text-gray-400 dark:text-gray-500">
                                                 {formData.isFeatured ? 'Featured' : 'Not Featured'}
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    {/* Is Bestselling */}
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Is Bestselling?</label>
+                                        <div className="flex items-center gap-3 h-[42px]">
+                                            <Switch
+                                                checked={formData.isBestselling}
+                                                onCheckedChange={(checked) => setFormData({ ...formData, isBestselling: checked })}
+                                                disabled={loading}
+                                            />
+                                            <span className="text-sm text-gray-600 dark:text-gray-400 dark:text-gray-500">
+                                                {formData.isBestselling ? 'Bestselling' : 'Not Bestselling'}
                                             </span>
                                         </div>
                                     </div>

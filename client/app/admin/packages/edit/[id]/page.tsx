@@ -170,6 +170,7 @@ export default function EditPackagePage() {
   // Status toggles
   const [status, setStatus] = useState(false); // Published / Not Published
   const [featured, setFeatured] = useState(false);
+  const [isBestselling, setIsBestselling] = useState(false);
 
   const [error, setError] = useState('');
 
@@ -360,6 +361,7 @@ export default function EditPackagePage() {
       // Set status toggles
       setStatus(pkg.status === 1 || pkg.status === true);
       setFeatured(pkg.featured === 1 || pkg.featured === true);
+      setIsBestselling(pkg.isBestselling === 1 || pkg.isBestselling === true);
 
       // Load gallery images
       if (pkg.galleryImages && pkg.galleryImages.length > 0) {
@@ -773,6 +775,7 @@ export default function EditPackagePage() {
         itineraryTitle: formData.itineraryTitle,
         status,
         featured,
+        isBestselling,
         pageType: 'package',
         tripFacts: tripFactsPayload,
         itinerary: itinerary.map(day => ({
@@ -1240,6 +1243,20 @@ export default function EditPackagePage() {
                         />
                         <span className="text-sm text-gray-600 dark:text-gray-400 dark:text-gray-500">
                           {featured ? 'Featured' : 'Not Featured'}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Bestselling Toggle */}
+                    <div>
+                      <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-3 uppercase">Bestselling Package?</label>
+                      <div className="flex items-center gap-3 h-[42px]">
+                        <Switch
+                          checked={isBestselling}
+                          onCheckedChange={setIsBestselling}
+                        />
+                        <span className="text-sm text-gray-600 dark:text-gray-400 dark:text-gray-500">
+                          {isBestselling ? 'Bestselling' : 'Not Bestselling'}
                         </span>
                       </div>
                     </div>

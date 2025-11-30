@@ -1229,7 +1229,7 @@ app.post('/api/packages', async (req, res) => {
     tripMapImage, tripMapImageAlt, tripMapImageCaption,
     statusRibbon, groupSize, maxAltitude,
     tripHighlights, departureNote, goodToKnow, extraFAQs,
-    relatedTrip, itineraryTitle, status, featured,
+    relatedTrip, itineraryTitle, status, featured, isBestselling,
     tripFacts, itinerary
   } = req.body;
 
@@ -1262,9 +1262,9 @@ app.post('/api/packages', async (req, res) => {
         tripMapImage, tripMapImageAlt, tripMapImageCaption,
         statusRibbon, groupSize, maxAltitude,
         tripHighlights, departureNote, goodToKnow, extraFAQs,
-        relatedTrip, itineraryTitle, status, featured, pageType,
+        relatedTrip, itineraryTitle, status, featured, isBestselling, pageType,
         createdAt, updatedAt
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         packageTitle, urlTitle, slug, durationValue || 0, durationUnit || 'days',
         metaTitle, metaKeywords, metaDescription,
@@ -1275,7 +1275,7 @@ app.post('/api/packages', async (req, res) => {
         tripMapImage, tripMapImageAlt, tripMapImageCaption,
         statusRibbon, groupSize, maxAltitude,
         tripHighlights, departureNote, goodToKnow, extraFAQs,
-        relatedTrip, itineraryTitle, status ? 1 : 0, featured ? 1 : 0, req.body.pageType || 'default',
+        relatedTrip, itineraryTitle, status ? 1 : 0, featured ? 1 : 0, isBestselling ? 1 : 0, req.body.pageType || 'default',
         now, now
       ]
     );
@@ -1356,7 +1356,7 @@ app.post('/api/packages', async (req, res) => {
 
 // Get all packages (paginated)
 app.get('/api/packages', async (req, res) => {
-  const { page = 1, limit = 10, search, status, featured } = req.query;
+  const { page = 1, limit = 10, search, status, featured, isBestselling } = req.query;
   const offset = (page - 1) * limit;
 
   try {
@@ -1381,6 +1381,13 @@ app.get('/api/packages', async (req, res) => {
       query += ' AND featured = ?';
       countQuery += ' AND featured = ?';
       params.push(featured);
+    }
+
+    // New bestselling filter
+    if (isBestselling !== undefined) {
+      query += ' AND isBestselling = ?';
+      countQuery += ' AND isBestselling = ?';
+      params.push(isBestselling);
     }
 
     query += ' ORDER BY createdAt DESC LIMIT ? OFFSET ?';
@@ -1583,7 +1590,7 @@ app.put('/api/packages/:id', async (req, res) => {
     tripMapImage, tripMapImageAlt, tripMapImageCaption,
     statusRibbon, groupSize, maxAltitude,
     tripHighlights, departureNote, goodToKnow, extraFAQs,
-    relatedTrip, itineraryTitle, status, featured,
+    relatedTrip, itineraryTitle, status, featured, isBestselling,
     tripFacts, itinerary
   } = req.body;
 
@@ -1635,7 +1642,7 @@ app.put('/api/packages/:id', async (req, res) => {
         tripMapImage = ?, tripMapImageAlt = ?, tripMapImageCaption = ?,
         statusRibbon = ?, groupSize = ?, maxAltitude = ?,
         tripHighlights = ?, departureNote = ?, goodToKnow = ?, extraFAQs = ?,
-        relatedTrip = ?, itineraryTitle = ?, status = ?, featured = ?, pageType = ?,
+        relatedTrip = ?, itineraryTitle = ?, status = ?, featured = ?, isBestselling = ?, pageType = ?,
         updatedAt = ?
       WHERE id = ?`,
       [
@@ -1648,7 +1655,7 @@ app.put('/api/packages/:id', async (req, res) => {
         tripMapImage, tripMapImageAlt, tripMapImageCaption,
         statusRibbon, groupSize, maxAltitude,
         tripHighlights, departureNote, goodToKnow, extraFAQs,
-        relatedTrip, itineraryTitle, status ? 1 : 0, featured ? 1 : 0, req.body.pageType || 'default',
+        relatedTrip, itineraryTitle, status ? 1 : 0, featured ? 1 : 0, isBestselling ? 1 : 0, req.body.pageType || 'default',
         now, id
       ]
     );
@@ -2258,13 +2265,17 @@ app.delete('/api/teams/:id/permanent', async (req, res) => {
 
 // Get all active blogs
 app.get('/api/blogs', async (req, res) => {
-  const { isFeatured } = req.query;
+  const { isFeatured, isBestselling } = req.query;
   try {
     let query = 'SELECT * FROM blogs WHERE deletedAt IS NULL';
     const params = [];
     if (isFeatured !== undefined) {
       query += ' AND isFeatured = ?';
       params.push(isFeatured);
+    }
+    if (isBestselling !== undefined) {
+      query += ' AND isBestselling = ?';
+      params.push(isBestselling);
     }
     query += ' ORDER BY createdAt DESC';
     const blogs = await allAsync(query, params);
@@ -2311,7 +2322,7 @@ app.get('/api/blogs/:idOrSlug', async (req, res) => {
 app.post('/api/blogs', async (req, res) => {
   const {
     title, urlTitle, slug, authorId, publishedDate,
-    status, isFeatured, abstract, description,
+    status, isFeatured, isBestselling, abstract, description,
     metaTitle, metaKeywords, metaDescription,
     featuredImage, featuredImageAlt, featuredImageCaption,
     bannerImage, bannerImageAlt, bannerImageCaption
@@ -2335,16 +2346,16 @@ app.post('/api/blogs', async (req, res) => {
     const result = await runAsync(
       `INSERT INTO blogs (
         title, urlTitle, slug, authorId, publishedDate,
-        status, isFeatured, abstract, description,
+        status, isFeatured, isBestselling, abstract, description,
         metaTitle, metaKeywords, metaDescription,
         featuredImage, featuredImageAlt, featuredImageCaption,
         bannerImage, bannerImageAlt, bannerImageCaption,
         pageType,
         createdAt, updatedAt
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         title, urlTitle, slug, authorId || null, publishedDate,
-        status ? 1 : 0, isFeatured ? 1 : 0, abstract, description,
+        status ? 1 : 0, isFeatured ? 1 : 0, isBestselling ? 1 : 0, abstract, description,
         metaTitle, metaKeywords, metaDescription,
         featuredImage, featuredImageAlt, featuredImageCaption,
         bannerImage, bannerImageAlt, bannerImageCaption,
@@ -2369,7 +2380,7 @@ app.put('/api/blogs/:id', async (req, res) => {
   const { id } = req.params;
   const {
     title, urlTitle, slug, authorId, publishedDate,
-    status, isFeatured, abstract, description,
+    status, isFeatured, isBestselling, abstract, description,
     metaTitle, metaKeywords, metaDescription,
     featuredImage, featuredImageAlt, featuredImageCaption,
     bannerImage, bannerImageAlt, bannerImageCaption
@@ -2404,7 +2415,7 @@ app.put('/api/blogs/:id', async (req, res) => {
     await runAsync(
       `UPDATE blogs SET
         title = ?, urlTitle = ?, slug = ?, authorId = ?, publishedDate = ?,
-        status = ?, isFeatured = ?, abstract = ?, description = ?,
+        status = ?, isFeatured = ?, isBestselling = ?, abstract = ?, description = ?,
         metaTitle = ?, metaKeywords = ?, metaDescription = ?,
         featuredImage = ?, featuredImageAlt = ?, featuredImageCaption = ?,
         bannerImage = ?, bannerImageAlt = ?, bannerImageCaption = ?,
@@ -2413,7 +2424,7 @@ app.put('/api/blogs/:id', async (req, res) => {
       WHERE id = ?`,
       [
         title, urlTitle, slug, authorId || null, publishedDate,
-        status ? 1 : 0, isFeatured ? 1 : 0, abstract, description,
+        status ? 1 : 0, isFeatured ? 1 : 0, isBestselling ? 1 : 0, abstract, description,
         metaTitle, metaKeywords, metaDescription,
         featuredImage, featuredImageAlt, featuredImageCaption,
         bannerImage, bannerImageAlt, bannerImageCaption,
@@ -2517,7 +2528,7 @@ app.post('/api/blogs/bulk-delete-permanent', async (req, res) => {
 app.post('/api/testimonials', async (req, res) => {
   const {
     reviewTitle, urlTitle, slug, fullName, address, packageId, teamId, date, credit, rating,
-    status, isFeatured, description, metaTitle, metaKeywords, metaDescription,
+    status, isFeatured, isBestselling, description, metaTitle, metaKeywords, metaDescription,
     avatar, avatarAlt, avatarCaption
   } = req.body;
 
@@ -2537,12 +2548,12 @@ app.post('/api/testimonials', async (req, res) => {
     const result = await runAsync(
       `INSERT INTO testimonials (
         reviewTitle, urlTitle, slug, fullName, address, packageId, teamId, date, credit, rating,
-        status, isFeatured, description, metaTitle, metaKeywords, metaDescription,
+        status, isFeatured, isBestselling, description, metaTitle, metaKeywords, metaDescription,
         avatar, avatarAlt, avatarCaption, createdAt, updatedAt
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         reviewTitle, urlTitle, slug, fullName, address, packageId || null, teamId || null, date, credit, rating,
-        status ? 1 : 0, isFeatured ? 1 : 0, description, metaTitle, metaKeywords, metaDescription,
+        status ? 1 : 0, isFeatured ? 1 : 0, isBestselling ? 1 : 0, description, metaTitle, metaKeywords, metaDescription,
         avatar, avatarAlt, avatarCaption, now, now
       ]
     );
@@ -2560,13 +2571,17 @@ app.post('/api/testimonials', async (req, res) => {
 
 // Get all testimonials (exclude deleted)
 app.get('/api/testimonials', async (req, res) => {
-  const { isFeatured } = req.query;
+  const { isFeatured, isBestselling } = req.query;
   try {
     let query = 'SELECT * FROM testimonials WHERE deletedAt IS NULL';
     const params = [];
     if (isFeatured !== undefined) {
       query += ' AND isFeatured = ?';
       params.push(isFeatured);
+    }
+    if (isBestselling !== undefined) {
+      query += ' AND isBestselling = ?';
+      params.push(isBestselling);
     }
     query += ' ORDER BY createdAt DESC';
     const testimonials = await allAsync(query, params);
@@ -2597,7 +2612,7 @@ app.put('/api/testimonials/:id', async (req, res) => {
   const { id } = req.params;
   const {
     reviewTitle, urlTitle, slug, fullName, address, packageId, teamId, date, credit, rating,
-    status, isFeatured, description, metaTitle, metaKeywords, metaDescription,
+    status, isFeatured, isBestselling, description, metaTitle, metaKeywords, metaDescription,
     avatar, avatarAlt, avatarCaption
   } = req.body;
 
@@ -2625,12 +2640,12 @@ app.put('/api/testimonials/:id', async (req, res) => {
     await runAsync(
       `UPDATE testimonials SET
         reviewTitle = ?, urlTitle = ?, slug = ?, fullName = ?, address = ?, packageId = ?, teamId = ?, date = ?, credit = ?, rating = ?,
-        status = ?, isFeatured = ?, description = ?, metaTitle = ?, metaKeywords = ?, metaDescription = ?,
+        status = ?, isFeatured = ?, isBestselling = ?, description = ?, metaTitle = ?, metaKeywords = ?, metaDescription = ?,
         avatar = ?, avatarAlt = ?, avatarCaption = ?, updatedAt = ?
       WHERE id = ?`,
       [
         reviewTitle, urlTitle, slug, fullName, address, packageId || null, teamId || null, date, credit, rating,
-        status ? 1 : 0, isFeatured ? 1 : 0, description, metaTitle, metaKeywords, metaDescription,
+        status ? 1 : 0, isFeatured ? 1 : 0, isBestselling ? 1 : 0, description, metaTitle, metaKeywords, metaDescription,
         avatar, avatarAlt, avatarCaption, now, id
       ]
     );

@@ -12,6 +12,7 @@ export interface Package {
   defaultPrice: number;
   featuredImage: string;
   featured: number;
+  isBestselling?: number;
   carouselOrder?: number;
   description?: string;
   testimonials?: any[];
@@ -29,6 +30,7 @@ export interface Blog {
     publishedDate: string;
     featuredImage: string;
     isFeatured: number;
+    isBestselling?: number;
     carouselOrder?: number;
 }
 
@@ -40,6 +42,7 @@ export interface Testimonial {
     description: string; // HTML content
     avatar: string;
     isFeatured: number;
+    isBestselling?: number;
     address: string;
     carouselOrder?: number;
 }
@@ -96,6 +99,27 @@ export const fetchFeaturedPackages = async (): Promise<Package[]> => {
     return [];
 };
 
+// Fetch bestselling packages (build‑time only)
+export const fetchBestsellingPackages = async (): Promise<Package[]> => {
+    const res = await fetch(`${BASE_URL}/packages?isBestselling=1`, { cache: 'force-cache' });
+    const data = await res.json();
+    if (data.success && Array.isArray(data.packages)) {
+        const packages = data.packages.slice(0, 6).map((pkg: any) => {
+            if (typeof pkg.tripFacts === 'string') {
+                try {
+                    pkg.tripFacts = JSON.parse(pkg.tripFacts);
+                } catch (e) {
+                    console.error('Failed to parse tripFacts for package', pkg.id, e);
+                    pkg.tripFacts = {} as Record<string, string | null>;
+                }
+            }
+            return pkg as Package;
+        });
+        return packages;
+    }
+    return [];
+};
+
 // Fetch featured blogs (build‑time only)
 export const fetchFeaturedBlogs = async (): Promise<Blog[]> => {
     const res = await fetch(`${BASE_URL}/blogs?isFeatured=1`, { cache: 'force-cache' });
@@ -120,6 +144,26 @@ export const fetchFeaturedPlaces = async (): Promise<Place[]> => {
 export const fetchFeaturedTestimonials = async (): Promise<Testimonial[]> => {
     const res = await fetch(`${BASE_URL}/testimonials?isFeatured=1`, { cache: 'force-cache' });
     const data = await res.json();
+    if (Array.isArray(data)) {
+        return data.slice(0, 3);
+    }
+    return [];
+};
+
+// Fetch bestselling testimonials (build‑time only)
+export const fetchBestsellingTestimonials = async (): Promise<Testimonial[]> => {
+  const res = await fetch(`${BASE_URL}/testimonials?isBestselling=1`, { cache: 'force-cache' });
+  const data = await res.json();
+    if (Array.isArray(data)) {
+        return data.slice(0, 3);
+    }
+    return [];
+};
+
+// Fetch bestselling blogs (build‑time only)
+export const fetchBestsellingBlogs = async (): Promise<Blog[]> => {
+  const res = await fetch(`${BASE_URL}/blogs?isBestselling=1`, { cache: 'force-cache' });
+  const data = await res.json();
     if (Array.isArray(data)) {
         return data.slice(0, 3);
     }
