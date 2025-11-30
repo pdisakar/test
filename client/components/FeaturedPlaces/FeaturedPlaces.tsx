@@ -1,13 +1,16 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { fetchFeaturedPlaces } from '@/lib/api';
+import { IMAGE_URL } from '@/lib/constants';
 
 export const FeaturedPlaces = async () => {
     const places = await fetchFeaturedPlaces();
+    console.log(places);
+
 
 
     return (
-        <section className="py-16 bg-gray-50 dark:bg-gray-900">
+        <section className="py-16">
             <div className="container mx-auto px-4">
                 <div className="text-center mb-12">
                     <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
@@ -26,7 +29,7 @@ export const FeaturedPlaces = async () => {
                             className="group relative overflow-hidden rounded-2xl aspect-[4/3] block"
                         >
                             <Image
-                                src={place.featuredImage || '/placeholder-place.jpg'}
+                                src={place.featuredImage ? `${IMAGE_URL}${place.featuredImage}` : '/placeholder.jpg'}
                                 alt={place.featuredImageAlt || place.title}
                                 fill
                                 className="object-cover transition-transform duration-500 group-hover:scale-110"

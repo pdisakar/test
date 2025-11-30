@@ -12,12 +12,9 @@ export default function Home() {
     <div className="">
 
       <main className="flex-1">
-        {/* Hero Section */}
         <HeroSection />
-        {/* Featured Packages */}
-        <FeaturedPackages />
-        {/* Featured Places */}
         <FeaturedPlaces />
+        <FeaturedPackages />
       </main>
     </div>
   );

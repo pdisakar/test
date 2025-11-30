@@ -6,8 +6,6 @@ import { IMAGE_URL } from '@/lib/constants';
 export default async function FeaturedPackages() {
     const packages: Package[] = await fetchFeaturedPackages();
 
-    console.log(packages);
-
 
     return (
         <section className="py-12">
