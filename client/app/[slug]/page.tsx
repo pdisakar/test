@@ -55,14 +55,14 @@ export default function DynamicPage() {
 
     return (
         <>
-            <Header />
+
             <main className="">
                 {data.datatype === 'place' && <Places content={data.content} />}
                 {data.datatype === 'package' && <Package content={data.content} />}
                 {data.datatype === 'article' && <Article content={data.content} />}
                 {data.datatype === 'blog' && <Blog content={data.content} />}
             </main>
-            <Footer />
+
         </>
     );
 }

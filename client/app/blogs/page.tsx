@@ -32,7 +32,7 @@ export default function BlogsPage() {
 
     return (
         <div className="min-h-screen bg-white flex flex-col">
-            <Header />
+          
 
 
             <main className="flex-1">
@@ -98,7 +98,7 @@ export default function BlogsPage() {
                 </div>
             </main>
 
-            <Footer />
+    
         </div>
     );
 }

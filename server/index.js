@@ -2797,7 +2797,7 @@ app.post('/api/testimonials/bulk-delete-permanent', async (req, res) => {
 // Get all menus
 app.get('/api/menus', async (req, res) => {
   try {
-    const menus = await allAsync('SELECT * FROM menus WHERE deletedAt IS NULL ORDER BY type, displayOrder, createdAt');
+    const menus = await allAsync("SELECT * FROM menus WHERE deletedAt IS NULL AND (urlSegmentType != 'package' OR urlSegmentType IS NULL) ORDER BY displayOrder, createdAt");
     res.status(200).json(menus);
   } catch (err) {
     console.error('Error fetching menus:', err);
@@ -2809,10 +2809,10 @@ app.get('/api/menus', async (req, res) => {
 app.get('/api/menus/type/:type', async (req, res) => {
   const { type } = req.params;
   try {
-    const menus = await allAsync('SELECT * FROM menus WHERE type = ? AND status = 1 AND deletedAt IS NULL ORDER BY displayOrder, createdAt', [type]);
+    const menus = await allAsync("SELECT * FROM menus WHERE type = ? AND status = 1 AND deletedAt IS NULL AND (urlSegmentType != 'package' OR urlSegmentType IS NULL) ORDER BY displayOrder, createdAt", [type]);
     
     // Build hierarchical structure
-    const buildTree = (items) => {
+    const buildTree = (items, packagesByPlace) => {
       const itemMap = new Map();
       const roots = [];
 
@@ -2824,6 +2824,23 @@ app.get('/api/menus/type/:type', async (req, res) => {
       // Second pass: build tree structure
       items.forEach(item => {
         const node = itemMap.get(item.id);
+        
+        // Dynamic Package Injection: If this is a Place menu item, add its packages
+        if (item.urlSegmentType === 'place' && item.urlSegmentId) {
+          const placePackages = packagesByPlace[item.urlSegmentId] || [];
+          placePackages.forEach(pkg => {
+            node.children.push({
+              id: `pkg-${pkg.id}`, // specific ID format to avoid collision
+              title: pkg.title,
+              url: `/package/${pkg.slug}`, // Assuming package URL structure
+              type: item.type,
+              parentId: item.id,
+              children: [], // Packages don't have children for now
+              isDynamic: true // Flag to identify dynamic items
+            });
+          });
+        }
+
         if (item.parentId === null || item.parentId === 0) {
           roots.push(node);
         } else {
@@ -2837,7 +2854,24 @@ app.get('/api/menus/type/:type', async (req, res) => {
       return roots;
     };
 
-    const tree = buildTree(menus);
+    // Fetch all packages linked to places
+    const packages = await allAsync(`
+      SELECT p.id, p.title, p.slug, pp.placeId 
+      FROM packages p 
+      JOIN package_places pp ON p.id = pp.packageId 
+      WHERE p.status = 1 AND p.deletedAt IS NULL
+    `);
+
+    // Group packages by placeId
+    const packagesByPlace = {};
+    packages.forEach(pkg => {
+      if (!packagesByPlace[pkg.placeId]) {
+        packagesByPlace[pkg.placeId] = [];
+      }
+      packagesByPlace[pkg.placeId].push(pkg);
+    });
+
+    const tree = buildTree(menus, packagesByPlace);
     res.status(200).json(tree);
   } catch (err) {
     console.error('Error fetching menus by type:', err);

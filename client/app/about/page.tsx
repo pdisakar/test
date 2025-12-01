@@ -9,7 +9,7 @@ import { MapPin, Phone, Mail, Globe } from 'lucide-react';
 export default function AboutPage() {
     return (
         <div className="min-h-screen bg-white flex flex-col">
-            <Header />
+        
 
 
             <main className="flex-1">
@@ -110,8 +110,6 @@ export default function AboutPage() {
                     </div>
                 </div>
             </main>
-
-            <Footer />
         </div>
     );
 }
