@@ -2810,7 +2810,35 @@ app.get('/api/menus/type/:type', async (req, res) => {
   const { type } = req.params;
   try {
     const menus = await allAsync('SELECT * FROM menus WHERE type = ? AND status = 1 AND deletedAt IS NULL ORDER BY displayOrder, createdAt', [type]);
-    res.status(200).json(menus);
+    
+    // Build hierarchical structure
+    const buildTree = (items) => {
+      const itemMap = new Map();
+      const roots = [];
+
+      // First pass: create map of all items with children array
+      items.forEach(item => {
+        itemMap.set(item.id, { ...item, children: [] });
+      });
+
+      // Second pass: build tree structure
+      items.forEach(item => {
+        const node = itemMap.get(item.id);
+        if (item.parentId === null || item.parentId === 0) {
+          roots.push(node);
+        } else {
+          const parent = itemMap.get(item.parentId);
+          if (parent) {
+            parent.children.push(node);
+          }
+        }
+      });
+
+      return roots;
+    };
+
+    const tree = buildTree(menus);
+    res.status(200).json(tree);
   } catch (err) {
     console.error('Error fetching menus by type:', err);
     res.status(500).json({ success: false, message: 'Server error' });

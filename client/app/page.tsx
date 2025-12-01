@@ -5,16 +5,18 @@ import BestsellingPackages from '@/components/BestsellingPackages/BestsellingPac
 import { FeaturedPlaces } from '@/components/FeaturedPlaces/FeaturedPlaces';
 import BestsellingTestimonials from '@/components/BestsellingTestimonials/BestsellingTestimonials';
 import BestsellingBlogs from '@/components/BestsellingBlogs/BestsellingBlogs';
+import Footer from '@/components/Footer/Footer';
+import Header from '@/components/Header/Header';
 
 // Types imported from lib/api.ts
 
-export default function Home() {
+export default async function Home() {
 
 
   return (
-    <div className="">
-
-      <main className="flex-1">
+    <div>
+      <Header />
+      <main className="min-h-screen">
         <HeroSection />
         <FeaturedPlaces />
         <FeaturedPackages />
@@ -22,6 +24,7 @@ export default function Home() {
         <BestsellingTestimonials />
         <BestsellingBlogs />
       </main>
+      <Footer />
     </div>
   );
 }

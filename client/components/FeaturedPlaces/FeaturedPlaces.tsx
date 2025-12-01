@@ -5,7 +5,6 @@ import { IMAGE_URL } from '@/lib/constants';
 
 export const FeaturedPlaces = async () => {
     const places = await fetchFeaturedPlaces();
-    console.log(places);
 
 
 

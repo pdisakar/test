@@ -1,13 +1,15 @@
 'use client';
 
 
-import { PublicFooter } from '@/components/PublicFooter';
+import Footer from '@/components/Footer/Footer';
+import Header from '@/components/Header/Header';
 import { MapPin, Phone, Mail, Globe } from 'lucide-react';
 
 
 export default function AboutPage() {
     return (
         <div className="min-h-screen bg-white flex flex-col">
+            <Header />
 
 
             <main className="flex-1">
@@ -109,7 +111,7 @@ export default function AboutPage() {
                 </div>
             </main>
 
-            <PublicFooter />
+            <Footer />
         </div>
     );
 }

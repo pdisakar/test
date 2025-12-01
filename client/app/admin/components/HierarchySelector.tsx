@@ -89,6 +89,7 @@ export const HierarchySelector: React.FC<HierarchySelectorProps> = ({
                 >
                     {hasChildren ? (
                         <button
+                            type="button"
                             onClick={(e) => toggleExpand(e, node.id)}
                             className="p-1 mr-1 hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition-colors"
                         >

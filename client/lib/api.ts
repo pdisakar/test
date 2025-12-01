@@ -240,6 +240,15 @@ export const fetchHeaderMenu = async (): Promise<MenuItem[]> => {
     return res.json();
 };
 
+// Fetch footer menu items (build‑time only)
+export const fetchFooterMenu = async (): Promise<MenuItem[]> => {
+    const res = await fetch(`${BASE_URL}/menus/type/footer`, { cache: 'force-cache' });
+    if (!res.ok) {
+        throw new Error('Failed to fetch menus');
+    }
+    return res.json();
+};
+
 // Generic API fetch helper (still dynamic when used directly)
 export const fetchGlobalData = async (): Promise<any> => {
     const res = await fetch(`${BASE_URL}/GlobalData`, { cache: 'force-cache' });

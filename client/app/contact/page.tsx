@@ -1,7 +1,8 @@
 'use client';
 
 
-import { PublicFooter } from '@/components/PublicFooter';
+import Footer from '@/components/Footer/Footer';
+import Header from '@/components/Header/Header';
 import { MapPin, Phone, Mail, Clock } from 'lucide-react';
 import { useState } from 'react';
 
@@ -32,6 +33,7 @@ export default function ContactPage() {
 
     return (
         <div className="min-h-screen bg-white flex flex-col">
+            <Header />
 
 
             <main className="flex-1">
@@ -209,7 +211,7 @@ export default function ContactPage() {
                 </div>
             </main>
 
-            <PublicFooter />
+            <Footer />
         </div>
     );
 }
