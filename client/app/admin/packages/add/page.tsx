@@ -1164,6 +1164,20 @@ export default function AddPackagePage() {
                       />
                     </div>
                     <div>
+                      <label htmlFor="metaKeywords" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Meta Keywords
+                      </label>
+                      <input
+                        type="text"
+                        id="metaKeywords"
+                        name="metaKeywords"
+                        value={formData.metaKeywords || ''}
+                        onChange={handleInputChange}
+                        className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                        placeholder="keyword1, keyword2, keyword3"
+                      />
+                    </div>
+                    <div>
                       <label htmlFor="metaDescription" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                         Meta Description
                       </label>
