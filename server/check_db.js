@@ -1,12 +1,13 @@
-const { allAsync } = require('./db');
+const sqlite3 = require('sqlite3').verbose();
+const path = require('path');
 
-(async () => {
-  try {
-    // Wait a bit for db init if needed (though requiring db.js triggers it)
-    await new Promise(r => setTimeout(r, 500));
-    const users = await allAsync('SELECT * FROM users');
-    console.log('Users found:', users);
-  } catch (err) {
-    console.error('Error checking DB:', err);
+const dbPath = path.join(__dirname, 'data', 'users.db');
+const db = new sqlite3.Database(dbPath);
+
+db.all("PRAGMA table_info(articles)", (err, rows) => {
+  if (err) {
+    console.error(err);
+    return;
   }
-})();
+  console.log(JSON.stringify(rows, null, 2));
+});

@@ -151,7 +151,7 @@ export const fetchFeaturedTestimonials = async (): Promise<Testimonial[]> => {
 };
 
 export async function fetchHomeContent() {
-  const res = await fetch(`${BASE_URL}/api/homecontent`, {
+  const res = await fetch(`${BASE_URL}/homecontent`, {
     cache: 'no-store', // Dynamic content
   });
   if (!res.ok) return null;

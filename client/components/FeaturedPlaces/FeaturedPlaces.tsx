@@ -4,11 +4,7 @@ import { fetchFeaturedPlaces } from '@/lib/api';
 import { IMAGE_URL } from '@/lib/constants';
 
 export const FeaturedPlaces = async () => {
-    const places = await fetchFeaturedPlaces();
-
-
-
-    return (
+    const places = await fetchFeaturedPlaces();    return (
         <section className="py-16">
             <div className="container mx-auto px-4">
                 <div className="text-center mb-12">

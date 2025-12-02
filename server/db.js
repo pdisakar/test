@@ -50,6 +50,8 @@ const init = () => {
       bannerImage TEXT,
       bannerImageAlt TEXT,
       bannerImageCaption TEXT,
+      content TEXT,
+      pageType TEXT DEFAULT 'default',
       status INTEGER DEFAULT 0,
       deletedAt TEXT,
       createdAt TEXT NOT NULL,
@@ -461,6 +463,25 @@ const init = () => {
     if (err) console.error('Error creating hero_sections table:', err);
     else console.log('Hero sections table ready');
   });
+
+  // Migration: Add missing columns to articles table
+  const migrateArticles = () => {
+    const columns = [
+      { name: 'content', type: 'TEXT' },
+      { name: 'pageType', type: "TEXT DEFAULT 'default'" }
+    ];
+    
+    columns.forEach(col => {
+      db.run(`ALTER TABLE articles ADD COLUMN ${col.name} ${col.type}`, (err) => {
+        // Ignore error if column already exists
+        if (!err) {
+          console.log(`Added column ${col.name} to articles table`);
+        }
+      });
+    });
+  };
+  
+  migrateArticles();
 };
 
 init();

@@ -411,8 +411,8 @@ app.post('/api/homecontent', async (req, res) => {
       );
     } else {
       await runAsync(
-        'INSERT INTO articles (title, slug, content, bannerImage, status, createdAt, updatedAt) VALUES (?, ?, ?, ?, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)',
-        ['Home Content', 'home-content', content, bannerImage]
+        'INSERT INTO articles (title, urlTitle, slug, content, bannerImage, status, createdAt, updatedAt) VALUES (?, ?, ?, ?, ?, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)',
+        ['Home Content', 'Home Content', 'home-content', content, bannerImage]
       );
     }
     

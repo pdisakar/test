@@ -75,7 +75,7 @@ export function Sidebar({ className, isCollapsed, isMobileOpen, onMobileClose }:
           title: "Articles",
           icon: FileText,
           sub: [
-            { label: "Home Contant", href: "/admin/articles/homecontent" },
+            { label: "Home Contant", href: "/admin/articles/homepagecontent" },
             { label: "Add New", href: "/admin/articles/add" },
             { label: "All Articles", href: "/admin/articles" },
             { label: "Deleted Articles", href: "/admin/articles/trash" }
