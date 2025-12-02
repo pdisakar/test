@@ -40,7 +40,6 @@ export default function AddTestimonialPage() {
         rating: 5,
         status: false,
         isFeatured: false,
-        isBestselling: false,
         description: '',
         metaTitle: '',
         metaKeywords: '',
@@ -125,7 +124,6 @@ export default function AddTestimonialPage() {
             rating: 5,
             status: false,
             isFeatured: false,
-            isBestselling: false,
             description: '',
             metaTitle: '',
             metaKeywords: '',
@@ -189,7 +187,6 @@ export default function AddTestimonialPage() {
                 rating: parseInt(formData.rating.toString()),
                 status: formData.status ? 1 : 0,
                 isFeatured: formData.isFeatured ? 1 : 0,
-                isBestselling: formData.isBestselling ? 1 : 0,
             };
 
             const res = await fetch('http://localhost:3001/api/testimonials', {
@@ -439,19 +436,6 @@ export default function AddTestimonialPage() {
                                                 />
                                                 <span className="text-sm text-gray-600 dark:text-gray-400 dark:text-gray-500">
                                                     {formData.isFeatured ? 'Featured' : 'Not Featured'}
-                                                </span>
-                                            </div>
-                                        </div>
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Bestselling</label>
-                                            <div className="flex items-center gap-3 h-[42px]">
-                                                <Switch
-                                                    checked={formData.isBestselling}
-                                                    onCheckedChange={(checked) => setFormData(prev => ({ ...prev, isBestselling: checked }))}
-                                                    disabled={loading}
-                                                />
-                                                <span className="text-sm text-gray-600 dark:text-gray-400 dark:text-gray-500">
-                                                    {formData.isBestselling ? 'Bestselling' : 'Not Bestselling'}
                                                 </span>
                                             </div>
                                         </div>

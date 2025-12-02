@@ -2861,7 +2861,7 @@ app.post('/api/blogs/bulk-delete-permanent', async (req, res) => {
 app.post('/api/testimonials', async (req, res) => {
   const {
     reviewTitle, urlTitle, slug, fullName, address, packageId, teamId, date, credit, rating,
-    status, isFeatured, isBestselling, description, metaTitle, metaKeywords, metaDescription,
+    status, isFeatured, description, metaTitle, metaKeywords, metaDescription,
     avatar, avatarAlt, avatarCaption
   } = req.body;
 
@@ -2881,12 +2881,12 @@ app.post('/api/testimonials', async (req, res) => {
     const result = await runAsync(
       `INSERT INTO testimonials (
         reviewTitle, urlTitle, slug, fullName, address, packageId, teamId, date, credit, rating,
-        status, isFeatured, isBestselling, description, metaTitle, metaKeywords, metaDescription,
+        status, isFeatured, description, metaTitle, metaKeywords, metaDescription,
         avatar, avatarAlt, avatarCaption, createdAt, updatedAt
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         reviewTitle, urlTitle, slug, fullName, address, packageId || null, teamId || null, date, credit, rating,
-        status ? 1 : 0, isFeatured ? 1 : 0, isBestselling ? 1 : 0, description, 
+        status ? 1 : 0, isFeatured ? 1 : 0, description, 
         req.body.meta?.title || metaTitle, 
         req.body.meta?.keywords || metaKeywords, 
         req.body.meta?.description || metaDescription,
@@ -2907,17 +2907,13 @@ app.post('/api/testimonials', async (req, res) => {
 
 // Get all testimonials (exclude deleted)
 app.get('/api/testimonials', async (req, res) => {
-  const { isFeatured, isBestselling } = req.query;
+  const { isFeatured } = req.query;
   try {
     let query = 'SELECT * FROM testimonials WHERE deletedAt IS NULL';
     const params = [];
     if (isFeatured !== undefined) {
       query += ' AND isFeatured = ?';
       params.push(isFeatured);
-    }
-    if (isBestselling !== undefined) {
-      query += ' AND isBestselling = ?';
-      params.push(isBestselling);
     }
     query += ' ORDER BY createdAt DESC';
     const testimonials = await allAsync(query, params);
@@ -2970,7 +2966,7 @@ app.put('/api/testimonials/:id', async (req, res) => {
   const { id } = req.params;
   const {
     reviewTitle, urlTitle, slug, fullName, address, packageId, teamId, date, credit, rating,
-    status, isFeatured, isBestselling, description, metaTitle, metaKeywords, metaDescription,
+    status, isFeatured, description, metaTitle, metaKeywords, metaDescription,
     avatar, avatarAlt, avatarCaption
   } = req.body;
 
@@ -2998,12 +2994,12 @@ app.put('/api/testimonials/:id', async (req, res) => {
     await runAsync(
       `UPDATE testimonials SET
         reviewTitle = ?, urlTitle = ?, slug = ?, fullName = ?, address = ?, packageId = ?, teamId = ?, date = ?, credit = ?, rating = ?,
-        status = ?, isFeatured = ?, isBestselling = ?, description = ?, metaTitle = ?, metaKeywords = ?, metaDescription = ?,
+        status = ?, isFeatured = ?, description = ?, metaTitle = ?, metaKeywords = ?, metaDescription = ?,
         avatar = ?, avatarAlt = ?, avatarCaption = ?, updatedAt = ?
       WHERE id = ?`,
       [
         reviewTitle, urlTitle, slug, fullName, address, packageId || null, teamId || null, date, credit, rating,
-        status ? 1 : 0, isFeatured ? 1 : 0, isBestselling ? 1 : 0, description, 
+        status ? 1 : 0, isFeatured ? 1 : 0, description, 
         req.body.meta?.title || metaTitle, 
         req.body.meta?.keywords || metaKeywords, 
         req.body.meta?.description || metaDescription,

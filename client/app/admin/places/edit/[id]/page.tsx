@@ -63,6 +63,8 @@ export default function EditPlacePage() {
     const [showAccordion, setShowAccordion] = useState(false);
     const [expandedParents, setExpandedParents] = useState<Set<number>>(new Set());
     const [parentOptions, setParentOptions] = useState<Place[]>([]);
+    const [initialRichTextImages, setInitialRichTextImages] = useState<string[]>([]);
+
 
     useEffect(() => {
         const token = localStorage.getItem('authToken');
@@ -301,6 +303,9 @@ export default function EditPlacePage() {
                 bannerImageUrl = await uploadImage(formData.bannerImageUrl, 'banner');
             }
 
+            // Process rich text content images
+            const processedDescription = await processContentImages(formData.description);
+
             const payload = {
                 title: formData.title,
                 urlTitle: formData.urlTitle,
@@ -311,7 +316,7 @@ export default function EditPlacePage() {
                     keywords: formData.metaKeywords,
                     description: formData.metaDescription
                 },
-                description: formData.description,
+                description: processedDescription,
                 featuredImage: featuredImageUrl,
                 featuredImageAlt: formData.featuredImageAlt,
                 featuredImageCaption: formData.featuredImageCaption,
@@ -336,8 +341,7 @@ export default function EditPlacePage() {
             }
 
             // Perform cleanup of unused images
-            const finalImages = extractImagePaths(processedDescription);
-            await cleanupUnusedImages(initialRichTextImages, finalImages);
+            await cleanupUnusedImages(initialRichTextImages, [processedDescription]);
 
             setShowSuccessModal(true);
         } catch (err: any) {
