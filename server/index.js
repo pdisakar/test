@@ -2565,17 +2565,13 @@ app.delete('/api/teams/:id/permanent', async (req, res) => {
 
 // Get all active blogs
 app.get('/api/blogs', async (req, res) => {
-  const { isFeatured, isBestselling } = req.query;
+  const { isFeatured } = req.query;
   try {
     let query = 'SELECT * FROM blogs WHERE deletedAt IS NULL';
     const params = [];
     if (isFeatured !== undefined) {
       query += ' AND isFeatured = ?';
       params.push(isFeatured);
-    }
-    if (isBestselling !== undefined) {
-      query += ' AND isBestselling = ?';
-      params.push(isBestselling);
     }
     query += ' ORDER BY createdAt DESC';
     const blogs = await allAsync(query, params);
@@ -2655,7 +2651,7 @@ app.get('/api/blogs/:idOrSlug', async (req, res) => {
 app.post('/api/blogs', async (req, res) => {
   const {
     title, urlTitle, slug, authorId, publishedDate,
-    status, isFeatured, isBestselling, abstract, description,
+    status, isFeatured, abstract, description,
     metaTitle, metaKeywords, metaDescription,
     featuredImage, featuredImageAlt, featuredImageCaption,
     bannerImage, bannerImageAlt, bannerImageCaption
@@ -2679,16 +2675,16 @@ app.post('/api/blogs', async (req, res) => {
     const result = await runAsync(
       `INSERT INTO blogs (
         title, urlTitle, slug, authorId, publishedDate,
-        status, isFeatured, isBestselling, abstract, description,
+        status, isFeatured, abstract, description,
         metaTitle, metaKeywords, metaDescription,
         featuredImage, featuredImageAlt, featuredImageCaption,
         bannerImage, bannerImageAlt, bannerImageCaption,
         pageType,
         createdAt, updatedAt
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         title, urlTitle, slug, authorId || null, publishedDate,
-        status ? 1 : 0, isFeatured ? 1 : 0, isBestselling ? 1 : 0, abstract, description,
+        status ? 1 : 0, isFeatured ? 1 : 0, abstract, description,
         req.body.meta?.title || metaTitle, 
         req.body.meta?.keywords || metaKeywords, 
         req.body.meta?.description || metaDescription,
@@ -2715,7 +2711,7 @@ app.put('/api/blogs/:id', async (req, res) => {
   const { id } = req.params;
   const {
     title, urlTitle, slug, authorId, publishedDate,
-    status, isFeatured, isBestselling, abstract, description,
+    status, isFeatured, abstract, description,
     metaTitle, metaKeywords, metaDescription,
     featuredImage, featuredImageAlt, featuredImageCaption,
     bannerImage, bannerImageAlt, bannerImageCaption
@@ -2750,7 +2746,7 @@ app.put('/api/blogs/:id', async (req, res) => {
     await runAsync(
       `UPDATE blogs SET
         title = ?, urlTitle = ?, slug = ?, authorId = ?, publishedDate = ?,
-        status = ?, isFeatured = ?, isBestselling = ?, abstract = ?, description = ?,
+        status = ?, isFeatured = ?, abstract = ?, description = ?,
         metaTitle = ?, metaKeywords = ?, metaDescription = ?,
         featuredImage = ?, featuredImageAlt = ?, featuredImageCaption = ?,
         bannerImage = ?, bannerImageAlt = ?, bannerImageCaption = ?,
@@ -2759,7 +2755,7 @@ app.put('/api/blogs/:id', async (req, res) => {
       WHERE id = ?`,
       [
         title, urlTitle, slug, authorId || null, publishedDate,
-        status ? 1 : 0, isFeatured ? 1 : 0, isBestselling ? 1 : 0, abstract, description,
+        status ? 1 : 0, isFeatured ? 1 : 0, abstract, description,
         req.body.meta?.title || metaTitle, 
         req.body.meta?.keywords || metaKeywords, 
         req.body.meta?.description || metaDescription,
@@ -3728,10 +3724,6 @@ app.get('/api/hero', async (req, res) => {
 // Update hero section
 app.post('/api/hero', async (req, res) => {
   const { image, title, subtitle } = req.body;
-
-  if (!image) {
-    return res.status(400).json({ success: false, message: 'Image is required' });
-  }
 
   try {
     const existing = await getAsync('SELECT id FROM hero_sections ORDER BY id ASC LIMIT 1');

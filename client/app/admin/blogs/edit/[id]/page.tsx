@@ -38,7 +38,7 @@ export default function EditBlogPage() {
     publishedDate: new Date(),
     status: false,
     isFeatured: false,
-    isBestselling: false,
+
     abstract: '',
     description: '',
     metaTitle: '',
@@ -106,7 +106,7 @@ export default function EditBlogPage() {
         publishedDate: blog.publishedDate ? new Date(blog.publishedDate) : new Date(),
         status: Boolean(blog.status === 1 || blog.status === true),
         isFeatured: Boolean(blog.isFeatured === 1 || blog.isFeatured === true),
-        isBestselling: Boolean(blog.isBestselling === 1 || blog.isBestselling === true),
+
         abstract: blog.abstract || '',
         description: blog.description || '',
         metaTitle: blog.meta?.title || '',
@@ -216,7 +216,7 @@ export default function EditBlogPage() {
         bannerImageCaption: formData.bannerImageCaption,
         status: formData.status ? 1 : 0,
         isFeatured: formData.isFeatured ? 1 : 0,
-        isBestselling: formData.isBestselling ? 1 : 0,
+
         pageType: formData.pageType,
       };
 
@@ -404,20 +404,7 @@ export default function EditBlogPage() {
                     </div>
                   </div>
 
-                  {/* Is Bestselling */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Is Bestselling?</label>
-                    <div className="flex items-center gap-3 h-[42px]">
-                      <Switch
-                        checked={formData.isBestselling}
-                        onCheckedChange={(checked) => setFormData({ ...formData, isBestselling: checked })}
-                        disabled={saving}
-                      />
-                      <span className="text-sm text-gray-600 dark:text-gray-400 dark:text-gray-500">
-                        {formData.isBestselling ? 'Bestselling' : 'Standard'}
-                      </span>
-                    </div>
-                  </div>
+
 
                   {/* Abstract */}
                   <div className="md:col-span-2">

@@ -30,7 +30,7 @@ export interface Blog {
     publishedDate: string;
     featuredImage: string;
     isFeatured: number;
-    isBestselling?: number;
+
     carouselOrder?: number;
 }
 
@@ -183,15 +183,6 @@ export const fetchBestsellingTestimonials = async (): Promise<Testimonial[]> => 
     return [];
 };
 
-// Fetch bestselling blogs (build‑time only)
-export const fetchBestsellingBlogs = async (): Promise<Blog[]> => {
-  const res = await fetch(`${BASE_URL}/blogs?isBestselling=1`, { cache: 'force-cache' });
-  const data = await res.json();
-    if (Array.isArray(data)) {
-        return data.slice(0, 3);
-    }
-    return [];
-};
 
 // Fetch all packages (build‑time only)
 export const fetchAllPackages = async (): Promise<Package[]> => {

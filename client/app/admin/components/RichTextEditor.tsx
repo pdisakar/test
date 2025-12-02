@@ -136,30 +136,18 @@ const RichTextEditor = ({ content, onChange, placeholder = 'Write something...' 
   const uploadImage = async (file: File) => {
     try {
       setIsUploading(true);
+      // Convert to Base64 for preview - actual upload happens on form submit
       const base64 = await fileToBase64(file);
-      const res = await fetch('http://localhost:3001/api/upload/image', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ image: base64 }),
-      });
-
-      if (!res.ok) throw new Error('Failed to upload image');
-
-      const data = await res.json();
-      const url = `http://localhost:3001${data.path}`;
 
       if (editor) {
-        editor.chain().focus().setImage({ src: url }).run();
+        // Insert Base64 data URL directly into editor for preview
+        editor.chain().focus().setImage({ src: base64 }).run();
       }
-
-
 
       setIsImageMode(false);
     } catch (error) {
-      console.error('Error uploading image:', error);
-      alert('Failed to upload image');
+      console.error('Error processing image:', error);
+      alert('Failed to process image');
     } finally {
       setIsUploading(false);
     }

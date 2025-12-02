@@ -84,16 +84,10 @@ export default function HeroSectionPage() {
         setSaving(true);
         setMessage(null);
 
-        if (!hero.image) {
-            setMessage({ type: 'error', text: 'Banner image is required' });
-            setSaving(false);
-            return;
-        }
-
         try {
             let imagePath = hero.image;
             // Upload if it's a base64 string (new image)
-            if (hero.image.startsWith('data:')) {
+            if (hero.image && hero.image.startsWith('data:')) {
                 const res = await fetch('http://localhost:3001/api/upload/image', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
