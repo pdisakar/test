@@ -5,8 +5,10 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { Button } from '@/app/admin/components/ui/button';
 import { Switch } from '@/app/admin/components/ui/switch';
-import RichTextEditor from '@/app/admin/components/RichTextEditor';
 import { X, ChevronRight, ChevronDown, Check, Image as ImageIcon, Plus, Trash2 } from 'lucide-react';
+import dynamic from 'next/dynamic';
+
+const RichTextEditor = dynamic(() => import('@/app/admin/components/RichTextEditor'), { ssr: false });
 import { ImageCrop, ImageCropContent, ImageCropApply, ImageCropReset } from '@/app/admin/components/ImageCrop';
 import { FeaturedImage } from '@/app/admin/components/FeaturedImage';
 import { BannerImage } from '@/app/admin/components/BannerImage';
@@ -223,14 +225,14 @@ export default function EditPackagePage() {
             if (attr) {
               tripFactUpdates[slug] = attr.name;
             }
-          } 
+          }
           // Handle Name (new)
           else if (typeof value === 'string') {
-             // Verify it exists in options to be safe
-             const attr = options.find((a: any) => a.name === value);
-             if (attr) {
-               tripFactUpdates[slug] = attr.name;
-             }
+            // Verify it exists in options to be safe
+            const attr = options.find((a: any) => a.name === value);
+            if (attr) {
+              tripFactUpdates[slug] = attr.name;
+            }
           }
         }
       });
@@ -1646,7 +1648,7 @@ export default function EditPackagePage() {
                                   try {
                                     let ids = JSON.parse(formData.relatedTrip || '[]');
                                     if (!Array.isArray(ids)) ids = [];
-                                    
+
                                     if (e.target.checked) {
                                       if (!ids.includes(pkg.id)) ids.push(pkg.id);
                                     } else {

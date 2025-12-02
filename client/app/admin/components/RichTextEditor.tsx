@@ -24,7 +24,7 @@ import {
   Heading5,
   FileCode,
 } from 'lucide-react';
-import { useCallback, useState } from 'react';
+import { useCallback, useState, useEffect } from 'react';
 
 interface RichTextEditorProps {
   content: string;
@@ -59,7 +59,7 @@ const RichTextEditor = ({ content, onChange, placeholder = 'Write something...' 
     content,
     editorProps: {
       attributes: {
-        class: 'prose prose-sm sm:prose lg:prose-lg xl:prose-2xl dark:prose-invert mx-auto focus:outline-none min-h-[200px] px-4 py-2 text-gray-900 dark:text-white',
+        class: 'prose dark:prose-invert focus:outline-none min-h-[200px] px-4 py-2 text-gray-900 dark:text-white max-w-none',
       },
     },
     onUpdate: ({ editor }) => {
@@ -69,6 +69,13 @@ const RichTextEditor = ({ content, onChange, placeholder = 'Write something...' 
     },
     immediatelyRender: false,
   });
+
+  // Sync content when prop changes
+  useEffect(() => {
+    if (editor && content !== editor.getHTML()) {
+      editor.commands.setContent(content);
+    }
+  }, [content, editor]);
 
   const openLinkModal = useCallback(() => {
     if (!editor) return;
@@ -374,8 +381,8 @@ const RichTextEditor = ({ content, onChange, placeholder = 'Write something...' 
           pointer-events: none;
         }
         .ProseMirror {
-          padding: 1rem;
           min-height: 150px;
+          outline: none;
         }
         .ProseMirror ul {
             list-style-type: disc;
