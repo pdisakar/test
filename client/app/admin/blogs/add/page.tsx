@@ -168,13 +168,27 @@ export default function AddBlogPage() {
             }
 
             const payload = {
-                ...formData,
+                title: formData.title,
+                urlTitle: formData.urlTitle,
+                slug: formData.slug,
+                authorId: formData.authorId,
+                publishedDate: formData.publishedDate ? formData.publishedDate.toISOString() : null,
+                abstract: formData.abstract,
+                description: formData.description,
+                meta: {
+                  title: formData.metaTitle,
+                  keywords: formData.metaKeywords,
+                  description: formData.metaDescription
+                },
                 featuredImage: featuredImageUrl,
+                featuredImageAlt: formData.featuredImageAlt,
+                featuredImageCaption: formData.featuredImageCaption,
                 bannerImage: bannerImageUrl,
+                bannerImageAlt: formData.bannerImageAlt,
+                bannerImageCaption: formData.bannerImageCaption,
                 status: formData.status ? 1 : 0,
                 isFeatured: formData.isFeatured ? 1 : 0,
                 isBestselling: formData.isBestselling ? 1 : 0,
-                publishedDate: formData.publishedDate ? formData.publishedDate.toISOString() : null,
                 pageType: formData.pageType,
             };
 

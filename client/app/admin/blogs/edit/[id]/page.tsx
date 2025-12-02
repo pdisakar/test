@@ -107,9 +107,9 @@ export default function EditBlogPage() {
         isBestselling: Boolean(blog.isBestselling === 1 || blog.isBestselling === true),
         abstract: blog.abstract || '',
         description: blog.description || '',
-        metaTitle: blog.metaTitle || '',
-        metaKeywords: blog.metaKeywords || '',
-        metaDescription: blog.metaDescription || '',
+        metaTitle: blog.meta?.title || '',
+        metaKeywords: blog.meta?.keywords || '',
+        metaDescription: blog.meta?.description || '',
         featuredImage: blog.featuredImage || '',
         featuredImageAlt: blog.featuredImageAlt || '',
         featuredImageCaption: blog.featuredImageCaption || '',
@@ -185,13 +185,27 @@ export default function EditBlogPage() {
       }
 
       const payload = {
-        ...formData,
+        title: formData.title,
+        urlTitle: formData.urlTitle,
+        slug: formData.slug,
+        authorId: formData.authorId,
+        publishedDate: formData.publishedDate ? formData.publishedDate.toISOString() : null,
+        abstract: formData.abstract,
+        description: formData.description,
+        meta: {
+          title: formData.metaTitle,
+          keywords: formData.metaKeywords,
+          description: formData.metaDescription
+        },
         featuredImage: featuredImageUrl,
+        featuredImageAlt: formData.featuredImageAlt,
+        featuredImageCaption: formData.featuredImageCaption,
         bannerImage: bannerImageUrl,
+        bannerImageAlt: formData.bannerImageAlt,
+        bannerImageCaption: formData.bannerImageCaption,
         status: formData.status ? 1 : 0,
         isFeatured: formData.isFeatured ? 1 : 0,
         isBestselling: formData.isBestselling ? 1 : 0,
-        publishedDate: formData.publishedDate ? formData.publishedDate.toISOString() : null,
         pageType: formData.pageType,
       };
 

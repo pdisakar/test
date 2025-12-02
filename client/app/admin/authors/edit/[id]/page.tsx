@@ -72,9 +72,9 @@ export default function EditAuthorPage() {
         bannerImage: data.bannerImage || '',
         bannerImageAlt: data.bannerImageAlt || '',
         bannerImageCaption: data.bannerImageCaption || '',
-        metaTitle: data.metaTitle || '',
-        metaKeywords: data.metaKeywords || '',
-        metaDescription: data.metaDescription || '',
+        metaTitle: data.meta?.title || '',
+        metaKeywords: data.meta?.keywords || '',
+        metaDescription: data.meta?.description || '',
       });
     } catch (err) {
       console.error('Error fetching author:', err);
@@ -186,9 +186,11 @@ export default function EditAuthorPage() {
         bannerImage: bannerUrl,
         bannerImageAlt: formData.bannerImageAlt,
         bannerImageCaption: formData.bannerImageCaption,
-        metaTitle: formData.metaTitle,
-        metaKeywords: formData.metaKeywords,
-        metaDescription: formData.metaDescription,
+        meta: {
+          title: formData.metaTitle,
+          keywords: formData.metaKeywords,
+          description: formData.metaDescription
+        },
         status: formData.status ? 1 : 0,
       };
 

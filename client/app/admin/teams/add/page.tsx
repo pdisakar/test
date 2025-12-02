@@ -180,9 +180,11 @@ export default function AddTeamPage() {
                 bannerImage: bannerUrl,
                 bannerImageAlt: formData.bannerImageAlt,
                 bannerImageCaption: formData.bannerImageCaption,
-                metaTitle: formData.metaTitle,
-                metaKeywords: formData.metaKeywords,
-                metaDescription: formData.metaDescription,
+                meta: {
+                  title: formData.metaTitle,
+                  keywords: formData.metaKeywords,
+                  description: formData.metaDescription
+                },
                 status: formData.status ? 1 : 0,
             };
 

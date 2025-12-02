@@ -293,9 +293,9 @@ export default function EditPackagePage() {
         durationValue: pkg.duration?.toString() || '',
         durationUnit: pkg.durationUnit || 'days',
         placeIds: pkg.places?.map((p: any) => String(p.id)) || [],
-        metaTitle: pkg.metaTitle || '',
-        metaKeywords: pkg.metaKeywords || '',
-        metaDescription: pkg.metaDescription || '',
+        metaTitle: pkg.meta?.title || '',
+        metaKeywords: pkg.meta?.keywords || '',
+        metaDescription: pkg.meta?.description || '',
         abstract: pkg.abstract || '',
         details: pkg.details || '',
         price: pkg.defaultPrice?.toString() || '',
@@ -745,9 +745,11 @@ export default function EditPackagePage() {
         durationValue: formData.durationValue,
         durationUnit: formData.durationUnit,
         placeIds: formData.placeIds,
-        metaTitle: formData.metaTitle,
-        metaKeywords: formData.metaKeywords,
-        metaDescription: formData.metaDescription,
+        meta: {
+          title: formData.metaTitle,
+          keywords: formData.metaKeywords,
+          description: formData.metaDescription
+        },
         abstract: formData.abstract,
         details: formData.details,
         defaultPrice: formData.price, // Map price to defaultPrice

@@ -587,9 +587,11 @@ export default function AddPackagePage() {
         durationValue: formData.durationValue,
         durationUnit: formData.durationUnit,
         placeIds: formData.placeIds,
-        metaTitle: formData.metaTitle,
-        metaKeywords: formData.metaKeywords,
-        metaDescription: formData.metaDescription,
+        meta: {
+          title: formData.metaTitle,
+          keywords: formData.metaKeywords,
+          description: formData.metaDescription
+        },
         abstract: formData.abstract,
         details: formData.details,
         defaultPrice: formData.price, // Map price to defaultPrice

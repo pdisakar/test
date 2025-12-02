@@ -263,9 +263,11 @@ export default function AddArticlePage() {
         urlTitle: formData.urlTitle,
         slug: formData.slug,
         parentId: formData.parentId.length > 0 ? parseInt(formData.parentId[0]) : null,
-        metaTitle: formData.metaTitle,
-        metaKeywords: formData.metaKeywords,
-        metaDescription: formData.metaDescription,
+        meta: {
+          title: formData.metaTitle,
+          keywords: formData.metaKeywords,
+          description: formData.metaDescription
+        },
         description: formData.description,
         featuredImage: featuredImageUrl,
         featuredImageAlt: formData.featuredImageAlt,
