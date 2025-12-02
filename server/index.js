@@ -513,8 +513,13 @@ app.get('/api/articles/:id', async (req, res) => {
     if (!article) {
       return res.status(404).json({ success: false, message: 'Article not found' });
     }
+
+    // Fetch children articles
+    const children = await allAsync('SELECT * FROM articles WHERE parentId = ? AND deletedAt IS NULL', [article.id]);
+
     const formattedArticle = {
       ...article,
+      children,
       meta: {
         title: article.metaTitle,
         keywords: article.metaKeywords,
@@ -945,8 +950,22 @@ app.get('/api/places/slug/:slug', async (req, res) => {
     if (!place) {
       return res.status(404).json({ success: false, message: 'Place not found' });
     }
+    // Fetch children places
+    const children = await allAsync('SELECT * FROM places WHERE parentId = ? AND deletedAt IS NULL', [place.id]);
+    
+    // Fetch packages associated with this place
+    const packages = await allAsync(
+      `SELECT p.* 
+       FROM packages p 
+       JOIN package_places pp ON p.id = pp.packageId 
+       WHERE pp.placeId = ? AND p.deletedAt IS NULL AND p.status = 1`,
+      [place.id]
+    );
+
     const formattedPlace = {
       ...place,
+      children,
+      packages,
       meta: {
         title: place.metaTitle,
         keywords: place.metaKeywords,
@@ -3517,10 +3536,24 @@ app.get('/api/resolve-slug/:slug', async (req, res) => {
     // 1. Check Places
     const place = await getAsync('SELECT * FROM places WHERE slug = ? AND deletedAt IS NULL', [slug]);
     if (place) {
+      // Fetch children places
+      const children = await allAsync('SELECT * FROM places WHERE parentId = ? AND deletedAt IS NULL', [place.id]);
+      
+      // Fetch packages associated with this place
+      const packages = await allAsync(
+        `SELECT p.* 
+         FROM packages p 
+         JOIN package_places pp ON p.id = pp.packageId 
+         WHERE pp.placeId = ? AND p.deletedAt IS NULL AND p.status = 1`,
+        [place.id]
+      );
+
       return res.json({
         datatype: 'place',
         content: {
           ...place,
+          children,
+          packages,
           meta: {
             title: place.metaTitle,
             keywords: place.metaKeywords,
@@ -3601,10 +3634,14 @@ app.get('/api/resolve-slug/:slug', async (req, res) => {
     // 3. Check Articles
     const article = await getAsync('SELECT * FROM articles WHERE slug = ? AND deletedAt IS NULL', [slug]);
     if (article) {
+      // Fetch children articles
+      const children = await allAsync('SELECT * FROM articles WHERE parentId = ? AND deletedAt IS NULL', [article.id]);
+
       return res.json({
         datatype: 'article',
         content: {
           ...article,
+          children,
           meta: {
             title: article.metaTitle,
             keywords: article.metaKeywords,
