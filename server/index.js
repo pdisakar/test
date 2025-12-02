@@ -366,7 +366,18 @@ app.delete('/api/upload/image', (req, res) => {
 app.get('/api/articles', async (req, res) => {
   try {
     const articles = await allAsync('SELECT * FROM articles WHERE deletedAt IS NULL ORDER BY createdAt DESC');
-    res.json(articles);
+    const formattedArticles = articles.map(a => ({
+      ...a,
+      meta: {
+        title: a.metaTitle,
+        keywords: a.metaKeywords,
+        description: a.metaDescription
+      },
+      metaTitle: undefined,
+      metaKeywords: undefined,
+      metaDescription: undefined
+    }));
+    res.json(formattedArticles);
   } catch (err) {
     console.error('Error fetching articles:', err);
     res.status(500).json({ success: false, message: 'Server error' });
@@ -377,7 +388,18 @@ app.get('/api/articles', async (req, res) => {
 app.get('/api/articles/trash', async (req, res) => {
   try {
     const articles = await allAsync('SELECT * FROM articles WHERE deletedAt IS NOT NULL ORDER BY deletedAt DESC');
-    res.json(articles);
+    const formattedArticles = articles.map(a => ({
+      ...a,
+      meta: {
+        title: a.metaTitle,
+        keywords: a.metaKeywords,
+        description: a.metaDescription
+      },
+      metaTitle: undefined,
+      metaKeywords: undefined,
+      metaDescription: undefined
+    }));
+    res.json(formattedArticles);
   } catch (err) {
     console.error('Error fetching trash:', err);
     res.status(500).json({ success: false, message: 'Server error' });
@@ -389,9 +411,25 @@ app.get('/api/homecontent', async (req, res) => {
   try {
     const article = await getAsync('SELECT * FROM articles WHERE slug = ?', ['home-content']);
     if (!article) {
-      return res.json({ title: 'Home Content', content: '', bannerImage: '' });
+      return res.json({ 
+        title: 'Home Content', 
+        content: '', 
+        bannerImage: '',
+        meta: { title: '', keywords: '', description: '' }
+      });
     }
-    res.json(article);
+    const formattedArticle = {
+      ...article,
+      meta: {
+        title: article.metaTitle,
+        keywords: article.metaKeywords,
+        description: article.metaDescription
+      },
+      metaTitle: undefined,
+      metaKeywords: undefined,
+      metaDescription: undefined
+    };
+    res.json(formattedArticle);
   } catch (err) {
     console.error('Error fetching home content:', err);
     res.status(500).json({ success: false, message: 'Server error' });
@@ -400,25 +438,69 @@ app.get('/api/homecontent', async (req, res) => {
 
 // Update Home Content
 app.post('/api/homecontent', async (req, res) => {
-  const { content, bannerImage } = req.body;
+  const { content, bannerImage, meta } = req.body;
   try {
     const existing = await getAsync('SELECT id FROM articles WHERE slug = ?', ['home-content']);
     
     if (existing) {
       await runAsync(
-        'UPDATE articles SET content = ?, bannerImage = ?, updatedAt = CURRENT_TIMESTAMP WHERE slug = ?',
-        [content, bannerImage, 'home-content']
+        'UPDATE articles SET content = ?, bannerImage = ?, metaTitle = ?, metaKeywords = ?, metaDescription = ?, updatedAt = CURRENT_TIMESTAMP WHERE slug = ?',
+        [
+          content, 
+          bannerImage, 
+          meta?.title || null, 
+          meta?.keywords || null, 
+          meta?.description || null, 
+          'home-content'
+        ]
       );
     } else {
       await runAsync(
-        'INSERT INTO articles (title, urlTitle, slug, content, bannerImage, status, createdAt, updatedAt) VALUES (?, ?, ?, ?, ?, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)',
-        ['Home Content', 'Home Content', 'home-content', content, bannerImage]
+        'INSERT INTO articles (title, urlTitle, slug, content, bannerImage, metaTitle, metaKeywords, metaDescription, status, createdAt, updatedAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)',
+        [
+          'Home Content', 
+          'Home Content', 
+          'home-content', 
+          content, 
+          bannerImage,
+          meta?.title || null, 
+          meta?.keywords || null, 
+          meta?.description || null
+        ]
       );
     }
     
     res.json({ success: true, message: 'Home content updated successfully' });
   } catch (err) {
     console.error('Error updating home content:', err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// Get Home Content
+app.get('/api/homecontent', async (req, res) => {
+  try {
+    const article = await getAsync('SELECT * FROM articles WHERE slug = ?', ['home-content']);
+    
+    if (!article) {
+      return res.status(404).json({ success: false, message: 'Home content not found' });
+    }
+
+    const formattedArticle = {
+      ...article,
+      meta: {
+        title: article.metaTitle,
+        keywords: article.metaKeywords,
+        description: article.metaDescription
+      },
+      metaTitle: undefined,
+      metaKeywords: undefined,
+      metaDescription: undefined
+    };
+    
+    res.json(formattedArticle);
+  } catch (err) {
+    console.error('Error fetching home content:', err);
     res.status(500).json({ success: false, message: 'Server error' });
   }
 });
@@ -431,7 +513,18 @@ app.get('/api/articles/:id', async (req, res) => {
     if (!article) {
       return res.status(404).json({ success: false, message: 'Article not found' });
     }
-    res.json({ success: true, article });
+    const formattedArticle = {
+      ...article,
+      meta: {
+        title: article.metaTitle,
+        keywords: article.metaKeywords,
+        description: article.metaDescription
+      },
+      metaTitle: undefined,
+      metaKeywords: undefined,
+      metaDescription: undefined
+    };
+    res.json({ success: true, article: formattedArticle });
   } catch (err) {
     console.error('Error fetching article:', err);
     res.status(500).json({ success: false, message: 'Server error' });
@@ -474,7 +567,9 @@ app.post('/api/articles', async (req, res) => {
       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         title, urlTitle, slug, parentId || null,
-        metaTitle, metaKeywords, metaDescription,
+        req.body.meta?.title || metaTitle, 
+        req.body.meta?.keywords || metaKeywords, 
+        req.body.meta?.description || metaDescription,
         description, featuredImage, featuredImageAlt, featuredImageCaption,
         bannerImage, bannerImageAlt, bannerImageCaption,
         status ? 1 : 0, req.body.pageType || 'default', now, now
@@ -540,7 +635,9 @@ app.put('/api/articles/:id', async (req, res) => {
        WHERE id = ?`,
       [
         title, urlTitle, slug, parentId || null,
-        metaTitle, metaKeywords, metaDescription,
+        req.body.meta?.title || metaTitle, 
+        req.body.meta?.keywords || metaKeywords, 
+        req.body.meta?.description || metaDescription,
         description, featuredImage, featuredImageAlt, featuredImageCaption,
         bannerImage, bannerImageAlt, bannerImageCaption,
         status ? 1 : 0, req.body.pageType || 'default', now, id
@@ -774,7 +871,18 @@ app.get('/api/places', async (req, res) => {
     query += ' ORDER BY createdAt DESC';
     
     const places = await allAsync(query, params);
-    res.json(places);
+    const formattedPlaces = places.map(p => ({
+      ...p,
+      meta: {
+        title: p.metaTitle,
+        keywords: p.metaKeywords,
+        description: p.metaDescription
+      },
+      metaTitle: undefined,
+      metaKeywords: undefined,
+      metaDescription: undefined
+    }));
+    res.json(formattedPlaces);
   } catch (err) {
     console.error('Error fetching places:', err);
     res.status(500).json({ success: false, message: 'Server error' });
@@ -785,7 +893,18 @@ app.get('/api/places', async (req, res) => {
 app.get('/api/places/trash', async (req, res) => {
   try {
     const places = await allAsync('SELECT * FROM places WHERE deletedAt IS NOT NULL ORDER BY deletedAt DESC');
-    res.json(places);
+    const formattedPlaces = places.map(p => ({
+      ...p,
+      meta: {
+        title: p.metaTitle,
+        keywords: p.metaKeywords,
+        description: p.metaDescription
+      },
+      metaTitle: undefined,
+      metaKeywords: undefined,
+      metaDescription: undefined
+    }));
+    res.json(formattedPlaces);
   } catch (err) {
     console.error('Error fetching trash:', err);
     res.status(500).json({ success: false, message: 'Server error' });
@@ -800,7 +919,18 @@ app.get('/api/places/:id', async (req, res) => {
     if (!place) {
       return res.status(404).json({ success: false, message: 'Place not found' });
     }
-    res.json({ success: true, place });
+    const formattedPlace = {
+      ...place,
+      meta: {
+        title: place.metaTitle,
+        keywords: place.metaKeywords,
+        description: place.metaDescription
+      },
+      metaTitle: undefined,
+      metaKeywords: undefined,
+      metaDescription: undefined
+    };
+    res.json({ success: true, place: formattedPlace });
   } catch (err) {
     console.error('Error fetching place:', err);
     res.status(500).json({ success: false, message: 'Server error' });
@@ -815,7 +945,18 @@ app.get('/api/places/slug/:slug', async (req, res) => {
     if (!place) {
       return res.status(404).json({ success: false, message: 'Place not found' });
     }
-    res.json({ success: true, place });
+    const formattedPlace = {
+      ...place,
+      meta: {
+        title: place.metaTitle,
+        keywords: place.metaKeywords,
+        description: place.metaDescription
+      },
+      metaTitle: undefined,
+      metaKeywords: undefined,
+      metaDescription: undefined
+    };
+    res.json({ success: true, place: formattedPlace });
   } catch (err) {
     console.error('Error fetching place by slug:', err);
     res.status(500).json({ success: false, message: 'Server error' });
@@ -858,7 +999,9 @@ app.post('/api/places', async (req, res) => {
       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         title, urlTitle, slug, parentId || null,
-        metaTitle, metaKeywords, metaDescription,
+        req.body.meta?.title || metaTitle, 
+        req.body.meta?.keywords || metaKeywords, 
+        req.body.meta?.description || metaDescription,
         description, featuredImage, featuredImageAlt, featuredImageCaption,
         bannerImage, bannerImageAlt, bannerImageCaption,
         status ? 1 : 0, isFeatured ? 1 : 0, req.body.pageType || 'default', now, now
@@ -924,7 +1067,9 @@ app.put('/api/places/:id', async (req, res) => {
        WHERE id = ?`,
       [
         title, urlTitle, slug, parentId || null,
-        metaTitle, metaKeywords, metaDescription,
+        req.body.meta?.title || metaTitle, 
+        req.body.meta?.keywords || metaKeywords, 
+        req.body.meta?.description || metaDescription,
         description, featuredImage, featuredImageAlt, featuredImageCaption,
         bannerImage, bannerImageAlt, bannerImageCaption,
         status ? 1 : 0, isFeatured ? 1 : 0, req.body.pageType || 'default', now, id
@@ -1306,7 +1451,9 @@ app.post('/api/packages', async (req, res) => {
       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         packageTitle, urlTitle, slug, durationValue || 0, durationUnit || 'days',
-        metaTitle, metaKeywords, metaDescription,
+        req.body.meta?.title || metaTitle, 
+        req.body.meta?.keywords || metaKeywords, 
+        req.body.meta?.description || metaDescription,
         abstract, details, defaultPrice || 0, groupPriceEnabled ? 1 : 0,
         costInclude, costExclude,
         featuredImage, featuredImageAlt, featuredImageCaption,
@@ -1507,7 +1654,12 @@ app.get('/api/packages', async (req, res) => {
         tripFacts: pkg.tripFacts,
         // statusRibbon is intentionally excluded from root
         // testimonials array is excluded from featured/list view to save bandwidth
-        total_testimonials: pkg.total_testimonials
+        total_testimonials: pkg.total_testimonials,
+        meta: {
+          title: pkg.metaTitle,
+          keywords: pkg.metaKeywords,
+          description: pkg.metaDescription
+        }
       };
     }));
     res.status(200).json({
@@ -1606,7 +1758,15 @@ app.get('/api/packages/:idOrSlug', async (req, res) => {
         groupPrices,
         galleryImages: galleryImages.map(g => g.imageUrl),
         testimonials,
-        total_testimonials: testimonials.length
+        total_testimonials: testimonials.length,
+        meta: {
+          title: packageData.metaTitle,
+          keywords: packageData.metaKeywords,
+          description: packageData.metaDescription
+        },
+        metaTitle: undefined,
+        metaKeywords: undefined,
+        metaDescription: undefined
       }
     });
 
@@ -1686,7 +1846,9 @@ app.put('/api/packages/:id', async (req, res) => {
       WHERE id = ?`,
       [
         packageTitle, urlTitle, slug, durationValue || 0, durationUnit || 'days',
-        metaTitle, metaKeywords, metaDescription,
+        req.body.meta?.title || metaTitle, 
+        req.body.meta?.keywords || metaKeywords, 
+        req.body.meta?.description || metaDescription,
         abstract, details, defaultPrice || 0, groupPriceEnabled ? 1 : 0,
         costInclude, costExclude,
         featuredImage, featuredImageAlt, featuredImageCaption,
@@ -1905,7 +2067,9 @@ app.post('/api/authors', async (req, res) => {
       [
         fullName, urlTitle, slug, email, description,
         avatar, avatarAlt, avatarCaption, bannerImage, bannerImageAlt, bannerImageCaption,
-        metaTitle, metaKeywords, metaDescription,
+        req.body.meta?.title || metaTitle, 
+        req.body.meta?.keywords || metaKeywords, 
+        req.body.meta?.description || metaDescription,
         status !== undefined ? status : 1, now, now
       ]
     );
@@ -1925,7 +2089,18 @@ app.post('/api/authors', async (req, res) => {
 app.get('/api/authors', async (req, res) => {
   try {
     const authors = await allAsync('SELECT * FROM authors WHERE deletedAt IS NULL ORDER BY createdAt DESC');
-    res.status(200).json(authors);
+    const formattedAuthors = authors.map(a => ({
+      ...a,
+      meta: {
+        title: a.metaTitle,
+        keywords: a.metaKeywords,
+        description: a.metaDescription
+      },
+      metaTitle: undefined,
+      metaKeywords: undefined,
+      metaDescription: undefined
+    }));
+    res.status(200).json(formattedAuthors);
   } catch (err) {
     console.error('Error fetching authors:', err);
     res.status(500).json({ success: false, message: 'Server error' });
@@ -1940,7 +2115,18 @@ app.get('/api/authors/:id', async (req, res) => {
     if (!author) {
       return res.status(404).json({ success: false, message: 'Author not found' });
     }
-    res.status(200).json(author);
+    const formattedAuthor = {
+      ...author,
+      meta: {
+        title: author.metaTitle,
+        keywords: author.metaKeywords,
+        description: author.metaDescription
+      },
+      metaTitle: undefined,
+      metaKeywords: undefined,
+      metaDescription: undefined
+    };
+    res.status(200).json(formattedAuthor);
   } catch (err) {
     console.error('Error fetching author:', err);
     res.status(500).json({ success: false, message: 'Server error' });
@@ -1997,7 +2183,9 @@ app.put('/api/authors/:id', async (req, res) => {
       [
         fullName, urlTitle, slug, email, description,
         avatar, avatarAlt, avatarCaption, bannerImage, bannerImageAlt, bannerImageCaption,
-        metaTitle, metaKeywords, metaDescription,
+        req.body.meta?.title || metaTitle, 
+        req.body.meta?.keywords || metaKeywords, 
+        req.body.meta?.description || metaDescription,
         status, now, id
       ]
     );
@@ -2027,7 +2215,18 @@ app.delete('/api/authors/:id', async (req, res) => {
 app.get('/api/authors/trash/all', async (req, res) => {
   try {
     const authors = await allAsync('SELECT * FROM authors WHERE deletedAt IS NOT NULL ORDER BY deletedAt DESC');
-    res.status(200).json(authors);
+    const formattedAuthors = authors.map(a => ({
+      ...a,
+      meta: {
+        title: a.metaTitle,
+        keywords: a.metaKeywords,
+        description: a.metaDescription
+      },
+      metaTitle: undefined,
+      metaKeywords: undefined,
+      metaDescription: undefined
+    }));
+    res.status(200).json(formattedAuthors);
   } catch (err) {
     console.error('Error fetching trash:', err);
     res.status(500).json({ success: false, message: 'Server error' });
@@ -2128,7 +2327,9 @@ app.post('/api/teams', async (req, res) => {
       [
         fullName, urlTitle, slug, email, description,
         avatar, avatarAlt, avatarCaption, bannerImage, bannerImageAlt, bannerImageCaption,
-        metaTitle, metaKeywords, metaDescription,
+        req.body.meta?.title || metaTitle, 
+        req.body.meta?.keywords || metaKeywords, 
+        req.body.meta?.description || metaDescription,
         status !== undefined ? status : 1, now, now
       ]
     );
@@ -2148,7 +2349,18 @@ app.post('/api/teams', async (req, res) => {
 app.get('/api/teams', async (req, res) => {
   try {
     const teams = await allAsync('SELECT * FROM teams WHERE deletedAt IS NULL ORDER BY createdAt DESC');
-    res.status(200).json(teams);
+    const formattedTeams = teams.map(t => ({
+      ...t,
+      meta: {
+        title: t.metaTitle,
+        keywords: t.metaKeywords,
+        description: t.metaDescription
+      },
+      metaTitle: undefined,
+      metaKeywords: undefined,
+      metaDescription: undefined
+    }));
+    res.status(200).json(formattedTeams);
   } catch (err) {
     console.error('Error fetching team members:', err);
     res.status(500).json({ success: false, message: 'Server error' });
@@ -2163,7 +2375,18 @@ app.get('/api/teams/:id', async (req, res) => {
     if (!team) {
       return res.status(404).json({ success: false, message: 'Team member not found' });
     }
-    res.status(200).json(team);
+    const formattedTeam = {
+      ...team,
+      meta: {
+        title: team.metaTitle,
+        keywords: team.metaKeywords,
+        description: team.metaDescription
+      },
+      metaTitle: undefined,
+      metaKeywords: undefined,
+      metaDescription: undefined
+    };
+    res.status(200).json(formattedTeam);
   } catch (err) {
     console.error('Error fetching team member:', err);
     res.status(500).json({ success: false, message: 'Server error' });
@@ -2220,7 +2443,9 @@ app.put('/api/teams/:id', async (req, res) => {
       [
         fullName, urlTitle, slug, email, description,
         avatar, avatarAlt, avatarCaption, bannerImage, bannerImageAlt, bannerImageCaption,
-        metaTitle, metaKeywords, metaDescription,
+        req.body.meta?.title || metaTitle, 
+        req.body.meta?.keywords || metaKeywords, 
+        req.body.meta?.description || metaDescription,
         status, now, id
       ]
     );
@@ -2249,7 +2474,18 @@ app.delete('/api/teams/:id', async (req, res) => {
 app.get('/api/teams/trash/all', async (req, res) => {
   try {
     const teams = await allAsync('SELECT * FROM teams WHERE deletedAt IS NOT NULL ORDER BY deletedAt DESC');
-    res.status(200).json(teams);
+    const formattedTeams = teams.map(t => ({
+      ...t,
+      meta: {
+        title: t.metaTitle,
+        keywords: t.metaKeywords,
+        description: t.metaDescription
+      },
+      metaTitle: undefined,
+      metaKeywords: undefined,
+      metaDescription: undefined
+    }));
+    res.status(200).json(formattedTeams);
   } catch (err) {
     console.error('Error fetching trash:', err);
     res.status(500).json({ success: false, message: 'Server error' });
@@ -2318,7 +2554,18 @@ app.get('/api/blogs', async (req, res) => {
     }
     query += ' ORDER BY createdAt DESC';
     const blogs = await allAsync(query, params);
-    res.json(blogs);
+    const formattedBlogs = blogs.map(b => ({
+      ...b,
+      meta: {
+        title: b.metaTitle,
+        keywords: b.metaKeywords,
+        description: b.metaDescription
+      },
+      metaTitle: undefined,
+      metaKeywords: undefined,
+      metaDescription: undefined
+    }));
+    res.json(formattedBlogs);
   } catch (err) {
     console.error('Error fetching blogs:', err);
     res.status(500).json({ success: false, message: 'Server error' });
@@ -2329,7 +2576,18 @@ app.get('/api/blogs', async (req, res) => {
 app.get('/api/blogs/trash', async (req, res) => {
   try {
     const blogs = await allAsync('SELECT * FROM blogs WHERE deletedAt IS NOT NULL ORDER BY deletedAt DESC');
-    res.json(blogs);
+    const formattedBlogs = blogs.map(b => ({
+      ...b,
+      meta: {
+        title: b.metaTitle,
+        keywords: b.metaKeywords,
+        description: b.metaDescription
+      },
+      metaTitle: undefined,
+      metaKeywords: undefined,
+      metaDescription: undefined
+    }));
+    res.json(formattedBlogs);
   } catch (err) {
     console.error('Error fetching blogs trash:', err);
     res.status(500).json({ success: false, message: 'Server error' });
@@ -2350,7 +2608,18 @@ app.get('/api/blogs/:idOrSlug', async (req, res) => {
     if (!blog) {
       return res.status(404).json({ success: false, message: 'Blog not found' });
     }
-    res.json({ success: true, blog });
+    const formattedBlog = {
+      ...blog,
+      meta: {
+        title: blog.metaTitle,
+        keywords: blog.metaKeywords,
+        description: blog.metaDescription
+      },
+      metaTitle: undefined,
+      metaKeywords: undefined,
+      metaDescription: undefined
+    };
+    res.json({ success: true, blog: formattedBlog });
   } catch (err) {
     console.error('Error fetching blog:', err);
     res.status(500).json({ success: false, message: 'Server error' });
@@ -2395,7 +2664,9 @@ app.post('/api/blogs', async (req, res) => {
       [
         title, urlTitle, slug, authorId || null, publishedDate,
         status ? 1 : 0, isFeatured ? 1 : 0, isBestselling ? 1 : 0, abstract, description,
-        metaTitle, metaKeywords, metaDescription,
+        req.body.meta?.title || metaTitle, 
+        req.body.meta?.keywords || metaKeywords, 
+        req.body.meta?.description || metaDescription,
         featuredImage, featuredImageAlt, featuredImageCaption,
         bannerImage, bannerImageAlt, bannerImageCaption,
         req.body.pageType || 'default',
@@ -2464,7 +2735,9 @@ app.put('/api/blogs/:id', async (req, res) => {
       [
         title, urlTitle, slug, authorId || null, publishedDate,
         status ? 1 : 0, isFeatured ? 1 : 0, isBestselling ? 1 : 0, abstract, description,
-        metaTitle, metaKeywords, metaDescription,
+        req.body.meta?.title || metaTitle, 
+        req.body.meta?.keywords || metaKeywords, 
+        req.body.meta?.description || metaDescription,
         featuredImage, featuredImageAlt, featuredImageCaption,
         bannerImage, bannerImageAlt, bannerImageCaption,
         req.body.pageType || 'default',
@@ -2592,7 +2865,10 @@ app.post('/api/testimonials', async (req, res) => {
       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         reviewTitle, urlTitle, slug, fullName, address, packageId || null, teamId || null, date, credit, rating,
-        status ? 1 : 0, isFeatured ? 1 : 0, isBestselling ? 1 : 0, description, metaTitle, metaKeywords, metaDescription,
+        status ? 1 : 0, isFeatured ? 1 : 0, isBestselling ? 1 : 0, description, 
+        req.body.meta?.title || metaTitle, 
+        req.body.meta?.keywords || metaKeywords, 
+        req.body.meta?.description || metaDescription,
         avatar, avatarAlt, avatarCaption, now, now
       ]
     );
@@ -2624,7 +2900,18 @@ app.get('/api/testimonials', async (req, res) => {
     }
     query += ' ORDER BY createdAt DESC';
     const testimonials = await allAsync(query, params);
-    res.status(200).json(testimonials);
+    const formattedTestimonials = testimonials.map(t => ({
+      ...t,
+      meta: {
+        title: t.metaTitle,
+        keywords: t.metaKeywords,
+        description: t.metaDescription
+      },
+      metaTitle: undefined,
+      metaKeywords: undefined,
+      metaDescription: undefined
+    }));
+    res.status(200).json(formattedTestimonials);
   } catch (err) {
     console.error('Error fetching testimonials:', err);
     res.status(500).json({ success: false, message: 'Server error' });
@@ -2639,7 +2926,18 @@ app.get('/api/testimonials/:id', async (req, res) => {
     if (!testimonial) {
       return res.status(404).json({ success: false, message: 'Testimonial not found' });
     }
-    res.status(200).json(testimonial);
+    const formattedTestimonial = {
+      ...testimonial,
+      meta: {
+        title: testimonial.metaTitle,
+        keywords: testimonial.metaKeywords,
+        description: testimonial.metaDescription
+      },
+      metaTitle: undefined,
+      metaKeywords: undefined,
+      metaDescription: undefined
+    };
+    res.status(200).json(formattedTestimonial);
   } catch (err) {
     console.error('Error fetching testimonial:', err);
     res.status(500).json({ success: false, message: 'Server error' });
@@ -2684,7 +2982,10 @@ app.put('/api/testimonials/:id', async (req, res) => {
       WHERE id = ?`,
       [
         reviewTitle, urlTitle, slug, fullName, address, packageId || null, teamId || null, date, credit, rating,
-        status ? 1 : 0, isFeatured ? 1 : 0, isBestselling ? 1 : 0, description, metaTitle, metaKeywords, metaDescription,
+        status ? 1 : 0, isFeatured ? 1 : 0, isBestselling ? 1 : 0, description, 
+        req.body.meta?.title || metaTitle, 
+        req.body.meta?.keywords || metaKeywords, 
+        req.body.meta?.description || metaDescription,
         avatar, avatarAlt, avatarCaption, now, id
       ]
     );
@@ -2713,7 +3014,18 @@ app.delete('/api/testimonials/:id', async (req, res) => {
 app.get('/api/testimonials/trash/all', async (req, res) => {
   try {
     const testimonials = await allAsync('SELECT * FROM testimonials WHERE deletedAt IS NOT NULL ORDER BY deletedAt DESC');
-    res.status(200).json(testimonials);
+    const formattedTestimonials = testimonials.map(t => ({
+      ...t,
+      meta: {
+        title: t.metaTitle,
+        keywords: t.metaKeywords,
+        description: t.metaDescription
+      },
+      metaTitle: undefined,
+      metaKeywords: undefined,
+      metaDescription: undefined
+    }));
+    res.status(200).json(formattedTestimonials);
   } catch (err) {
     console.error('Error fetching trash:', err);
     res.status(500).json({ success: false, message: 'Server error' });
@@ -3207,7 +3519,17 @@ app.get('/api/resolve-slug/:slug', async (req, res) => {
     if (place) {
       return res.json({
         datatype: 'place',
-        content: place
+        content: {
+          ...place,
+          meta: {
+            title: place.metaTitle,
+            keywords: place.metaKeywords,
+            description: place.metaDescription
+          },
+          metaTitle: undefined,
+          metaKeywords: undefined,
+          metaDescription: undefined
+        }
       });
     }
 
@@ -3263,7 +3585,15 @@ app.get('/api/resolve-slug/:slug', async (req, res) => {
           groupPrices,
           tripFacts: tripFactsObj,
           testimonials,
-          total_testimonials: testimonials.length
+          total_testimonials: testimonials.length,
+          meta: {
+            title: pkg.metaTitle,
+            keywords: pkg.metaKeywords,
+            description: pkg.metaDescription
+          },
+          metaTitle: undefined,
+          metaKeywords: undefined,
+          metaDescription: undefined
         }
       });
     }
@@ -3273,7 +3603,17 @@ app.get('/api/resolve-slug/:slug', async (req, res) => {
     if (article) {
       return res.json({
         datatype: 'article',
-        content: article
+        content: {
+          ...article,
+          meta: {
+            title: article.metaTitle,
+            keywords: article.metaKeywords,
+            description: article.metaDescription
+          },
+          metaTitle: undefined,
+          metaKeywords: undefined,
+          metaDescription: undefined
+        }
       });
     }
 
@@ -3282,7 +3622,17 @@ app.get('/api/resolve-slug/:slug', async (req, res) => {
     if (blog) {
       return res.json({
         datatype: 'blog',
-        content: blog
+        content: {
+          ...blog,
+          meta: {
+            title: blog.metaTitle,
+            keywords: blog.metaKeywords,
+            description: blog.metaDescription
+          },
+          metaTitle: undefined,
+          metaKeywords: undefined,
+          metaDescription: undefined
+        }
       });
     }
 
@@ -3304,7 +3654,22 @@ app.get('/api/settings', async (req, res) => {
   try {
     // We assume there's only one row for settings, or we take the first one
     const settings = await getAsync('SELECT * FROM settings ORDER BY id ASC LIMIT 1');
-    res.json(settings || {});
+    if (settings) {
+      const formattedSettings = {
+        ...settings,
+        defaultMeta: {
+          title: settings.defaultMetaTitle,
+          keywords: settings.defaultMetaKeywords,
+          description: settings.defaultMetaDescription
+        },
+        defaultMetaTitle: undefined,
+        defaultMetaKeywords: undefined,
+        defaultMetaDescription: undefined
+      };
+      res.json(formattedSettings);
+    } else {
+      res.json({});
+    }
   } catch (err) {
     console.error('Error fetching settings:', err);
     res.status(500).json({ success: false, message: 'Server error' });
@@ -3315,7 +3680,22 @@ app.get('/api/settings', async (req, res) => {
 app.get('/api/GlobalData', async (req, res) => {
   try {
     const settings = await getAsync('SELECT * FROM settings ORDER BY id ASC LIMIT 1');
-    res.json(settings || {});
+    if (settings) {
+      const formattedSettings = {
+        ...settings,
+        defaultMeta: {
+          title: settings.defaultMetaTitle,
+          keywords: settings.defaultMetaKeywords,
+          description: settings.defaultMetaDescription
+        },
+        defaultMetaTitle: undefined,
+        defaultMetaKeywords: undefined,
+        defaultMetaDescription: undefined
+      };
+      res.json(formattedSettings);
+    } else {
+      res.json({});
+    }
   } catch (err) {
     console.error('Error fetching global data:', err);
     res.status(500).json({ success: false, message: 'Server error' });
@@ -3326,7 +3706,7 @@ app.get('/api/GlobalData', async (req, res) => {
 app.post('/api/settings', async (req, res) => {
   const {
     viatorLink, tourradarLink, tripAdvisorLink,
-    defaultMetaDescription, defaultMetaKeywords, defaultMetaTitle,
+    defaultMetaTitle, defaultMetaKeywords, defaultMetaDescription,
     youtubeLink, pinterestLink, linkedinLink, instagramLink, twitterLink, facebookLink,
     contactPerson1, contactPerson2, establishedYear, shortDescription,
     mobileNumber1, mobileNumber2, phoneNumber, postBox, address, googleMapLocation, companyName
@@ -3350,7 +3730,9 @@ app.post('/api/settings', async (req, res) => {
         WHERE id = ?
       `, [
         viatorLink, tourradarLink, tripAdvisorLink,
-        defaultMetaDescription, defaultMetaKeywords, defaultMetaTitle,
+        req.body.defaultMeta?.description || defaultMetaDescription, 
+        req.body.defaultMeta?.keywords || defaultMetaKeywords, 
+        req.body.defaultMeta?.title || defaultMetaTitle,
         youtubeLink, pinterestLink, linkedinLink, instagramLink, twitterLink, facebookLink,
         contactPerson1, contactPerson2, establishedYear, shortDescription,
         mobileNumber1, mobileNumber2, phoneNumber, postBox, address, googleMapLocation, companyName,
@@ -3370,7 +3752,9 @@ app.post('/api/settings', async (req, res) => {
         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `, [
         viatorLink, tourradarLink, tripAdvisorLink,
-        defaultMetaDescription, defaultMetaKeywords, defaultMetaTitle,
+        req.body.defaultMeta?.description || defaultMetaDescription, 
+        req.body.defaultMeta?.keywords || defaultMetaKeywords, 
+        req.body.defaultMeta?.title || defaultMetaTitle,
         youtubeLink, pinterestLink, linkedinLink, instagramLink, twitterLink, facebookLink,
         contactPerson1, contactPerson2, establishedYear, shortDescription,
         mobileNumber1, mobileNumber2, phoneNumber, postBox, address, googleMapLocation, companyName,

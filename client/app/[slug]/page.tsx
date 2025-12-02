@@ -50,6 +50,7 @@ export default function DynamicPage() {
     if (error || !data) {
         return notFound();
     }
+    console.log(data);
 
 
     return (
