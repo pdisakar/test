@@ -384,6 +384,45 @@ app.get('/api/articles/trash', async (req, res) => {
   }
 });
 
+// Get Home Content
+app.get('/api/homecontent', async (req, res) => {
+  try {
+    const article = await getAsync('SELECT * FROM articles WHERE slug = ?', ['home-content']);
+    if (!article) {
+      return res.json({ title: 'Home Content', content: '', bannerImage: '' });
+    }
+    res.json(article);
+  } catch (err) {
+    console.error('Error fetching home content:', err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// Update Home Content
+app.post('/api/homecontent', async (req, res) => {
+  const { content, bannerImage } = req.body;
+  try {
+    const existing = await getAsync('SELECT id FROM articles WHERE slug = ?', ['home-content']);
+    
+    if (existing) {
+      await runAsync(
+        'UPDATE articles SET content = ?, bannerImage = ?, updatedAt = CURRENT_TIMESTAMP WHERE slug = ?',
+        [content, bannerImage, 'home-content']
+      );
+    } else {
+      await runAsync(
+        'INSERT INTO articles (title, slug, content, bannerImage, status, createdAt, updatedAt) VALUES (?, ?, ?, ?, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)',
+        ['Home Content', 'home-content', content, bannerImage]
+      );
+    }
+    
+    res.json({ success: true, message: 'Home content updated successfully' });
+  } catch (err) {
+    console.error('Error updating home content:', err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
 // Get single article
 app.get('/api/articles/:id', async (req, res) => {
   const { id } = req.params;

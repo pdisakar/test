@@ -150,6 +150,29 @@ export const fetchFeaturedTestimonials = async (): Promise<Testimonial[]> => {
     return [];
 };
 
+export async function fetchHomeContent() {
+  const res = await fetch(`${BASE_URL}/api/homecontent`, {
+    cache: 'no-store', // Dynamic content
+  });
+  if (!res.ok) return null;
+  return res.json();
+}
+
+export async function fetchPackages(page = 1, limit = 10, search = '', status?: number) {
+    const params = new URLSearchParams({
+        page: String(page),
+        limit: String(limit),
+        search,
+    });
+    if (status !== undefined) {
+        params.append('status', String(status));
+    }
+
+    const res = await fetch(`${BASE_URL}/packages?${params.toString()}`, { cache: 'no-store' });
+    if (!res.ok) throw new Error('Failed to fetch packages');
+    return res.json();
+}
+
 // Fetch bestselling testimonials (build‑time only)
 export const fetchBestsellingTestimonials = async (): Promise<Testimonial[]> => {
   const res = await fetch(`${BASE_URL}/testimonials?isBestselling=1`, { cache: 'force-cache' });
