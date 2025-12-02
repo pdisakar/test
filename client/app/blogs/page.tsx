@@ -1,9 +1,6 @@
 'use client';
 
 
-import Footer from '@/components/Footer/Footer';
-import Header from '@/components/Header/Header';
-
 import Link from 'next/link';
 import { Calendar, User, ArrowRight } from 'lucide-react';
 import { useEffect, useState } from 'react';

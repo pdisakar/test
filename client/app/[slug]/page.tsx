@@ -7,8 +7,7 @@ import { Places } from '@/components/Pages/Places/Places';
 import { Package } from '@/components/Pages/Package/Package';
 import { Article } from '@/components/Pages/Article/Article';
 import { Blog } from '@/components/Pages/Blog/Blog';
-import Footer from '@/components/Footer/Footer';
-import Header from '@/components/Header/Header';
+
 
 
 export default function DynamicPage() {

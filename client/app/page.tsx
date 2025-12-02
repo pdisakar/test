@@ -8,6 +8,9 @@ import BestsellingBlogs from '@/components/BestsellingBlogs/BestsellingBlogs';
 import Footer from '@/components/Footer/Footer';
 import Header from '@/components/Header/Header';
 
+
+
+
 // Types imported from lib/api.ts
 
 export default async function Home() {
@@ -18,24 +21,24 @@ export default async function Home() {
       <Header />
       <main className="min-h-screen">
         <HeroSection />
-        
+
         {/* Home Content Section */}
         {homeContent && (homeContent.content || homeContent.bannerImage) && (
           <section className="py-16 bg-white dark:bg-gray-900">
             <div className="container mx-auto px-4">
               {homeContent.bannerImage && (
                 <div className="mb-10 rounded-2xl overflow-hidden shadow-lg">
-                  <img 
-                    src={homeContent.bannerImage} 
-                    alt="Welcome to our site" 
+                  <img
+                    src={homeContent.bannerImage}
+                    alt="Welcome to our site"
                     className="w-full h-[400px] object-cover"
                   />
                 </div>
               )}
               {homeContent.content && (
-                <div 
+                <div
                   className="prose prose-lg max-w-4xl mx-auto dark:prose-invert"
-                  dangerouslySetInnerHTML={{ __html: homeContent.content }} 
+                  dangerouslySetInnerHTML={{ __html: homeContent.content }}
                 />
               )}
             </div>
