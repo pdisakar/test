@@ -10,6 +10,7 @@ import dynamic from 'next/dynamic';
 import { ImageCrop, ImageCropContent, ImageCropApply, ImageCropReset } from '@/app/admin/components/ImageCrop';
 import { FeaturedImage } from '@/app/admin/components/FeaturedImage';
 import { BannerImage } from '@/app/admin/components/BannerImage';
+import { processContentImages } from '@/app/admin/lib/richTextHelpers';
 
 const RichTextEditor = dynamic(() => import('@/app/admin/components/RichTextEditor'), { ssr: false });
 
@@ -224,6 +225,8 @@ export default function AddplacePage() {
       }
 
       // Prepare payload with correct field names
+      const processedDescription = await processContentImages(formData.description);
+
       const payload = {
         title: formData.title,
         urlTitle: formData.urlTitle,
@@ -234,7 +237,7 @@ export default function AddplacePage() {
           keywords: formData.metaKeywords,
           description: formData.metaDescription
         },
-        description: formData.description,
+        description: processedDescription,
         featuredImage: featuredImageUrl,
         featuredImageAlt: formData.featuredImageAlt,
         featuredImageCaption: formData.featuredImageCaption,

@@ -14,6 +14,7 @@ import { FeaturedImage } from '@/app/admin/components/FeaturedImage';
 import { BannerImage } from '@/app/admin/components/BannerImage';
 import { TripMapImage } from '@/app/admin/components/TripMapImage';
 import { GalleryUpload, type GalleryImage } from '@/app/admin/components/GalleryUpload';
+import { extractImagePaths, processContentImages, cleanupUnusedImages } from '@/app/admin/lib/richTextHelpers';
 
 interface GroupPrice {
   id: string;
@@ -108,6 +109,7 @@ export default function EditPackagePage() {
   const [loading, setLoading] = useState(false);
   const [showDiscardConfirm, setShowDiscardConfirm] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [initialRichTextImages, setInitialRichTextImages] = useState<string[]>([]);
 
   // Form state
   const [formData, setFormData] = useState<FormData>({
@@ -373,6 +375,20 @@ export default function EditPackagePage() {
           preview: url
         })));
       }
+
+      // Extract initial images from all RichTextEditor fields for cleanup tracking
+      const itineraryImages = pkg.itinerary?.flatMap((day: any) => extractImagePaths(day.description || '')) || [];
+      const allInitialImages = [
+        ...extractImagePaths(pkg.details || ''),
+        ...extractImagePaths(pkg.costInclude || ''),
+        ...extractImagePaths(pkg.costExclude || ''),
+        ...extractImagePaths(pkg.tripHighlights || ''),
+        ...extractImagePaths(pkg.departureNote || ''),
+        ...extractImagePaths(pkg.goodToKnow || ''),
+        ...extractImagePaths(pkg.extraFAQs || ''),
+        ...itineraryImages
+      ];
+      setInitialRichTextImages(allInitialImages);
 
       setFetchingData(false);
     } catch (err: any) {
@@ -739,6 +755,21 @@ export default function EditPackagePage() {
         }
       });
 
+      // Process RichTextEditor fields
+      const processedDetails = await processContentImages(formData.details);
+      const processedCostInclude = await processContentImages(formData.costInclude);
+      const processedCostExclude = await processContentImages(formData.costExclude);
+      const processedTripHighlights = await processContentImages(formData.tripHighlights);
+      const processedDepartureNote = await processContentImages(formData.departureNote);
+      const processedGoodToKnow = await processContentImages(formData.goodToKnow);
+      const processedExtraFAQs = await processContentImages(formData.extraFAQs);
+
+      // Process Itinerary descriptions
+      const processedItinerary = await Promise.all(itinerary.map(async (day) => ({
+        ...day,
+        description: await processContentImages(day.description)
+      })));
+
       // Prepare payload
       const payload = {
         packageTitle: formData.packageTitle,
@@ -753,12 +784,12 @@ export default function EditPackagePage() {
           description: formData.metaDescription
         },
         abstract: formData.abstract,
-        details: formData.details,
+        details: processedDetails,
         defaultPrice: formData.price, // Map price to defaultPrice
         groupPriceEnabled,
         groupPrices: groupPriceEnabled ? groupPrices : [],
-        costInclude: formData.costInclude,
-        costExclude: formData.costExclude,
+        costInclude: processedCostInclude,
+        costExclude: processedCostExclude,
         featuredImage: featuredImageUrl,
         featuredImageAlt: formData.featuredImageAlt,
         featuredImageCaption: formData.featuredImageCaption,
@@ -771,10 +802,10 @@ export default function EditPackagePage() {
         statusRibbon: formData.statusRibbon,
         groupSize: formData.groupSize,
         maxAltitude: formData.maxAltitude,
-        tripHighlights: formData.tripHighlights,
-        departureNote: formData.departureNote,
-        goodToKnow: formData.goodToKnow,
-        extraFAQs: formData.extraFAQs,
+        tripHighlights: processedTripHighlights,
+        departureNote: processedDepartureNote,
+        goodToKnow: processedGoodToKnow,
+        extraFAQs: processedExtraFAQs,
         relatedTrip: formData.relatedTrip,
         itineraryTitle: formData.itineraryTitle,
         status,
@@ -782,7 +813,7 @@ export default function EditPackagePage() {
         isBestselling,
         pageType: 'package',
         tripFacts: tripFactsPayload,
-        itinerary: itinerary.map(day => ({
+        itinerary: processedItinerary.map(day => ({
           dayNumber: day.dayNumber,
           title: day.title,
           description: day.description,
@@ -798,6 +829,21 @@ export default function EditPackagePage() {
         })),
         galleryImages: normalizedGalleryUrls
       };
+
+      // Perform cleanup of unused images
+      const finalItineraryImages = processedItinerary.flatMap(day => extractImagePaths(day.description));
+      const finalImages = [
+        ...extractImagePaths(processedDetails),
+        ...extractImagePaths(processedCostInclude),
+        ...extractImagePaths(processedCostExclude),
+        ...extractImagePaths(processedTripHighlights),
+        ...extractImagePaths(processedDepartureNote),
+        ...extractImagePaths(processedGoodToKnow),
+        ...extractImagePaths(processedExtraFAQs),
+        ...finalItineraryImages
+      ];
+
+      await cleanupUnusedImages(initialRichTextImages, finalImages);
 
       const res = await fetch(`http://localhost:3001/api/packages/${packageId}`, {
         method: 'PUT',

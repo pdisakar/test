@@ -5,6 +5,7 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/app/admin/components/ui/button';
 import { BannerImage } from '@/app/admin/components/BannerImage';
+import { extractImagePaths, processContentImages, cleanupUnusedImages } from '@/app/admin/lib/richTextHelpers';
 import dynamic from 'next/dynamic';
 
 const RichTextEditor = dynamic(() => import('@/app/admin/components/RichTextEditor'), { ssr: false });
@@ -21,6 +22,7 @@ export default function HomeContentPage() {
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
     const [showSuccessModal, setShowSuccessModal] = useState(false);
+    const [initialRichTextImages, setInitialRichTextImages] = useState<string[]>([]);
 
     useEffect(() => {
         const token = localStorage.getItem('authToken');
@@ -39,7 +41,10 @@ export default function HomeContentPage() {
             if (data) {
                 setContent(data.content || '');
                 setBannerImage(data.bannerImage || '');
-                // Assuming backend stores alt/caption if we added columns, but for now just image
+
+                // Extract initial images from RichTextEditor for cleanup tracking
+                const initialImages = extractImagePaths(data.content || '');
+                setInitialRichTextImages(initialImages);
             }
         } catch (err) {
             console.error('Error fetching home content:', err);
@@ -99,19 +104,25 @@ export default function HomeContentPage() {
                 newBannerPath = bannerImageUrl;
             }
 
+            const processedContent = await processContentImages(content);
+
             const response = await fetch('http://localhost:3001/api/homecontent', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ content, bannerImage: bannerImageUrl })
+                body: JSON.stringify({ content: processedContent, bannerImage: bannerImageUrl })
             });
 
             const data = await response.json();
 
             if (response.ok) {
-                // Update local state with new URL if uploaded
                 if (bannerImageUrl !== bannerImage) {
                     setBannerImage(bannerImageUrl);
                 }
+
+                // Perform cleanup of unused images
+                const finalImages = extractImagePaths(processedContent);
+                await cleanupUnusedImages(initialRichTextImages, finalImages);
+
                 setShowSuccessModal(true);
             } else {
                 // Rollback: Delete the uploaded image if the form submission failed

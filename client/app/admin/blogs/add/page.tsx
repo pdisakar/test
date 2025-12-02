@@ -14,6 +14,7 @@ import { Calendar } from "@/app/admin/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/app/admin/components/ui/popover";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
+import { processContentImages } from '@/app/admin/lib/richTextHelpers';
 
 const RichTextEditor = dynamic(() => import('@/app/admin/components/RichTextEditor'), { ssr: false });
 
@@ -167,6 +168,8 @@ export default function AddBlogPage() {
                 uploadedImagePaths.push(bannerImageUrl);
             }
 
+            const processedDescription = await processContentImages(formData.description);
+
             const payload = {
                 title: formData.title,
                 urlTitle: formData.urlTitle,
@@ -174,7 +177,7 @@ export default function AddBlogPage() {
                 authorId: formData.authorId,
                 publishedDate: formData.publishedDate ? formData.publishedDate.toISOString() : null,
                 abstract: formData.abstract,
-                description: formData.description,
+                description: processedDescription,
                 meta: {
                   title: formData.metaTitle,
                   keywords: formData.metaKeywords,

@@ -14,6 +14,7 @@ import { Calendar } from "@/app/admin/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/app/admin/components/ui/popover";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
+import { processContentImages, cleanupUnusedImages, extractImagePaths } from '@/app/admin/lib/richTextHelpers';
 
 const RichTextEditor = dynamic(() => import('@/app/admin/components/RichTextEditor'), { ssr: false });
 
@@ -60,6 +61,7 @@ export default function EditBlogPage() {
   const [selectedImageFile, setSelectedImageFile] = useState<File | null>(null);
   const [showImageCrop, setShowImageCrop] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [initialRichTextImages, setInitialRichTextImages] = useState<string[]>([]);
 
   useEffect(() => {
     const token = localStorage.getItem('authToken');
@@ -118,6 +120,12 @@ export default function EditBlogPage() {
         bannerImageCaption: blog.bannerImageCaption || '',
         pageType: blog.pageType || 'blog',
       });
+
+      // Extract and store initial images from description
+      if (blog.description) {
+        const initialImages = extractImagePaths(blog.description);
+        setInitialRichTextImages(initialImages);
+      }
     } catch (err: any) {
       setError(err.message || 'An error occurred while fetching blog data');
     } finally {
@@ -184,6 +192,9 @@ export default function EditBlogPage() {
         bannerImageUrl = await uploadImage(formData.bannerImage, 'banner');
       }
 
+      // Process RichTextEditor content images (upload base64 images)
+      const processedDescription = await processContentImages(formData.description);
+
       const payload = {
         title: formData.title,
         urlTitle: formData.urlTitle,
@@ -191,7 +202,7 @@ export default function EditBlogPage() {
         authorId: formData.authorId,
         publishedDate: formData.publishedDate ? formData.publishedDate.toISOString() : null,
         abstract: formData.abstract,
-        description: formData.description,
+        description: processedDescription,
         meta: {
           title: formData.metaTitle,
           keywords: formData.metaKeywords,
@@ -220,6 +231,15 @@ export default function EditBlogPage() {
       if (!res.ok) {
         throw new Error(data.message || 'Failed to update blog');
       }
+
+      if (!res.ok) {
+        throw new Error(data.message || 'Failed to update blog');
+      }
+
+      // Cleanup unused RichTextEditor images (compare initial vs final)
+      // We only care about images that were present initially but are now gone from the processed content
+      const htmlFields = [processedDescription];
+      await cleanupUnusedImages(initialRichTextImages, htmlFields);
 
       setShowSuccessModal(true);
     } catch (err: any) {

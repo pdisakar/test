@@ -23,6 +23,7 @@ import {
   Heading4,
   Heading5,
   FileCode,
+  UploadCloud,
 } from 'lucide-react';
 import { useCallback, useState, useEffect } from 'react';
 
@@ -32,12 +33,22 @@ interface RichTextEditorProps {
   placeholder?: string;
 }
 
+const fileToBase64 = (file: File): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = (error) => reject(error);
+  });
+};
+
 const RichTextEditor = ({ content, onChange, placeholder = 'Write something...' }: RichTextEditorProps) => {
   const [isSourceMode, setIsSourceMode] = useState(false);
   const [isLinkMode, setIsLinkMode] = useState(false);
   const [linkUrl, setLinkUrl] = useState('');
   const [isImageMode, setIsImageMode] = useState(false);
   const [imageUrl, setImageUrl] = useState('');
+  const [isUploading, setIsUploading] = useState(false);
 
   const editor = useEditor({
     extensions: [
@@ -122,6 +133,45 @@ const RichTextEditor = ({ content, onChange, placeholder = 'Write something...' 
     setImageUrl('');
   }, [editor, imageUrl]);
 
+  const uploadImage = async (file: File) => {
+    try {
+      setIsUploading(true);
+      const base64 = await fileToBase64(file);
+      const res = await fetch('http://localhost:3001/api/upload/image', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ image: base64 }),
+      });
+
+      if (!res.ok) throw new Error('Failed to upload image');
+
+      const data = await res.json();
+      const url = `http://localhost:3001${data.path}`;
+
+      if (editor) {
+        editor.chain().focus().setImage({ src: url }).run();
+      }
+
+
+
+      setIsImageMode(false);
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      alert('Failed to upload image');
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      uploadImage(file);
+    }
+  };
+
   const cancelImage = useCallback(() => {
     setIsImageMode(false);
     setImageUrl('');
@@ -190,8 +240,25 @@ const RichTextEditor = ({ content, onChange, placeholder = 'Write something...' 
               }}
             />
             <Button size="sm" onClick={applyImage} type="button" className="h-7 px-2">
-              Add
+              Add URL
             </Button>
+
+            <div className="w-px h-6 bg-gray-300 dark:bg-gray-600 mx-1" />
+
+            <label className={`cursor-pointer ${isUploading ? 'opacity-50 pointer-events-none' : ''}`}>
+              <input
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleImageUpload}
+                disabled={isUploading}
+              />
+              <div className="h-7 px-3 bg-primary text-white text-xs flex items-center rounded hover:bg-primary/90 transition-colors">
+                <UploadCloud className="w-3 h-3 mr-1" />
+                {isUploading ? 'Uploading...' : 'Upload'}
+              </div>
+            </label>
+
             <Button size="sm" variant="ghost" onClick={cancelImage} type="button" className="h-7 px-2">
               Cancel
             </Button>

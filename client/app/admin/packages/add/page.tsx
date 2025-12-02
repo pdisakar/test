@@ -14,6 +14,7 @@ import { FeaturedImage } from '@/app/admin/components/FeaturedImage';
 import { BannerImage } from '@/app/admin/components/BannerImage';
 import { TripMapImage } from '@/app/admin/components/TripMapImage';
 import { GalleryUpload, GalleryImage } from '@/app/admin/components/GalleryUpload';
+import { processContentImages } from '@/app/admin/lib/richTextHelpers';
 
 interface GroupPrice {
   id: string;
@@ -581,6 +582,21 @@ export default function AddPackagePage() {
         }
       });
 
+      // Process RichTextEditor fields
+      const processedDetails = await processContentImages(formData.details);
+      const processedCostInclude = await processContentImages(formData.costInclude);
+      const processedCostExclude = await processContentImages(formData.costExclude);
+      const processedTripHighlights = await processContentImages(formData.tripHighlights);
+      const processedDepartureNote = await processContentImages(formData.departureNote);
+      const processedGoodToKnow = await processContentImages(formData.goodToKnow);
+      const processedExtraFAQs = await processContentImages(formData.extraFAQs);
+
+      // Process Itinerary descriptions
+      const processedItinerary = await Promise.all(itinerary.map(async (day) => ({
+        ...day,
+        description: await processContentImages(day.description)
+      })));
+
       // Prepare payload
       const payload = {
         packageTitle: formData.packageTitle,
@@ -595,12 +611,12 @@ export default function AddPackagePage() {
           description: formData.metaDescription
         },
         abstract: formData.abstract,
-        details: formData.details,
-        defaultPrice: formData.price, // Map price to defaultPrice
+        details: processedDetails,
+        defaultPrice: formData.price,
         groupPriceEnabled,
         groupPrices: groupPriceEnabled ? groupPrices : [],
-        costInclude: formData.costInclude,
-        costExclude: formData.costExclude,
+        costInclude: processedCostInclude,
+        costExclude: processedCostExclude,
         galleryImages: galleryImageUrls,
         featuredImage: featuredImageUrl,
         featuredImageAlt: formData.featuredImageAlt,
@@ -614,10 +630,10 @@ export default function AddPackagePage() {
         statusRibbon: formData.statusRibbon,
         groupSize: formData.groupSize,
         maxAltitude: formData.maxAltitude,
-        tripHighlights: formData.tripHighlights,
-        departureNote: formData.departureNote,
-        goodToKnow: formData.goodToKnow,
-        extraFAQs: formData.extraFAQs,
+        tripHighlights: processedTripHighlights,
+        departureNote: processedDepartureNote,
+        goodToKnow: processedGoodToKnow,
+        extraFAQs: processedExtraFAQs,
         relatedTrip: formData.relatedTrip,
         itineraryTitle: formData.itineraryTitle,
         status,
@@ -625,7 +641,7 @@ export default function AddPackagePage() {
         isBestselling,
         pageType: 'package',
         tripFacts: tripFactsPayload,
-        itinerary: itinerary.map(day => ({
+        itinerary: processedItinerary.map(day => ({
           dayNumber: day.dayNumber,
           title: day.title,
           description: day.description,

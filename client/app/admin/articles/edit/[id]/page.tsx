@@ -10,6 +10,7 @@ import dynamic from 'next/dynamic';
 import { ImageCrop, ImageCropContent, ImageCropApply, ImageCropReset } from '@/app/admin/components/ImageCrop';
 import { FeaturedImage } from '@/app/admin/components/FeaturedImage';
 import { BannerImage } from '@/app/admin/components/BannerImage';
+import { extractImagePaths, processContentImages, cleanupUnusedImages } from '@/app/admin/lib/richTextHelpers';
 
 const RichTextEditor = dynamic(() => import('@/app/admin/components/RichTextEditor'), { ssr: false });
 
@@ -62,6 +63,7 @@ export default function EditArticlePage() {
   const [showAccordion, setShowAccordion] = useState(false);
   const [expandedParents, setExpandedParents] = useState<Set<number>>(new Set());
   const [parentOptions, setParentOptions] = useState<Article[]>([]);
+  const [initialRichTextImages, setInitialRichTextImages] = useState<string[]>([]);
 
   // Redirect if not authenticated
   useEffect(() => {
@@ -140,6 +142,10 @@ export default function EditArticlePage() {
         bannerImageCaption: data.article.bannerImageCaption || '',
         pageType: data.article.pageType || 'article',
       });
+
+      // Extract initial images from RichTextEditor for cleanup tracking
+      const initialImages = extractImagePaths(data.article.description || '');
+      setInitialRichTextImages(initialImages);
     } catch (err: any) {
       setError(err.message || 'An error occurred while fetching article data');
     } finally {
@@ -301,6 +307,9 @@ export default function EditArticlePage() {
         bannerImageUrl = await uploadImage(formData.bannerImageUrl, 'banner');
       }
 
+      // Prepare payload with correct field names
+      const processedDescription = await processContentImages(formData.description);
+
       const payload = {
         title: formData.title,
         urlTitle: formData.urlTitle,
@@ -311,7 +320,7 @@ export default function EditArticlePage() {
           keywords: formData.metaKeywords,
           description: formData.metaDescription
         },
-        description: formData.description,
+        description: processedDescription,
         featuredImage: featuredImageUrl,
         featuredImageAlt: formData.featuredImageAlt,
         featuredImageCaption: formData.featuredImageCaption,
@@ -333,6 +342,10 @@ export default function EditArticlePage() {
       if (!response.ok) {
         throw new Error(data.message || 'Failed to update article');
       }
+
+      // Perform cleanup of unused images
+      const finalImages = extractImagePaths(processedDescription);
+      await cleanupUnusedImages(initialRichTextImages, finalImages);
 
       setShowSuccessModal(true);
     } catch (err: any) {

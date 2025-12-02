@@ -10,6 +10,7 @@ import dynamic from 'next/dynamic';
 import { ImageCrop, ImageCropContent, ImageCropApply, ImageCropReset } from '@/app/admin/components/ImageCrop';
 import { FeaturedImage } from '@/app/admin/components/FeaturedImage';
 import { BannerImage } from '@/app/admin/components/BannerImage';
+import { extractImagePaths, processContentImages, cleanupUnusedImages } from '@/app/admin/lib/richTextHelpers';
 
 const RichTextEditor = dynamic(() => import('@/app/admin/components/RichTextEditor'), { ssr: false });
 
@@ -136,6 +137,10 @@ export default function EditPlacePage() {
                 bannerImageCaption: data.place.bannerImageCaption || '',
                 pageType: data.place.pageType || 'place',
             });
+
+            // Extract initial images from RichTextEditor for cleanup tracking
+            const initialImages = extractImagePaths(data.place.description || '');
+            setInitialRichTextImages(initialImages);
         } catch (err: any) {
             setError(err.message || 'An error occurred while fetching place data');
         } finally {
@@ -302,9 +307,9 @@ export default function EditPlacePage() {
                 slug: formData.slug,
                 parentId: formData.parentId.length > 0 ? parseInt(formData.parentId[0]) : null,
                 meta: {
-                  title: formData.metaTitle,
-                  keywords: formData.metaKeywords,
-                  description: formData.metaDescription
+                    title: formData.metaTitle,
+                    keywords: formData.metaKeywords,
+                    description: formData.metaDescription
                 },
                 description: formData.description,
                 featuredImage: featuredImageUrl,
@@ -329,6 +334,10 @@ export default function EditPlacePage() {
             if (!response.ok) {
                 throw new Error(data.message || 'Failed to update place');
             }
+
+            // Perform cleanup of unused images
+            const finalImages = extractImagePaths(processedDescription);
+            await cleanupUnusedImages(initialRichTextImages, finalImages);
 
             setShowSuccessModal(true);
         } catch (err: any) {
