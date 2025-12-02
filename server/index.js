@@ -65,6 +65,110 @@ const checkSlugExists = async (slug, excludeTable = null, excludeId = null) => {
   return { exists: false };
 };
 
+// Helper to format meta data from entity
+const formatMeta = (entity) => {
+  if (!entity) return null;
+  return {
+    ...entity,
+    meta: {
+      title: entity.metaTitle,
+      keywords: entity.metaKeywords,
+      description: entity.metaDescription
+    },
+    metaTitle: undefined,
+    metaKeywords: undefined,
+    metaDescription: undefined
+  };
+};
+
+// Helper to enrich place with children and packages
+const enrichPlace = async (place) => {
+  if (!place) return null;
+  
+  // Fetch children places
+  const children = await allAsync('SELECT * FROM places WHERE parentId = ? AND deletedAt IS NULL', [place.id]);
+  
+  // Fetch packages associated with this place
+  const packages = await allAsync(
+    `SELECT p.* 
+     FROM packages p 
+     JOIN package_places pp ON p.id = pp.packageId 
+     WHERE pp.placeId = ? AND p.deletedAt IS NULL AND p.status = 1`,
+    [place.id]
+  );
+
+  return formatMeta({
+    ...place,
+    children,
+    packages
+  });
+};
+
+// Helper to enrich article with children
+const enrichArticle = async (article) => {
+  if (!article) return null;
+  
+  // Fetch children articles
+  const children = await allAsync('SELECT * FROM articles WHERE parentId = ? AND deletedAt IS NULL', [article.id]);
+
+  return formatMeta({
+    ...article,
+    children
+  });
+};
+
+// Helper to enrich package with all related data
+const enrichPackage = async (pkg) => {
+  if (!pkg) return null;
+
+  const itinerary = await allAsync('SELECT * FROM package_itinerary WHERE packageId = ? ORDER BY dayNumber ASC', [pkg.id]);
+  const galleryImages = await allAsync('SELECT imageUrl FROM package_gallery WHERE packageId = ?', [pkg.id]);
+  const groupPrices = await allAsync('SELECT * FROM package_group_pricing WHERE packageId = ?', [pkg.id]);
+
+  // Fetch trip facts with labels
+  const tripFacts = await allAsync(
+    `SELECT ptf.categorySlug, pa.name 
+     FROM package_trip_facts ptf
+     JOIN package_attributes pa ON ptf.attributeId = pa.id
+     WHERE ptf.packageId = ?`,
+    [pkg.id]
+  );
+
+  // Fetch all categories to ensure complete structure
+  const allCategories = await allAsync('SELECT slug FROM trip_fact_categories');
+
+  // Format trip facts as object { categorySlug: attributeName }
+  const tripFactsObj = {};
+  allCategories.forEach(cat => {
+    tripFactsObj[cat.slug] = null;
+  });
+
+  tripFacts.forEach(tf => {
+    tripFactsObj[tf.categorySlug] = tf.name;
+  });
+
+  // Inject static fields into tripFacts
+  tripFactsObj['status-ribbon'] = pkg.statusRibbon || null;
+  tripFactsObj['group-size'] = pkg.groupSize ? String(pkg.groupSize) : null;
+  tripFactsObj['max-altitude'] = pkg.maxAltitude ? String(pkg.maxAltitude) : null;
+
+  // Fetch testimonials for this package (exclude soft-deleted)
+  const testimonials = await allAsync('SELECT * FROM testimonials WHERE packageId = ? AND deletedAt IS NULL', [pkg.id]);
+
+  // Remove statusRibbon from root package object as it's already in tripFacts
+  const { statusRibbon, ...pkgWithoutStatusRibbon } = pkg;
+
+  return formatMeta({
+    ...pkgWithoutStatusRibbon,
+    itinerary,
+    galleryImages: galleryImages.map(img => img.imageUrl),
+    groupPrices,
+    tripFacts: tripFactsObj,
+    testimonials,
+    total_testimonials: testimonials.length
+  });
+};
+
 // Admin creation moved to after server start
 
 // Login endpoint
@@ -366,17 +470,7 @@ app.delete('/api/upload/image', (req, res) => {
 app.get('/api/articles', async (req, res) => {
   try {
     const articles = await allAsync('SELECT * FROM articles WHERE deletedAt IS NULL ORDER BY createdAt DESC');
-    const formattedArticles = articles.map(a => ({
-      ...a,
-      meta: {
-        title: a.metaTitle,
-        keywords: a.metaKeywords,
-        description: a.metaDescription
-      },
-      metaTitle: undefined,
-      metaKeywords: undefined,
-      metaDescription: undefined
-    }));
+    const formattedArticles = articles.map(formatMeta);
     res.json(formattedArticles);
   } catch (err) {
     console.error('Error fetching articles:', err);
@@ -388,17 +482,7 @@ app.get('/api/articles', async (req, res) => {
 app.get('/api/articles/trash', async (req, res) => {
   try {
     const articles = await allAsync('SELECT * FROM articles WHERE deletedAt IS NOT NULL ORDER BY deletedAt DESC');
-    const formattedArticles = articles.map(a => ({
-      ...a,
-      meta: {
-        title: a.metaTitle,
-        keywords: a.metaKeywords,
-        description: a.metaDescription
-      },
-      metaTitle: undefined,
-      metaKeywords: undefined,
-      metaDescription: undefined
-    }));
+    const formattedArticles = articles.map(formatMeta);
     res.json(formattedArticles);
   } catch (err) {
     console.error('Error fetching trash:', err);
@@ -418,18 +502,7 @@ app.get('/api/homecontent', async (req, res) => {
         meta: { title: '', keywords: '', description: '' }
       });
     }
-    const formattedArticle = {
-      ...article,
-      meta: {
-        title: article.metaTitle,
-        keywords: article.metaKeywords,
-        description: article.metaDescription
-      },
-      metaTitle: undefined,
-      metaKeywords: undefined,
-      metaDescription: undefined
-    };
-    res.json(formattedArticle);
+    res.json(formatMeta(article));
   } catch (err) {
     console.error('Error fetching home content:', err);
     res.status(500).json({ success: false, message: 'Server error' });
@@ -514,22 +587,8 @@ app.get('/api/articles/:id', async (req, res) => {
       return res.status(404).json({ success: false, message: 'Article not found' });
     }
 
-    // Fetch children articles
-    const children = await allAsync('SELECT * FROM articles WHERE parentId = ? AND deletedAt IS NULL', [article.id]);
-
-    const formattedArticle = {
-      ...article,
-      children,
-      meta: {
-        title: article.metaTitle,
-        keywords: article.metaKeywords,
-        description: article.metaDescription
-      },
-      metaTitle: undefined,
-      metaKeywords: undefined,
-      metaDescription: undefined
-    };
-    res.json({ success: true, article: formattedArticle });
+    const enrichedArticle = await enrichArticle(article);
+    res.json({ success: true, article: enrichedArticle });
   } catch (err) {
     console.error('Error fetching article:', err);
     res.status(500).json({ success: false, message: 'Server error' });
@@ -876,17 +935,7 @@ app.get('/api/places', async (req, res) => {
     query += ' ORDER BY createdAt DESC';
     
     const places = await allAsync(query, params);
-    const formattedPlaces = places.map(p => ({
-      ...p,
-      meta: {
-        title: p.metaTitle,
-        keywords: p.metaKeywords,
-        description: p.metaDescription
-      },
-      metaTitle: undefined,
-      metaKeywords: undefined,
-      metaDescription: undefined
-    }));
+    const formattedPlaces = places.map(formatMeta);
     res.json(formattedPlaces);
   } catch (err) {
     console.error('Error fetching places:', err);
@@ -898,17 +947,7 @@ app.get('/api/places', async (req, res) => {
 app.get('/api/places/trash', async (req, res) => {
   try {
     const places = await allAsync('SELECT * FROM places WHERE deletedAt IS NOT NULL ORDER BY deletedAt DESC');
-    const formattedPlaces = places.map(p => ({
-      ...p,
-      meta: {
-        title: p.metaTitle,
-        keywords: p.metaKeywords,
-        description: p.metaDescription
-      },
-      metaTitle: undefined,
-      metaKeywords: undefined,
-      metaDescription: undefined
-    }));
+    const formattedPlaces = places.map(formatMeta);
     res.json(formattedPlaces);
   } catch (err) {
     console.error('Error fetching trash:', err);
@@ -924,17 +963,7 @@ app.get('/api/places/:id', async (req, res) => {
     if (!place) {
       return res.status(404).json({ success: false, message: 'Place not found' });
     }
-    const formattedPlace = {
-      ...place,
-      meta: {
-        title: place.metaTitle,
-        keywords: place.metaKeywords,
-        description: place.metaDescription
-      },
-      metaTitle: undefined,
-      metaKeywords: undefined,
-      metaDescription: undefined
-    };
+    const formattedPlace = formatMeta(place);
     res.json({ success: true, place: formattedPlace });
   } catch (err) {
     console.error('Error fetching place:', err);
@@ -950,32 +979,9 @@ app.get('/api/places/slug/:slug', async (req, res) => {
     if (!place) {
       return res.status(404).json({ success: false, message: 'Place not found' });
     }
-    // Fetch children places
-    const children = await allAsync('SELECT * FROM places WHERE parentId = ? AND deletedAt IS NULL', [place.id]);
-    
-    // Fetch packages associated with this place
-    const packages = await allAsync(
-      `SELECT p.* 
-       FROM packages p 
-       JOIN package_places pp ON p.id = pp.packageId 
-       WHERE pp.placeId = ? AND p.deletedAt IS NULL AND p.status = 1`,
-      [place.id]
-    );
 
-    const formattedPlace = {
-      ...place,
-      children,
-      packages,
-      meta: {
-        title: place.metaTitle,
-        keywords: place.metaKeywords,
-        description: place.metaDescription
-      },
-      metaTitle: undefined,
-      metaKeywords: undefined,
-      metaDescription: undefined
-    };
-    res.json({ success: true, place: formattedPlace });
+    const enrichedPlace = await enrichPlace(place);
+    res.json({ success: true, place: enrichedPlace });
   } catch (err) {
     console.error('Error fetching place by slug:', err);
     res.status(500).json({ success: false, message: 'Server error' });
@@ -3536,121 +3542,30 @@ app.get('/api/resolve-slug/:slug', async (req, res) => {
     // 1. Check Places
     const place = await getAsync('SELECT * FROM places WHERE slug = ? AND deletedAt IS NULL', [slug]);
     if (place) {
-      // Fetch children places
-      const children = await allAsync('SELECT * FROM places WHERE parentId = ? AND deletedAt IS NULL', [place.id]);
-      
-      // Fetch packages associated with this place
-      const packages = await allAsync(
-        `SELECT p.* 
-         FROM packages p 
-         JOIN package_places pp ON p.id = pp.packageId 
-         WHERE pp.placeId = ? AND p.deletedAt IS NULL AND p.status = 1`,
-        [place.id]
-      );
-
+      const enrichedPlace = await enrichPlace(place);
       return res.json({
         datatype: 'place',
-        content: {
-          ...place,
-          children,
-          packages,
-          meta: {
-            title: place.metaTitle,
-            keywords: place.metaKeywords,
-            description: place.metaDescription
-          },
-          metaTitle: undefined,
-          metaKeywords: undefined,
-          metaDescription: undefined
-        }
+        content: enrichedPlace
       });
     }
 
     // 2. Check Packages
     const pkg = await getAsync('SELECT * FROM packages WHERE slug = ? AND deletedAt IS NULL', [slug]);
     if (pkg) {
-      // Fetch related data for package if needed (e.g., itinerary, gallery)
-      // For now, returning the main package object. The frontend might need to fetch more details 
-      // or we can fetch them here. Let's fetch basic relations.
-      const itinerary = await allAsync('SELECT * FROM package_itinerary WHERE packageId = ? ORDER BY dayNumber ASC', [pkg.id]);
-      const galleryImages = await allAsync('SELECT imageUrl FROM package_gallery WHERE packageId = ?', [pkg.id]);
-      const groupPrices = await allAsync('SELECT * FROM package_group_pricing WHERE packageId = ?', [pkg.id]);
-
-      // Fetch trip facts with labels
-      const tripFacts = await allAsync(
-        `SELECT ptf.categorySlug, pa.name 
-         FROM package_trip_facts ptf
-         JOIN package_attributes pa ON ptf.attributeId = pa.id
-         WHERE ptf.packageId = ?`,
-        [pkg.id]
-      );
-
-      // Fetch all categories to ensure complete structure
-      const allCategories = await allAsync('SELECT slug FROM trip_fact_categories');
-
-      // Format trip facts as object { categorySlug: attributeName }
-      const tripFactsObj = {};
-      allCategories.forEach(cat => {
-        tripFactsObj[cat.slug] = null;
-      });
-
-      tripFacts.forEach(tf => {
-        tripFactsObj[tf.categorySlug] = tf.name;
-      });
-
-      // Inject static fields into tripFacts
-      tripFactsObj['status-ribbon'] = pkg.statusRibbon || null;
-      tripFactsObj['group-size'] = pkg.groupSize ? String(pkg.groupSize) : null;
-      tripFactsObj['max-altitude'] = pkg.maxAltitude ? String(pkg.maxAltitude) : null;
-
-      // Fetch testimonials for this package (exclude soft-deleted)
-      const testimonials = await allAsync('SELECT * FROM testimonials WHERE packageId = ? AND deletedAt IS NULL', [pkg.id]);
-
-      // Remove statusRibbon from root package object as it's already in tripFacts
-      const { statusRibbon, ...pkgWithoutStatusRibbon } = pkg;
-
+      const enrichedPackage = await enrichPackage(pkg);
       return res.json({
         datatype: 'package',
-        content: {
-          ...pkgWithoutStatusRibbon,
-          itinerary,
-          galleryImages: galleryImages.map(img => img.imageUrl),
-          groupPrices,
-          tripFacts: tripFactsObj,
-          testimonials,
-          total_testimonials: testimonials.length,
-          meta: {
-            title: pkg.metaTitle,
-            keywords: pkg.metaKeywords,
-            description: pkg.metaDescription
-          },
-          metaTitle: undefined,
-          metaKeywords: undefined,
-          metaDescription: undefined
-        }
+        content: enrichedPackage
       });
     }
 
     // 3. Check Articles
     const article = await getAsync('SELECT * FROM articles WHERE slug = ? AND deletedAt IS NULL', [slug]);
     if (article) {
-      // Fetch children articles
-      const children = await allAsync('SELECT * FROM articles WHERE parentId = ? AND deletedAt IS NULL', [article.id]);
-
+      const enrichedArticle = await enrichArticle(article);
       return res.json({
         datatype: 'article',
-        content: {
-          ...article,
-          children,
-          meta: {
-            title: article.metaTitle,
-            keywords: article.metaKeywords,
-            description: article.metaDescription
-          },
-          metaTitle: undefined,
-          metaKeywords: undefined,
-          metaDescription: undefined
-        }
+        content: enrichedArticle
       });
     }
 
@@ -3659,17 +3574,7 @@ app.get('/api/resolve-slug/:slug', async (req, res) => {
     if (blog) {
       return res.json({
         datatype: 'blog',
-        content: {
-          ...blog,
-          meta: {
-            title: blog.metaTitle,
-            keywords: blog.metaKeywords,
-            description: blog.metaDescription
-          },
-          metaTitle: undefined,
-          metaKeywords: undefined,
-          metaDescription: undefined
-        }
+        content: formatMeta(blog)
       });
     }
 
