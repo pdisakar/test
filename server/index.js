@@ -25,6 +25,33 @@ const deleteImageFile = (imageUrl) => {
   });
 };
 
+// Helper to extract image paths from HTML content (rich text editor)
+const extractImagesFromHtml = (html) => {
+  if (!html || typeof html !== 'string') return [];
+  
+  const imgRegex = /<img[^>]+src="([^"]+)"/g;
+  const paths = [];
+  let match;
+  
+  while ((match = imgRegex.exec(html)) !== null) {
+    const src = match[1];
+    // Only include local uploads, not external URLs or base64
+    if (src.includes('/uploads/') && !src.startsWith('data:')) {
+      paths.push(src);
+    }
+  }
+  
+  return paths;
+};
+
+// Helper to delete all images from rich text content
+const deleteImagesFromHtml = (html) => {
+  const imagePaths = extractImagesFromHtml(html);
+  imagePaths.forEach(imagePath => {
+    deleteImageFile(imagePath);
+  });
+};
+
 // Helper to check if slug exists globally across all content types
 const checkSlugExists = async (slug, excludeTable = null, excludeId = null) => {
   // 1. Check Reserved Slugs
@@ -776,11 +803,14 @@ app.delete('/api/articles/:id/permanent', async (req, res) => {
 
     const placeholders = idsToDelete.map(() => '?').join(',');
 
-    // Delete associated images
-    const articlesToDelete = await allAsync(`SELECT featuredImage, bannerImage FROM articles WHERE id IN (${placeholders})`, idsToDelete);
+    // Delete associated images (featured, banner, AND rich text content)
+    const articlesToDelete = await allAsync(`SELECT featuredImage, bannerImage, description, content FROM articles WHERE id IN (${placeholders})`, idsToDelete);
     articlesToDelete.forEach(article => {
       deleteImageFile(article.featuredImage);
       deleteImageFile(article.bannerImage);
+      // Delete images from rich text content
+      deleteImagesFromHtml(article.description);
+      deleteImagesFromHtml(article.content);
     });
 
     await runAsync(`DELETE FROM articles WHERE id IN (${placeholders})`, idsToDelete);
@@ -862,11 +892,14 @@ app.post('/api/articles/bulk-delete-permanent', async (req, res) => {
     const finalIds = Array.from(allIdsToDelete);
     const placeholders = finalIds.map(() => '?').join(',');
 
-    // Delete associated images
-    const articlesToDelete = await allAsync(`SELECT featuredImage, bannerImage FROM articles WHERE id IN (${placeholders})`, finalIds);
+    // Delete associated images (featured, banner, AND rich text content)
+    const articlesToDelete = await allAsync(`SELECT featuredImage, bannerImage, description, content FROM articles WHERE id IN (${placeholders})`, finalIds);
     articlesToDelete.forEach(article => {
       deleteImageFile(article.featuredImage);
       deleteImageFile(article.bannerImage);
+      // Delete images from rich text content
+      deleteImagesFromHtml(article.description);
+      deleteImagesFromHtml(article.content);
     });
 
     const result = await runAsync(`DELETE FROM articles WHERE id IN (${placeholders})`, finalIds);
@@ -1302,11 +1335,13 @@ app.delete('/api/places/:id/permanent', async (req, res) => {
 
     const placeholders = idsToDelete.map(() => '?').join(',');
 
-    // Delete associated images
-    const placesToDelete = await allAsync(`SELECT featuredImage, bannerImage FROM places WHERE id IN (${placeholders})`, idsToDelete);
+    // Delete associated images (featured, banner, AND rich text content)
+    const placesToDelete = await allAsync(`SELECT featuredImage, bannerImage, description FROM places WHERE id IN (${placeholders})`, idsToDelete);
     placesToDelete.forEach(place => {
       deleteImageFile(place.featuredImage);
       deleteImageFile(place.bannerImage);
+      // Delete images from rich text content
+      deleteImagesFromHtml(place.description);
     });
 
     await runAsync(`DELETE FROM places WHERE id IN (${placeholders})`, idsToDelete);
@@ -1388,11 +1423,13 @@ app.post('/api/places/bulk-delete-permanent', async (req, res) => {
     const finalIds = Array.from(allIdsToDelete);
     const placeholders = finalIds.map(() => '?').join(',');
 
-    // Delete associated images
-    const placesToDelete = await allAsync(`SELECT featuredImage, bannerImage FROM places WHERE id IN (${placeholders})`, finalIds);
+    // Delete associated images (featured, banner, AND rich text content)
+    const placesToDelete = await allAsync(`SELECT featuredImage, bannerImage, description FROM places WHERE id IN (${placeholders})`, finalIds);
     placesToDelete.forEach(place => {
       deleteImageFile(place.featuredImage);
       deleteImageFile(place.bannerImage);
+      // Delete images from rich text content
+      deleteImagesFromHtml(place.description);
     });
 
     const result = await runAsync(`DELETE FROM places WHERE id IN (${placeholders})`, finalIds);
@@ -2031,6 +2068,11 @@ app.delete('/api/packages/:id/permanent', async (req, res) => {
         deleteImageFile(img.imageUrl);
       }
     }
+
+    // 2.2 Delete images from rich text content
+    deleteImagesFromHtml(pkg.description);
+    deleteImagesFromHtml(pkg.overview);
+    deleteImagesFromHtml(pkg.highlights);
 
     // 3. Delete from database (Cascade should handle related tables)
     await runAsync('DELETE FROM packages WHERE id = ?', [id]);
@@ -2838,11 +2880,13 @@ app.post('/api/blogs/bulk-delete-permanent', async (req, res) => {
   try {
     const placeholders = ids.map(() => '?').join(',');
 
-    // Delete associated images
-    const blogsToDelete = await allAsync(`SELECT featuredImage, bannerImage FROM blogs WHERE id IN (${placeholders})`, ids);
+    // Delete associated images (featured, banner, AND rich text content)
+    const blogsToDelete = await allAsync(`SELECT featuredImage, bannerImage, description FROM blogs WHERE id IN (${placeholders})`, ids);
     blogsToDelete.forEach(blog => {
       deleteImageFile(blog.featuredImage);
       deleteImageFile(blog.bannerImage);
+      // Delete images from rich text content
+      deleteImagesFromHtml(blog.description);
     });
 
     const result = await runAsync(`DELETE FROM blogs WHERE id IN (${placeholders})`, ids);
@@ -3075,6 +3119,8 @@ app.delete('/api/testimonials/:id/permanent', async (req, res) => {
     if (testimonial.avatar) {
       deleteImageFile(testimonial.avatar);
     }
+    // Delete images from rich text content
+    deleteImagesFromHtml(testimonial.description);
 
     // 3. Delete from database
     await runAsync('DELETE FROM testimonials WHERE id = ?', [id]);
@@ -3145,6 +3191,8 @@ app.post('/api/testimonials/bulk-delete-permanent', async (req, res) => {
       if (testimonial.avatar) {
         deleteImageFile(testimonial.avatar);
       }
+      // Delete images from rich text content
+      deleteImagesFromHtml(testimonial.description);
     }
 
     // 3. Delete from database
