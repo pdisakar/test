@@ -199,7 +199,7 @@ const NavBar: React.FC<NavBarProps> = ({ menuData = [] }) => {
                 </ul>
                 <button 
                     onClick={() => setIsSearchOpen(true)}
-                    className="smart-search hover:opacity-80 transition-opacity cursor-pointer"
+                    className="smart-search transition-opacity hover:cursor-pointer"
                     aria-label="Open search"
                 >
                     <svg
