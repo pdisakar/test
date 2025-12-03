@@ -955,6 +955,32 @@ const getPlaceDescendantIds = async (parentId) => {
   }
 };
 
+// Helper to count packages for a place and all its descendants
+const getPackageCountForPlace = async (placeId) => {
+  try {
+    // Get all descendant place IDs
+    const descendantIds = await getPlaceDescendantIds(placeId);
+    const allPlaceIds = [placeId, ...descendantIds];
+    
+    // Count packages associated with any of these places
+    const placeholders = allPlaceIds.map(() => '?').join(',');
+    const result = await getAsync(
+      `SELECT COUNT(DISTINCT pp.packageId) as count 
+       FROM package_places pp 
+       JOIN packages p ON pp.packageId = p.id 
+       WHERE pp.placeId IN (${placeholders}) 
+       AND p.deletedAt IS NULL 
+       AND p.status = 1`,
+      allPlaceIds
+    );
+    
+    return result ? result.count : 0;
+  } catch (err) {
+    console.error('Error counting packages for place:', err);
+    return 0;
+  }
+};
+
 // Get all active places (not deleted)
 app.get('/api/places', async (req, res) => {
   const { isFeatured } = req.query;
@@ -970,6 +996,27 @@ app.get('/api/places', async (req, res) => {
     query += ' ORDER BY createdAt DESC';
     
     const places = await allAsync(query, params);
+    
+    // If fetching featured places, return only specific fields with package count
+    if (isFeatured !== undefined && (isFeatured === 'true' || isFeatured === '1')) {
+      const featuredPlaces = await Promise.all(
+        places.map(async (place) => {
+          const packageCount = await getPackageCountForPlace(place.id);
+          return {
+            id: place.id,
+            title: place.title,
+            slug: place.slug,
+            featuredImage: place.featuredImage,
+            featuredImageAlt: place.featuredImageAlt,
+            featuredImageCaption: place.featuredImageCaption,
+            packageCount
+          };
+        })
+      );
+      return res.json(featuredPlaces);
+    }
+    
+    // For non-featured requests, return all fields formatted
     const formattedPlaces = places.map(formatMeta);
     res.json(formattedPlaces);
   } catch (err) {

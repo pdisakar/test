@@ -20,7 +20,7 @@ const DesktopHeader: React.FC<DesktopHeaderProps> = ({
       <div className="header container py-2.5 flex items-center justify-between gap-6">
         <Link href='/' className='inline-block'><Image src={logo} alt="logo" height={70} width={220} /></Link>
         <a
-          href={`https://wa.me/${settingsData.mobileNumber1}`}
+          href={`https://wa.me/${settingsData.mobileNumber1?.replace(/\D/g, '')}`}
           target="_blank"
           rel="noopener noreferrer"
           className="whatsapp flex items-center gap-2 cursor-pointer"

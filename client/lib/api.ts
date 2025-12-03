@@ -72,8 +72,7 @@ export interface Place {
     featuredImage: string;
     featuredImageAlt?: string;
     featuredImageCaption?: string;
-    description?: string;
-    isFeatured: number;
+    packageCount?: number;
 }
 
 // Fetch featured packages (build‑time only)

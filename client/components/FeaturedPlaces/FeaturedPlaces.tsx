@@ -12,8 +12,6 @@ interface FeaturedPlacesProps {
 export const FeaturedPlaces = async ({ pretitle, title, subtitle }: FeaturedPlacesProps) => {
     const places = await fetchFeaturedPlaces();
 
-    console.log(places);
-
 
     return (
         <section className="py-16 container">
@@ -41,11 +39,10 @@ export const FeaturedPlaces = async ({ pretitle, title, subtitle }: FeaturedPlac
 
                         <div className="absolute bottom-0 left-0 right-0 p-6 transform translate-y-2 group-hover:translate-y-0 transition-transform duration-300">
                             <h3 className="text-2xl font-bold text-white mb-2">{place.title}</h3>
-                            {place.description && (
-                                <div
-                                    className="text-gray-200 text-sm line-clamp-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 delay-100"
-                                    dangerouslySetInnerHTML={{ __html: place.description }}
-                                />
+                            {place.packageCount !== undefined && place.packageCount > 0 && (
+                                <div className="inline-block px-3 py-1 bg-primary/90 backdrop-blur-sm rounded-full text-sm text-white font-semibold">
+                                    {place.packageCount} {place.packageCount === 1 ? 'Package' : 'Packages'}
+                                </div>
                             )}
                         </div>
                     </Link>
