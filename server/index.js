@@ -3257,7 +3257,7 @@ app.get('/api/menus/type/:type', async (req, res) => {
             node.children.push({
               id: `pkg-${pkg.id}`, // specific ID format to avoid collision
               title: pkg.title,
-              url: `/package/${pkg.slug}`, // Assuming package URL structure
+              url: `/${pkg.slug}`, // Assuming package URL structure
               type: item.type,
               parentId: item.id,
               children: [], // Packages don't have children for now

@@ -152,7 +152,7 @@ const NavBar: React.FC<NavBarProps> = ({ menuData = [] }) => {
 
                             {isSimpleDropdown && (
                                 <ul
-                                    className={`rounded-b-lg absolute left-0 z-40 top-full min-w-[250px] bg-page-bg shadow-lg p-5 space-y-2 transition-all duration-300 ease-out origin-top ${isOpen
+                                    className={`rounded-b-lg absolute left-0 z-40 top-full min-w-[250px] bg-page-body shadow-sm p-5 space-y-2 transition-all duration-300 ease-out origin-top ${isOpen
                                         ? 'opacity-100 scale-100 visible'
                                         : 'pointer-events-none opacity-0 scale-95 invisible'
                                         }`}>
