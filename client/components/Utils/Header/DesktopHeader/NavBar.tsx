@@ -56,7 +56,7 @@ const NavBar: React.FC<NavBarProps> = ({ menuData = [] }) => {
         <nav
             ref={navRef}
             className="relative z-50 bg-navbar">
-            <ul className="container flex items-center [&>li:not(:first-child)]:pl-3.5 [&>li]:pr-3.5 [&>li]:py-3">
+            <ul className="container flex items-center [&>li:not(:first-child)]:pl-3.5 [&>li]:pr-3.5 [&>li]:py-2.5">
                 {menuData.map(menu => {
                     const title = menu.item_title || menu.title || '';
                     const url = menu.url_segment || menu.url || '#';

@@ -2,7 +2,7 @@
 @plugin "@tailwindcss/typography";
 
 @theme inline {
-  --color-primary: #34a8eb;
+  --color-primary: #3983C7;
   --color-headings: #172541;
   --color-navbar: #143254;
   --color-body-text: #000000;
