@@ -30,7 +30,7 @@ const DesktopHeader: React.FC<DesktopHeaderProps> = ({
           </svg>
           <div className="whatsappbody">
             <span className='block text-sm font-semibold leading-[100%] text-headings'>Call or WhatsApp</span>
-            <span className='block font-semibold leading-[100%] text-primary mt-1.5'>+977 {settingsData.mobileNumber1}</span>
+            <span className='block font-semibold text-[17px] leading-[100%] text-primary mt-1.5'>+977 {settingsData.mobileNumber1}</span>
           </div>
         </div>
       </div>
