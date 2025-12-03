@@ -6,6 +6,7 @@ const path = require('path');
 
 // SQLite helper (db.js provides runAsync, getAsync, allAsync)
 const { runAsync, getAsync, allAsync } = require('./db');
+const { getBreadcrumbs } = require('./breadcrumbs');
 
 const app = express();
 const PORT = 3001;
@@ -615,7 +616,8 @@ app.get('/api/articles/:id', async (req, res) => {
     }
 
     const enrichedArticle = await enrichArticle(article);
-    res.json({ success: true, article: enrichedArticle });
+    const breadcrumbs = await getBreadcrumbs('article', article);
+    res.json({ success: true, article: { ...enrichedArticle, breadcrumbs } });
   } catch (err) {
     console.error('Error fetching article:', err);
     res.status(500).json({ success: false, message: 'Server error' });
@@ -997,7 +999,8 @@ app.get('/api/places/:id', async (req, res) => {
       return res.status(404).json({ success: false, message: 'Place not found' });
     }
     const formattedPlace = formatMeta(place);
-    res.json({ success: true, place: formattedPlace });
+    const breadcrumbs = await getBreadcrumbs('place', place);
+    res.json({ success: true, place: { ...formattedPlace, breadcrumbs } });
   } catch (err) {
     console.error('Error fetching place:', err);
     res.status(500).json({ success: false, message: 'Server error' });
@@ -1014,7 +1017,8 @@ app.get('/api/places/slug/:slug', async (req, res) => {
     }
 
     const enrichedPlace = await enrichPlace(place);
-    res.json({ success: true, place: enrichedPlace });
+    const breadcrumbs = await getBreadcrumbs('place', place);
+    res.json({ success: true, place: { ...enrichedPlace, breadcrumbs } });
   } catch (err) {
     console.error('Error fetching place by slug:', err);
     res.status(500).json({ success: false, message: 'Server error' });
@@ -1829,7 +1833,8 @@ app.get('/api/packages/:idOrSlug', async (req, res) => {
         metaTitle: undefined,
         metaKeywords: undefined,
         metaDescription: undefined
-      }
+      },
+      breadcrumbs: await getBreadcrumbs('package', packageData)
     });
 
   } catch (err) {
@@ -2682,7 +2687,9 @@ app.get('/api/blogs/:idOrSlug', async (req, res) => {
       metaKeywords: undefined,
       metaDescription: undefined
     };
-    res.json({ success: true, blog: formattedBlog });
+
+    const breadcrumbs = await getBreadcrumbs('blog', blog);
+    res.json({ success: true, blog: { ...formattedBlog, breadcrumbs } });
   } catch (err) {
     console.error('Error fetching blog:', err);
     res.status(500).json({ success: false, message: 'Server error' });
@@ -2998,7 +3005,9 @@ app.get('/api/testimonials/:id', async (req, res) => {
       metaKeywords: undefined,
       metaDescription: undefined
     };
-    res.status(200).json(formattedTestimonial);
+
+    const breadcrumbs = await getBreadcrumbs('testimonial', testimonial);
+    res.status(200).json({ ...formattedTestimonial, breadcrumbs });
   } catch (err) {
     console.error('Error fetching testimonial:', err);
     res.status(500).json({ success: false, message: 'Server error' });
@@ -3583,9 +3592,10 @@ app.get('/api/resolve-slug/:slug', async (req, res) => {
     const place = await getAsync('SELECT * FROM places WHERE slug = ? AND deletedAt IS NULL', [slug]);
     if (place) {
       const enrichedPlace = await enrichPlace(place);
+      const breadcrumbs = await getBreadcrumbs('place', place);
       return res.json({
         datatype: 'place',
-        content: enrichedPlace
+        content: { ...enrichedPlace, breadcrumbs }
       });
     }
 
@@ -3593,9 +3603,10 @@ app.get('/api/resolve-slug/:slug', async (req, res) => {
     const pkg = await getAsync('SELECT * FROM packages WHERE slug = ? AND deletedAt IS NULL', [slug]);
     if (pkg) {
       const enrichedPackage = await enrichPackage(pkg);
+      const breadcrumbs = await getBreadcrumbs('package', pkg);
       return res.json({
         datatype: 'package',
-        content: enrichedPackage
+        content: { ...enrichedPackage, breadcrumbs }
       });
     }
 
@@ -3603,18 +3614,20 @@ app.get('/api/resolve-slug/:slug', async (req, res) => {
     const article = await getAsync('SELECT * FROM articles WHERE slug = ? AND deletedAt IS NULL', [slug]);
     if (article) {
       const enrichedArticle = await enrichArticle(article);
+      const breadcrumbs = await getBreadcrumbs('article', article);
       return res.json({
         datatype: 'article',
-        content: enrichedArticle
+        content: { ...enrichedArticle, breadcrumbs }
       });
     }
 
     // 4. Check Blogs
     const blog = await getAsync('SELECT * FROM blogs WHERE slug = ? AND deletedAt IS NULL', [slug]);
     if (blog) {
+      const breadcrumbs = await getBreadcrumbs('blog', blog);
       return res.json({
         datatype: 'blog',
-        content: formatMeta(blog)
+        content: { ...formatMeta(blog), breadcrumbs }
       });
     }
 
