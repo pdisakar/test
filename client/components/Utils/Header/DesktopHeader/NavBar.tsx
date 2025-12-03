@@ -1,6 +1,7 @@
 'use client';
 import React, { useState, useRef, useEffect, useMemo } from 'react';
 import Link from 'next/link';
+import { BASE_URL } from '@/lib/constants';
 
 export interface MenuItem {
     id: number | string;
@@ -30,6 +31,8 @@ const flattenMenuSections = (items: MenuItem[]) => {
 };
 
 const NavBar: React.FC<NavBarProps> = ({ menuData = [] }) => {
+    console.log(menuData);
+
     const [openMenu, setOpenMenu] = useState<string | null>(null);
     const navRef = useRef<HTMLDivElement>(null);
 
@@ -81,7 +84,7 @@ const NavBar: React.FC<NavBarProps> = ({ menuData = [] }) => {
 
                             {!hasChildren ? (
                                 <Link
-                                    href={`/${url}`}
+                                    href={`${BASE_URL}${url}`}
                                     className="flex items-center group hover:cursor-pointer"
                                     onClick={closeMenu}>
                                     {title}
@@ -89,7 +92,7 @@ const NavBar: React.FC<NavBarProps> = ({ menuData = [] }) => {
                             ) : (
                                 <button
                                     onClick={() => toggleMenu(title)}
-                                        className={`flex items-center group hover:cursor-pointer font-semibold text-[15px] uppercase text-white `}>
+                                    className={`flex items-center group hover:cursor-pointer font-semibold text-[15px] uppercase text-white `}>
                                     {title}
                                     <svg
                                         className={`icon text-white ml-1 transition-transform duration-200 ${isOpen ? "rotate-180" : "group-hover:rotate-180"
@@ -122,7 +125,7 @@ const NavBar: React.FC<NavBarProps> = ({ menuData = [] }) => {
 
                                             return (
                                                 <div key={section.id} className="break-inside-avoid">
-                                                    <Link href={`/${sectionUrl}`} onClick={closeMenu}>
+                                                    <Link href={`${BASE_URL}${sectionUrl}`} onClick={closeMenu}>
                                                         <p className="font-semibold text-[16px] text-primary mb-1 capitalize">
                                                             {sectionTitle}
                                                         </p>
@@ -132,7 +135,7 @@ const NavBar: React.FC<NavBarProps> = ({ menuData = [] }) => {
                                                         {section.children?.map((child) => (
                                                             <li key={child.id}>
                                                                 <Link
-                                                                    href={`/${child.url_segment || child.url || '#'}`}
+                                                                    href={`${BASE_URL}${child.url_segment || child.url || '#'}`}
                                                                     className="hover:text-primary capitalize text-[14px] py-1 block font-medium text-text-color transition-colors"
                                                                     onClick={closeMenu}>
                                                                     {child.item_title || child.title}
@@ -156,7 +159,7 @@ const NavBar: React.FC<NavBarProps> = ({ menuData = [] }) => {
                                     {children.map((item) => (
                                         <li key={item.id}>
                                             <Link
-                                                href={`/${item.url_segment || item.url || '#'}`}
+                                                href={`${BASE_URL}${item.url_segment || item.url || '#'}`}
                                                 className="hover:text-primary text-sm font-medium text-text-color block"
                                                 onClick={closeMenu}>
                                                 {item.item_title || item.title}
