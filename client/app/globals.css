@@ -9,7 +9,7 @@
   --color-page-body: #FFFFFF;
 
 
-    --font-family-primary: var(--primaryfont);
+  --font-family-primary: var(--primaryfont);
 
 }
 
@@ -26,7 +26,7 @@
 /* Body Style */
 @layer base {
   body {
-    @apply font-primary text-body-text bg-page-body leading-[1.7];
+    @apply font-primary text-body-text bg-page-body leading-[1.7] min-w-[320px];
   }
 }
 
@@ -37,6 +37,7 @@
       opacity: 0;
       transform: scale(0.95);
     }
+
     to {
       opacity: 1;
       transform: scale(1);
@@ -47,5 +48,3 @@
     animation: fadeInScale 0.3s ease-out;
   }
 }
-
-

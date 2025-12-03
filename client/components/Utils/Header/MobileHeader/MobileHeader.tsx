@@ -68,31 +68,39 @@ const MobileHeader: React.FC<MobileHeaderProps> = ({ menuData = [], settingsData
         <>
             {/* Top Bar */}
             <div className="bg-white container py-3">
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between gap-8">
                     {/* Logo */}
                     <Link href="/" className="inline-block">
                         <Image src={logo} alt="logo" height={50} width={150} />
                     </Link>
 
-                    <div className="action-group flex items-center gap-5">
-                        <div className="whatsapp-mobile flex items-center gap-2">
-
-
+                    <div className="action-group flex items-center sm:gap-5 gap-2">
+                        <a
+                            href={`https://wa.me/${settingsData.mobileNumber1?.replace(/\D/g, "")}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="whatsapp-mobile flex items-center gap-2 cursor-pointer"
+                        >
                             <svg
                                 className="icon text-primary"
                                 width="34"
-                                height="34">
+                                height="34"
+                            >
                                 <use
                                     xlinkHref="/icons.svg#mobilewhatsapp"
-                                    fill="currentColor"></use>
+                                    fill="currentColor"
+                                ></use>
                             </svg>
 
-                            <div className="whatsappbody">
-                                <span className='block text-sm font-medium leading-[100%] text-[15px] text-headings'>Call or WhatsApp</span>
-                                <span className='block font-semibold text-[13px] leading-[100%] text-primary mt-1.5'>+977 {settingsData.mobileNumber1}</span>
+                            <div className="whatsappbody hidden sm:block">
+                                <span className="block text-sm font-medium leading-[100%] text-[15px] text-headings">
+                                    Call or WhatsApp
+                                </span>
+                                <span className="block font-semibold text-[13px] leading-[100%] text-primary mt-1.5">
+                                    +977 {settingsData.mobileNumber1}
+                                </span>
                             </div>
-                        </div>
-
+                        </a>
                         <button
                             onClick={() => setIsSearchOpen(true)}
                             className="hover:cursor-pointer transition-opacity"
@@ -134,9 +142,8 @@ const MobileHeader: React.FC<MobileHeaderProps> = ({ menuData = [], settingsData
 
             {/* Mobile Menu Overlay */}
             <div
-                className={`fixed inset-0 backdrop-blur-sm bg-black/10 z-50 transition-opacity duration-300 ${isMenuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+                className={`fixed inset-0 backdrop-blur-sm bg-black/10 z-50 top-[60px] sm:top-[73px] transition-opacity duration-300 ${isMenuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
                     }`}
-                style={{ top: '73px' }}
                 onClick={toggleMenu}
             >
                 <nav
