@@ -43,7 +43,7 @@ const MobileHeader: React.FC<MobileHeaderProps> = ({ menuData = [], settingsData
     return (
         <>
             {/* Top Bar */}
-            <div className="bg-white border-b border-gray-200 px-4 py-3">
+            <div className="bg-white border-b border-gray-200 px-4 py-1">
                 <div className="flex items-center justify-between">
                     {/* Logo */}
                     <Link href="/" className="inline-block">
@@ -73,7 +73,7 @@ const MobileHeader: React.FC<MobileHeaderProps> = ({ menuData = [], settingsData
 
             {/* Mobile Menu Overlay */}
             {isMenuOpen && (
-                <div className="fixed inset-0 backdrop-blur-sm bg-black/10 z-50" style={{ top: '60px' }}>
+                <div className="fixed inset-0 backdrop-blur-sm bg-black/10 z-50" style={{ top: '57px' }}>
                     <nav className="bg-white shadow-lg px-4 py-2">
                         <ul className="space-y-1">
                             {menuData.map((menu) => {
@@ -100,7 +100,7 @@ const MobileHeader: React.FC<MobileHeaderProps> = ({ menuData = [], settingsData
                                                 >
                                                     <span>{title}</span>
                                                     <svg
-                                                        className={`w-5 h-5 text-primary transition-transform ${isOpen ? 'rotate-45' : ''}`}
+                                                        className={`w-5 h-5 text-primary transition-transform duration-300 ${isOpen ? 'rotate-45' : ''}`}
                                                         fill="none"
                                                         stroke="currentColor"
                                                         viewBox="0 0 24 24"
@@ -111,43 +111,51 @@ const MobileHeader: React.FC<MobileHeaderProps> = ({ menuData = [], settingsData
                                             )}
                                         </div>
 
-                                        {/* Submenu */}
-                                        {hasChildren && isOpen && (
-                                            <ul className="pl-4 pb-2 space-y-2">
-                                                {menu.children?.map((child) => (
-                                                    <li key={child.id}>
-                                                        <Link
-                                                            href={`${BASE_URL}${child.url_segment || child.url || '#'}`}
-                                                            onClick={toggleMenu}
-                                                            className="block py-2 text-sm text-gray-600 capitalize hover:text-primary"
-                                                        >
-                                                            {child.item_title || child.title}
-                                                        </Link>
-                                                    </li>
-                                                ))}
-
-                                                {menu.sections?.map((section) => (
-                                                    <li key={section.id}>
-                                                        <Link
-                                                            href={`${BASE_URL}${section.url || '#'}`}
-                                                            onClick={toggleMenu}
-                                                            className="block py-2 text-sm font-medium text-gray-700 capitalize hover:text-primary"
-                                                        >
-                                                            {section.title}
-                                                        </Link>
-                                                        {section.children?.map((child: any) => (
-                                                            <Link
-                                                                key={child.id}
-                                                                href={`${BASE_URL}${child.url || '#'}`}
-                                                                onClick={toggleMenu}
-                                                                className="block py-1.5 pl-4 text-sm text-gray-600 capitalize hover:text-primary"
-                                                            >
-                                                                {child.title}
-                                                            </Link>
+                                        {/* Submenu with Smooth Expand Animation */}
+                                        {hasChildren && (
+                                            <div 
+                                                className={`grid transition-all duration-300 ease-in-out ${
+                                                    isOpen ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'
+                                                }`}
+                                            >
+                                                <div className="overflow-hidden">
+                                                    <ul className="pl-4 pb-1">
+                                                        {menu.children?.map((child) => (
+                                                            <li key={child.id}>
+                                                                <Link
+                                                                    href={`${BASE_URL}${child.url_segment || child.url || '#'}`}
+                                                                    onClick={toggleMenu}
+                                                                    className="block py-2 text-sm text-gray-600 capitalize hover:text-primary"
+                                                                >
+                                                                    {child.item_title || child.title}
+                                                                </Link>
+                                                            </li>
                                                         ))}
-                                                    </li>
-                                                ))}
-                                            </ul>
+
+                                                        {menu.sections?.map((section) => (
+                                                            <li key={section.id}>
+                                                                <Link
+                                                                    href={`${BASE_URL}${section.url || '#'}`}
+                                                                    onClick={toggleMenu}
+                                                                    className="block py-2 text-sm font-medium text-gray-700 capitalize hover:text-primary"
+                                                                >
+                                                                    {section.title}
+                                                                </Link>
+                                                                {section.children?.map((child: any) => (
+                                                                    <Link
+                                                                        key={child.id}
+                                                                        href={`${BASE_URL}${child.url || '#'}`}
+                                                                        onClick={toggleMenu}
+                                                                        className="block py-1.5 pl-4 text-sm text-gray-600 capitalize hover:text-primary"
+                                                                    >
+                                                                        {child.title}
+                                                                    </Link>
+                                                                ))}
+                                                            </li>
+                                                        ))}
+                                                    </ul>
+                                                </div>
+                                            </div>
                                         )}
                                     </li>
                                 );

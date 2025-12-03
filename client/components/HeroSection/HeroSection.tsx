@@ -10,7 +10,7 @@ export default async function HeroSection() {
 
     return (
         <div className="relative w-full">
-            <span className="absolute inset-0 bg-black/30 z-10"></span>
+            <span className="absolute inset-0 bg-black/10 z-10"></span>
             <figure>
                 <Image
                     src={`${IMAGE_URL}${heroData?.image}`}
@@ -23,8 +23,8 @@ export default async function HeroSection() {
             </figure>
 
             <figcaption className="absolute z-20 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-[730px]">
-                <span className="text-[1.125rem]  text-center font-semibold text-white items-center justify-center mb-3 block gap-2">{heroData?.subtitle}</span>
-                <h1 className="text-[clamp(32px,5vw,52px)]  text-center text-white font-black leading-[1.2]">{heroData?.title}</h1>
+                <span className="text-[1.125rem] shadow-2xs  text-center font-semibold text-white items-center justify-center mb-3 block gap-2">{heroData?.subtitle}</span>
+                <h1 className="text-[clamp(32px,5vw,52px)] shadow-lg  text-center text-white font-black leading-[1.2]">{heroData?.title}</h1>
                 <div className="hidden md:block mt-4">
                     <HomeSearch />
                 </div>
