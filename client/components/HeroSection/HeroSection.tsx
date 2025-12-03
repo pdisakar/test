@@ -10,7 +10,7 @@ export default async function HeroSection() {
 
     return (
         <div className="relative w-full">
-            <span className="absolute inset-0 bg-black/10 z-10"></span>
+            <span className="absolute inset-0 bg-black/10 z-20"></span>
             <figure className="image-slot aspect-[1920/750]">
                 <Image
                     src={`${IMAGE_URL}${heroData?.image}`}
