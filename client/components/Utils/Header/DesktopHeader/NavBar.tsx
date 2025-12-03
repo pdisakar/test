@@ -77,19 +77,19 @@ const NavBar: React.FC<NavBarProps> = ({ menuData = [] }) => {
                     return (
                         <li
                             key={menu.id}
-                            className={`  ${isMega ? 'static' : 'relative'}`}>
+                            className={`hover:cursor-pointer  ${isMega ? 'static' : 'relative'}`}>
 
                             {!hasChildren ? (
                                 <Link
                                     href={`/${url}`}
-                                    className="flex items-center group"
+                                    className="flex items-center group hover:cursor-pointer"
                                     onClick={closeMenu}>
                                     {title}
                                 </Link>
                             ) : (
                                 <button
                                     onClick={() => toggleMenu(title)}
-                                    className={`flex items-center group font-semibold text-[15px] uppercase text-white `}>
+                                        className={`flex items-center group hover:cursor-pointer font-semibold text-[15px] uppercase text-white `}>
                                     {title}
                                     <svg
                                         className={`icon text-white ml-1 transition-transform duration-200 ${isOpen ? "rotate-180" : "group-hover:rotate-180"
@@ -111,7 +111,7 @@ const NavBar: React.FC<NavBarProps> = ({ menuData = [] }) => {
                             )}
                             {isMega && (
                                 <div
-                                    className={`absolute container top-full w-full shadow-md rounded-lg z-40 max-h-[700px] overflow-y-auto transition-all duration-300 ease-out origin-top ${isOpen
+                                    className={`container absolute left-1/2 -translate-x-1/2 top-full bg-page-body shadow-sm p-5 rounded-b-lg z-40 max-h-[700px] overflow-y-auto transition-all duration-300 ease-out origin-top ${isOpen
                                         ? 'opacity-100 scale-100 visible'
                                         : 'pointer-events-none opacity-0 scale-95 invisible'
                                         }`}>
@@ -123,17 +123,17 @@ const NavBar: React.FC<NavBarProps> = ({ menuData = [] }) => {
                                             return (
                                                 <div key={section.id} className="break-inside-avoid">
                                                     <Link href={`/${sectionUrl}`} onClick={closeMenu}>
-                                                        <p className="font-bold text-[16px] text-primary mb-2 hover:underline">
+                                                        <p className="font-semibold text-[16px] text-primary mb-1 capitalize">
                                                             {sectionTitle}
                                                         </p>
                                                     </Link>
 
-                                                    <ul className="space-y-1">
+                                                    <ul>
                                                         {section.children?.map((child) => (
                                                             <li key={child.id}>
                                                                 <Link
                                                                     href={`/${child.url_segment || child.url || '#'}`}
-                                                                    className="hover:text-primary text-[14px] py-1 block font-medium text-text-color transition-colors"
+                                                                    className="hover:text-primary capitalize text-[14px] py-1 block font-medium text-text-color transition-colors"
                                                                     onClick={closeMenu}>
                                                                     {child.item_title || child.title}
                                                                 </Link>
@@ -149,7 +149,7 @@ const NavBar: React.FC<NavBarProps> = ({ menuData = [] }) => {
 
                             {isSimpleDropdown && (
                                 <ul
-                                    className={`rounded-lg absolute left-0 top-[calc(100%+16px)] z-40 min-w-[250px] bg-page-bg shadow-lg p-4 space-y-2 transition-all duration-300 ease-out origin-top ${isOpen
+                                    className={`rounded-b-lg absolute left-0 z-40 top-full min-w-[250px] bg-page-bg shadow-lg p-5 space-y-2 transition-all duration-300 ease-out origin-top ${isOpen
                                         ? 'opacity-100 scale-100 visible'
                                         : 'pointer-events-none opacity-0 scale-95 invisible'
                                         }`}>
