@@ -5,13 +5,11 @@ import HomeSearch from '@/components/HomeSearch/HomeSearch';
 
 export default async function HeroSection() {
     const heroData = await fetchHeroSection();
-    console.log(heroData);
-
 
     return (
         <div className="relative w-full">
             <span className="absolute inset-0 bg-black/10 z-20"></span>
-            <figure className="image-slot aspect-[1920/750]">
+            <figure className="image-slot aspect-[1920/750] min-h-[400px]">
                 <Image
                     src={`${IMAGE_URL}${heroData?.image}`}
                     alt="Hero Banner"

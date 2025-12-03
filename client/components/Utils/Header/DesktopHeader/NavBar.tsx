@@ -32,7 +32,6 @@ const flattenMenuSections = (items: MenuItem[]) => {
 };
 
 const NavBar: React.FC<NavBarProps> = ({ menuData = [] }) => {
-    console.log(menuData);
 
     const [openMenu, setOpenMenu] = useState<string | null>(null);
     const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -53,13 +52,13 @@ const NavBar: React.FC<NavBarProps> = ({ menuData = [] }) => {
     useEffect(() => {
         if (isSearchOpen) {
             document.body.style.overflow = 'hidden';
-            
+
             const handleEscape = (e: KeyboardEvent) => {
                 if (e.key === 'Escape') {
                     setIsSearchOpen(false);
                 }
             };
-            
+
             document.addEventListener('keydown', handleEscape);
             return () => {
                 document.body.style.overflow = '';
@@ -197,7 +196,7 @@ const NavBar: React.FC<NavBarProps> = ({ menuData = [] }) => {
                         );
                     })}
                 </ul>
-                <button 
+                <button
                     onClick={() => setIsSearchOpen(true)}
                     className="smart-search transition-opacity hover:cursor-pointer"
                     aria-label="Open search"
@@ -230,8 +229,8 @@ const NavBar: React.FC<NavBarProps> = ({ menuData = [] }) => {
                     {/* Search container */}
                     <div className="relative z-10 w-full max-w-4xl px-6 animate-fadeInScale">
                         {/* Existing HomeSearch component */}
-                        <HomeSearch 
-                            initialQuery={searchQuery} 
+                        <HomeSearch
+                            initialQuery={searchQuery}
                             onResultClick={() => setIsSearchOpen(false)}
                         />
 

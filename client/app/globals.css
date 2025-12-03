@@ -33,7 +33,40 @@
 /* Body Style */
 @layer base {
   body {
-    @apply font-primary text-body-text bg-page-body leading-[1.7] min-w-[320px];
+    @apply font-primary text-body-text bg-page-body leading-[1.7] min-w-[320px] scroll-smooth;
+  }
+}
+
+/*home title h2 and span style */
+.title {
+  @apply mb-4;
+
+  h1 {
+    @apply text-headings font-black;
+    font-size: clamp(1.75rem, 5vw, 2.125rem);
+  }
+
+  h2 {
+    @apply text-headings font-black;
+    font-size: clamp(1.75rem, 5vw, 2.125rem);
+  }
+
+  h3 {
+    @apply text-headings font-black;
+    font-size: clamp(1.5rem, 4vw, 1.75rem);
+  }
+
+  h4 {
+    @apply text-headings font-black;
+    font-size: clamp(1.5rem, 3.5vw, 1.5rem);
+  }
+
+  p {
+    @apply text-sm leading-[160%] font-medium max-w-[664px] text-body-text/80 block mt-[10px];
+  }
+
+  span {
+    @apply text-[15px] font-semibold text-primary flex items-center justify-center mb-1 gap-2;
   }
 }
 
