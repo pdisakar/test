@@ -3,16 +3,26 @@
 
 @theme inline {
   --color-primary: #34a8eb;
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+
+
+    --font-family-primary: var(--primaryfont);
+
 }
 
+/* Size of the Container */
+@utility container {
+  @apply mx-auto px-3.75 max-w-[1280px];
+}
+
+@utility font-primary {
+  font-family: var(--primaryfont);
+}
+
+
+/* Body Style */
 @layer base {
-  * {
-    @apply border-gray-200;
-  }
-
   body {
-    @apply bg-white text-gray-900;
+    @apply font-primary leading-[1.7];
   }
 }
+
