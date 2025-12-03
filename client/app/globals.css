@@ -6,7 +6,7 @@
   --color-headings: #172541;
   --color-navbar: #143254;
   --color-body-text: #000000;
-  --color-page-body: #FFFFFF;
+  --color-page-body: #f0f6fc;
 
 
   --font-family-primary: var(--primaryfont);
@@ -16,7 +16,7 @@
 
 ::selection {
   @apply bg-primary;
-  color: #ffffff;
+  color: #f0f6fc;
 }
 
 
@@ -42,27 +42,27 @@
   @apply mb-4;
 
   h1 {
-    @apply text-headings font-black;
+    @apply text-headings font-black leading-[1.2] text-center;
     font-size: clamp(1.75rem, 5vw, 2.125rem);
   }
 
   h2 {
-    @apply text-headings font-black;
+    @apply text-headings font-black leading-[1.2] text-center;
     font-size: clamp(1.75rem, 5vw, 2.125rem);
   }
 
   h3 {
-    @apply text-headings font-black;
+    @apply text-headings font-black leading-[1.2] text-center;
     font-size: clamp(1.5rem, 4vw, 1.75rem);
   }
 
   h4 {
-    @apply text-headings font-black;
+    @apply text-headings font-black leading-[1.2] text-center;
     font-size: clamp(1.5rem, 3.5vw, 1.5rem);
   }
 
   p {
-    @apply text-sm leading-[160%] font-medium max-w-[664px] text-body-text/80 block mt-[10px];
+    @apply text-sm leading-[160%] font-medium max-w-[664px] mx-auto text-body-text/80 block text-center mt-[10px];
   }
 
   span {
