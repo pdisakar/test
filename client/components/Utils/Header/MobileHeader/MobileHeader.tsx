@@ -72,9 +72,18 @@ const MobileHeader: React.FC<MobileHeaderProps> = ({ menuData = [], settingsData
             </div>
 
             {/* Mobile Menu Overlay */}
-            {isMenuOpen && (
-                <div className="fixed inset-0 backdrop-blur-sm bg-black/10 z-50" style={{ top: '57px' }}>
-                    <nav className="bg-white shadow-lg px-4 py-2">
+            <div
+                className={`fixed inset-0 backdrop-blur-sm bg-black/10 z-50 transition-opacity duration-300 ${isMenuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+                    }`}
+                style={{ top: '57px' }}
+                onClick={toggleMenu}
+            >
+                <nav
+                    className={`bg-white shadow-lg px-4 transition-all duration-300 ease-in-out grid ${isMenuOpen ? 'grid-rows-[1fr] py-2' : 'grid-rows-[0fr] py-0'
+                        }`}
+                    onClick={(e) => e.stopPropagation()}
+                >
+                    <div className="overflow-hidden">
                         <ul className="space-y-1">
                             {menuData.map((menu) => {
                                 const title = menu.item_title || menu.title || '';
@@ -96,27 +105,25 @@ const MobileHeader: React.FC<MobileHeaderProps> = ({ menuData = [], settingsData
                                             ) : (
                                                 <button
                                                     onClick={() => toggleSubmenu(title)}
-                                                    className="flex-1 flex items-center justify-between text-[15px] font-medium text-headings capitalize"
+                                                        className="flex-1 flex items-center justify-between text-[15px] font-medium text-headings hover:cursor-pointer capitalize"
                                                 >
                                                     <span>{title}</span>
-                                                    <svg
-                                                        className={`w-5 h-5 text-primary transition-transform duration-300 ${isOpen ? 'rotate-45' : ''}`}
-                                                        fill="none"
-                                                        stroke="currentColor"
-                                                        viewBox="0 0 24 24"
+                                                    <span
+                                                        className={`text-xl w-5 h-5 rounded-full bg-primary/30 flex text-[16px] items-center text-center justify-center text-primary transition-transform duration-300`}
                                                     >
-                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                                                    </svg>
+                                                        {isOpen ? "−" : "+"}
+                                                    </span>
+
+
                                                 </button>
                                             )}
                                         </div>
 
-                                        {/* Submenu with Smooth Expand Animation */}
+                                        
                                         {hasChildren && (
-                                            <div 
-                                                className={`grid transition-all duration-300 ease-in-out ${
-                                                    isOpen ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'
-                                                }`}
+                                            <div
+                                                className={`grid transition-all duration-300 ease-in-out ${isOpen ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'
+                                                    }`}
                                             >
                                                 <div className="overflow-hidden">
                                                     <ul className="pl-4 pb-1">
@@ -161,9 +168,9 @@ const MobileHeader: React.FC<MobileHeaderProps> = ({ menuData = [], settingsData
                                 );
                             })}
                         </ul>
-                    </nav>
-                </div>
-            )}
+                    </div>
+                </nav>
+            </div>
         </>
     );
 };
