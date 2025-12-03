@@ -34,16 +34,16 @@ const MobileHeader: React.FC<MobileHeaderProps> = ({ menuData = [], settingsData
     };
 
     const toggleSubmenu = (title: string) => {
-        setOpenMenus(prev => ({
-            ...prev,
-            [title]: !prev[title]
-        }));
+        setOpenMenus(prev => {
+            const isOpen = prev[title];
+            return isOpen ? {} : { [title]: true };
+        });
     };
 
     return (
         <>
             {/* Top Bar */}
-            <div className="bg-white border-b border-gray-200 px-4 py-1">
+            <div className="bg-white container py-3">
                 <div className="flex items-center justify-between">
                     {/* Logo */}
                     <Link href="/" className="inline-block">
@@ -75,11 +75,11 @@ const MobileHeader: React.FC<MobileHeaderProps> = ({ menuData = [], settingsData
             <div
                 className={`fixed inset-0 backdrop-blur-sm bg-black/10 z-50 transition-opacity duration-300 ${isMenuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
                     }`}
-                style={{ top: '57px' }}
+                style={{ top: '73px' }}
                 onClick={toggleMenu}
             >
                 <nav
-                    className={`bg-white shadow-lg px-4 transition-all duration-300 ease-in-out grid ${isMenuOpen ? 'grid-rows-[1fr] py-2' : 'grid-rows-[0fr] py-0'
+                    className={`bg-white shadow-lg container transition-all duration-300 ease-in-out grid ${isMenuOpen ? 'grid-rows-[1fr] pb-2' : 'grid-rows-[0fr] py-0'
                         }`}
                     onClick={(e) => e.stopPropagation()}
                 >
