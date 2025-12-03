@@ -3,6 +3,10 @@
 
 @theme inline {
   --color-primary: #34a8eb;
+  --color-headings: #172541;
+  --color-navbar: #143254;
+  --color-body-text: #000000;
+  --color-page-body: #FFFFFF;
 
 
     --font-family-primary: var(--primaryfont);
@@ -22,7 +26,7 @@
 /* Body Style */
 @layer base {
   body {
-    @apply font-primary leading-[1.7];
+    @apply font-primary text-body-text bg-page-body leading-[1.7];
   }
 }
 

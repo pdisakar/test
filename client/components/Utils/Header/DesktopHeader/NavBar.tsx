@@ -52,8 +52,8 @@ const NavBar: React.FC<NavBarProps> = ({ menuData = [] }) => {
     return (
         <nav
             ref={navRef}
-            className="relative z-50">
-            <ul className="flex gap-4 text-heading font-semibold text-[17px] items-center">
+            className="relative z-50 bg-navbar">
+            <ul className="container flex items-center [&>li:not(:first-child)]:pl-3.5 [&>li]:pr-3.5 [&>li]:py-3">
                 {menuData.map(menu => {
                     const title = menu.item_title || menu.title || '';
                     const url = menu.url_segment || menu.url || '#';
@@ -77,29 +77,36 @@ const NavBar: React.FC<NavBarProps> = ({ menuData = [] }) => {
                     return (
                         <li
                             key={menu.id}
-                            className={isMega ? 'static' : 'relative'}>
+                            className={`  ${isMega ? 'static' : 'relative'}`}>
 
                             {!hasChildren ? (
                                 <Link
                                     href={`/${url}`}
-                                    className="flex items-center group hover:text-primary transition-colors"
+                                    className="flex items-center group"
                                     onClick={closeMenu}>
                                     {title}
                                 </Link>
                             ) : (
                                 <button
                                     onClick={() => toggleMenu(title)}
-                                    className={`flex items-center group transition-colors ${isOpen ? 'text-primary' : ''}`}>
+                                    className={`flex items-center group font-semibold text-[15px] uppercase text-white `}>
                                     {title}
                                     <svg
-                                        className={`icon text-primary ml-2 transition-transform duration-200 ${isOpen ? 'rotate-180' : 'group-hover:rotate-180'}`}
-                                        width="14"
-                                        height="7"
-                                        viewBox="0 0 14 7"
+                                        className={`icon text-white ml-1 transition-transform duration-200 ${isOpen ? "rotate-180" : "group-hover:rotate-180"
+                                            }`}
+                                        width="8"
+                                        height="5"
+                                        viewBox="0 0 8 5"
                                         fill="none"
-                                        xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M1 1L7 6L13 1" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                                        xmlns="http://www.w3.org/2000/svg"
+                                    >
+                                        <path
+                                            d="M3.21875 4.28906C3.375 4.42969 3.55469 4.5 3.75781 4.5C3.96094 4.5 4.14062 4.42969 4.29688 4.28906L7.29688 1.28906C7.51562 1.03906 7.57031 0.765625 7.46094 0.46875C7.32031 0.171875 7.08594 0.015625 6.75781 0H0.757812C0.429688 0.015625 0.195312 0.171875 0.0546875 0.46875C-0.0546875 0.765625 0 1.03906 0.21875 1.28906L3.21875 4.28906Z"
+                                            fill="currentColor"
+                                        />
                                     </svg>
+
+
                                 </button>
                             )}
                             {isMega && (

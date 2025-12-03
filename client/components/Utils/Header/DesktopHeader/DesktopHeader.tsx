@@ -12,7 +12,7 @@ const DesktopHeader: React.FC<DesktopHeaderProps> = ({
   settingsData,
 }) => {
   return (
-    <div className="container">
+    <div className="">
       <NavBar menuData={menuData} />
     </div>
   );
