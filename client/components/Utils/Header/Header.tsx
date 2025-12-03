@@ -45,9 +45,9 @@ export default function Header() {
             <div className="desktop-header hidden md:block">
                 <DesktopHeader menuData={headerMenu} settingsData={settings} />
             </div>
-            {/* <div className="mobile-header md:hidden">
+            <div className="mobile-header md:hidden">
                 <MobileHeader menuData={headerMenu} settingsData={settings} />
-            </div> */}
+            </div>
         </header>
     );
 }
