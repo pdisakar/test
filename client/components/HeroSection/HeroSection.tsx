@@ -5,37 +5,30 @@ import HomeSearch from '@/components/HomeSearch/HomeSearch';
 
 export default async function HeroSection() {
     const heroData = await fetchHeroSection();
+    console.log(heroData);
 
-    if (!heroData) {
-        return (
-            <div className="relative h-[600px] w-full bg-gray-900 flex items-center justify-center text-white">
-                <div className="text-center px-4 w-full max-w-4xl">
-                    <h1 className="text-4xl md:text-6xl font-bold mb-4">Welcome to TravelApp</h1>
-                    <p className="text-xl md:text-2xl text-gray-300 mb-8">Discover your next adventure</p>
-                    <div className="w-full max-w-2xl mx-auto">
-                        <HomeSearch />
-                    </div>
-                </div>
-            </div>
-        );
-    }
 
     return (
-        <div className="relative h-[600px] w-full">
-            <Image
-                src={`${IMAGE_URL}${heroData.image}`}
-                alt="Hero Banner"
-                fill
-                priority
-                className="object-cover"
-            />
-            <div className="absolute inset-0 bg-black/40 flex flex-col items-center justify-center text-white px-4">
-                <h1 className="text-4xl md:text-6xl font-bold mb-4 text-center">{heroData.title}</h1>
-                <p className="text-xl md:text-2xl text-gray-200 mb-8 text-center max-w-2xl">{heroData.subtitle}</p>
-                <div className="w-full max-w-2xl">
+        <div className="relative w-full">
+            <span className="absolute inset-0 bg-black/30 z-10"></span>
+            <figure>
+                <Image
+                    src={`${IMAGE_URL}${heroData?.image}`}
+                    alt="Hero Banner"
+                    height={750}
+                    width={1920}
+                    priority
+                    className="object-cover min-h-[400px]"
+                />
+            </figure>
+
+            <figcaption className="absolute z-20 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-[730px]">
+                <span className="text-[1.125rem]  text-center font-semibold text-white items-center justify-center mb-3 block gap-2">{heroData?.subtitle}</span>
+                <h1 className="text-[clamp(32px,5vw,52px)]  text-center text-white font-black leading-[1.2]">{heroData?.title}</h1>
+                <div className="hidden md:block mt-4">
                     <HomeSearch />
                 </div>
-            </div>
+            </figcaption>
         </div>
     );
 }
