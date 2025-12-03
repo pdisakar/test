@@ -50,24 +50,37 @@ const MobileHeader: React.FC<MobileHeaderProps> = ({ menuData = [], settingsData
                         <Image src={logo} alt="logo" height={50} width={150} />
                     </Link>
 
-                    {/* Hamburger Menu */}
-                    <button onClick={toggleMenu} className="p-1">
-                        {isMenuOpen ? (
-                            <div className="flex items-center gap-1">
-                                <span className="text-sm font-medium text-gray-700">Close</span>
-                                <svg className="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                                </svg>
-                            </div>
-                        ) : (
-                            <div className="flex items-center gap-1">
-                                <span className="text-sm font-medium text-gray-700">Menu</span>
-                                <svg className="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                                </svg>
-                            </div>
-                        )}
-                    </button>
+                    <div className="action-group flex items-center gap-3">
+                        <svg
+                            className="icon text-primary"
+                            width="24"
+                            height="24">
+                            <use
+                                xlinkHref="/icons.svg#headersearch"
+                                fill="currentColor"></use>
+                        </svg>
+
+
+                        {/* Hamburger Menu */}
+                        <button onClick={toggleMenu} className="p-1">
+                            {isMenuOpen ? (
+                                <div className="flex items-center gap-1">
+                                    <span className="text-sm font-medium text-gray-700">Close</span>
+                                    <svg className="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </div>
+                            ) : (
+                                <div className="flex items-center gap-1">
+                                    <span className="text-sm font-medium text-gray-700">Menu</span>
+                                    <svg className="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                                    </svg>
+                                </div>
+                            )}
+                        </button>
+                    </div>
+
                 </div>
             </div>
 
@@ -105,7 +118,7 @@ const MobileHeader: React.FC<MobileHeaderProps> = ({ menuData = [], settingsData
                                             ) : (
                                                 <button
                                                     onClick={() => toggleSubmenu(title)}
-                                                        className="flex-1 flex items-center justify-between text-[15px] font-medium text-headings hover:cursor-pointer capitalize"
+                                                    className="flex-1 flex items-center justify-between text-[15px] font-medium text-headings hover:cursor-pointer capitalize"
                                                 >
                                                     <span>{title}</span>
                                                     <span
@@ -119,7 +132,7 @@ const MobileHeader: React.FC<MobileHeaderProps> = ({ menuData = [], settingsData
                                             )}
                                         </div>
 
-                                        
+
                                         {hasChildren && (
                                             <div
                                                 className={`grid transition-all duration-300 ease-in-out ${isOpen ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'

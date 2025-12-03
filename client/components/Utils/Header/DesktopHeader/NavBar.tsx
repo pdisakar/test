@@ -2,6 +2,7 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { BASE_URL } from '@/lib/constants';
+import HomeSearch from '@/components/HomeSearch/HomeSearch';
 
 export interface MenuItem {
     id: number | string;
@@ -34,6 +35,8 @@ const NavBar: React.FC<NavBarProps> = ({ menuData = [] }) => {
     console.log(menuData);
 
     const [openMenu, setOpenMenu] = useState<string | null>(null);
+    const [isSearchOpen, setIsSearchOpen] = useState(false);
+    const [searchQuery, setSearchQuery] = useState('');
     const navRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
@@ -45,6 +48,27 @@ const NavBar: React.FC<NavBarProps> = ({ menuData = [] }) => {
         document.addEventListener('mousedown', handleClickOutside);
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
+
+    // Prevent body scroll when search is open and handle ESC key
+    useEffect(() => {
+        if (isSearchOpen) {
+            document.body.style.overflow = 'hidden';
+            
+            const handleEscape = (e: KeyboardEvent) => {
+                if (e.key === 'Escape') {
+                    setIsSearchOpen(false);
+                }
+            };
+            
+            document.addEventListener('keydown', handleEscape);
+            return () => {
+                document.body.style.overflow = '';
+                document.removeEventListener('keydown', handleEscape);
+            };
+        } else {
+            document.body.style.overflow = '';
+        }
+    }, [isSearchOpen]);
 
     const toggleMenu = (title: string) => {
         setOpenMenu(prev => (prev === title ? null : title));
@@ -173,7 +197,11 @@ const NavBar: React.FC<NavBarProps> = ({ menuData = [] }) => {
                         );
                     })}
                 </ul>
-                <div className="smart-search">
+                <button 
+                    onClick={() => setIsSearchOpen(true)}
+                    className="smart-search hover:opacity-80 transition-opacity cursor-pointer"
+                    aria-label="Open search"
+                >
                     <svg
                         className="icon text-white"
                         width="24"
@@ -182,9 +210,53 @@ const NavBar: React.FC<NavBarProps> = ({ menuData = [] }) => {
                             xlinkHref="/icons.svg#headersearch"
                             fill="currentColor"></use>
                     </svg>
-                </div>
+                </button>
             </div>
 
+            {/* Full-screen search overlay */}
+            {isSearchOpen && (
+                <div
+                    className="fixed inset-0 z-[9999] flex items-start justify-center pt-20 transition-all duration-300 animate-fadeInScale"
+                    onKeyDown={(e) => {
+                        if (e.key === 'Escape') setIsSearchOpen(false);
+                    }}
+                >
+                    {/* Blurred backdrop */}
+                    <div
+                        className="absolute inset-0 bg-black/60 backdrop-blur-md transition-all duration-300 ease-out animate-fadeInScale"
+                        onClick={() => setIsSearchOpen(false)}
+                    />
+
+                    {/* Search container */}
+                    <div className="relative z-10 w-full max-w-4xl px-6 animate-fadeInScale">
+                        {/* Existing HomeSearch component */}
+                        <HomeSearch initialQuery={searchQuery} />
+
+                        {/* Popular searches */}
+                        <div className="mt-8">
+                            <p className="text-sm font-semibold text-center mb-3 text-white/90">Popular Searches:</p>
+                            <div className="flex flex-wrap gap-2 justify-center">
+                                {['Annapurna Base Camp', 'Everest Base Camp', 'Langtang Vally Trekking'].map(
+                                    (term) => (
+                                        <button
+                                            key={term}
+                                            onClick={() => setSearchQuery(term)}
+                                            className="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-full text-sm text-white backdrop-blur-sm transition-colors"
+                                        >
+                                            {term}
+                                        </button>
+                                    )
+                                )}
+                            </div>
+                        </div>
+
+                        {/* Helper text */}
+                        <p className="mt-4 text-center text-white/80 text-sm">
+                            Press <kbd className="px-2 py-1 bg-white/20 rounded">ESC</kbd> to close
+                        </p>
+                    </div>
+                </div>
+            )}
         </nav>
     );
 };

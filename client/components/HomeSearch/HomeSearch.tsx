@@ -7,12 +7,24 @@ import Link from 'next/link';
 import { IMAGE_URL } from '@/lib/constants';
 import Image from 'next/image';
 
-export default function HomeSearch() {
-    const [query, setQuery] = useState('');
+interface HomeSearchProps {
+    initialQuery?: string;
+    onQueryChange?: (query: string) => void;
+}
+
+export default function HomeSearch({ initialQuery = '', onQueryChange }: HomeSearchProps = {}) {
+    const [query, setQuery] = useState(initialQuery);
     const [results, setResults] = useState<Package[]>([]);
     const [loading, setLoading] = useState(false);
     const [isOpen, setIsOpen] = useState(false);
     const wrapperRef = useRef<HTMLDivElement>(null);
+
+    // Sync query when initialQuery changes from parent
+    useEffect(() => {
+        if (initialQuery !== undefined && initialQuery !== query) {
+            setQuery(initialQuery);
+        }
+    }, [initialQuery]);
 
     useEffect(() => {
         const delayDebounceFn = setTimeout(async () => {
