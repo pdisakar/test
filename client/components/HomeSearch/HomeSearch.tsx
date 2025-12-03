@@ -10,9 +10,10 @@ import Image from 'next/image';
 interface HomeSearchProps {
     initialQuery?: string;
     onQueryChange?: (query: string) => void;
+    onResultClick?: () => void;
 }
 
-export default function HomeSearch({ initialQuery = '', onQueryChange }: HomeSearchProps = {}) {
+export default function HomeSearch({ initialQuery = '', onQueryChange, onResultClick }: HomeSearchProps = {}) {
     const [query, setQuery] = useState(initialQuery);
     const [results, setResults] = useState<Package[]>([]);
     const [loading, setLoading] = useState(false);
@@ -88,7 +89,10 @@ export default function HomeSearch({ initialQuery = '', onQueryChange }: HomeSea
                                     key={pkg.id}
                                     href={`/${pkg.slug}`}
                                     className="flex items-center gap-4 p-4 hover:bg-gray-50 transition-colors"
-                                    onClick={() => setIsOpen(false)}
+                                    onClick={() => {
+                                        setIsOpen(false);
+                                        if (onResultClick) onResultClick();
+                                    }}
                                 >
                                     <div className="h-16 w-24 relative flex-shrink-0 bg-gray-100 rounded-md overflow-hidden">
                                         <Image

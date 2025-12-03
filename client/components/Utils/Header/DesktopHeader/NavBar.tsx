@@ -230,7 +230,10 @@ const NavBar: React.FC<NavBarProps> = ({ menuData = [] }) => {
                     {/* Search container */}
                     <div className="relative z-10 w-full max-w-4xl px-6 animate-fadeInScale">
                         {/* Existing HomeSearch component */}
-                        <HomeSearch initialQuery={searchQuery} />
+                        <HomeSearch 
+                            initialQuery={searchQuery} 
+                            onResultClick={() => setIsSearchOpen(false)}
+                        />
 
                         {/* Popular searches */}
                         <div className="mt-8">

@@ -47,13 +47,13 @@ const MobileHeader: React.FC<MobileHeaderProps> = ({ menuData = [], settingsData
     useEffect(() => {
         if (isSearchOpen) {
             document.body.style.overflow = 'hidden';
-            
+
             const handleEscape = (e: KeyboardEvent) => {
                 if (e.key === 'Escape') {
                     setIsSearchOpen(false);
                 }
             };
-            
+
             document.addEventListener('keydown', handleEscape);
             return () => {
                 document.body.style.overflow = '';
@@ -74,8 +74,26 @@ const MobileHeader: React.FC<MobileHeaderProps> = ({ menuData = [], settingsData
                         <Image src={logo} alt="logo" height={50} width={150} />
                     </Link>
 
-                    <div className="action-group flex items-center gap-3">
-                        <button 
+                    <div className="action-group flex items-center gap-5">
+                        <div className="whatsapp-mobile flex items-center gap-2">
+
+
+                            <svg
+                                className="icon text-primary"
+                                width="34"
+                                height="34">
+                                <use
+                                    xlinkHref="/icons.svg#mobilewhatsapp"
+                                    fill="currentColor"></use>
+                            </svg>
+
+                            <div className="whatsappbody">
+                                <span className='block text-sm font-medium leading-[100%] text-[15px] text-headings'>Call or WhatsApp</span>
+                                <span className='block font-semibold text-[13px] leading-[100%] text-primary mt-1.5'>+977 {settingsData.mobileNumber1}</span>
+                            </div>
+                        </div>
+
+                        <button
                             onClick={() => setIsSearchOpen(true)}
                             className="hover:cursor-pointer transition-opacity"
                             aria-label="Open search"
@@ -227,7 +245,10 @@ const MobileHeader: React.FC<MobileHeaderProps> = ({ menuData = [], settingsData
                     {/* Search container */}
                     <div className="relative z-10 w-full max-w-4xl px-6 animate-fadeInScale">
                         {/* HomeSearch component */}
-                        <HomeSearch initialQuery={searchQuery} />
+                        <HomeSearch
+                            initialQuery={searchQuery}
+                            onResultClick={() => setIsSearchOpen(false)}
+                        />
 
                         {/* Popular searches */}
                         <div className="mt-8">
