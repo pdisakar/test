@@ -11,6 +11,7 @@ import dynamic from 'next/dynamic';
 const RichTextEditor = dynamic(() => import('@/app/admin/components/RichTextEditor'), { ssr: false });
 import { ImageCrop, ImageCropContent, ImageCropApply, ImageCropReset } from '@/app/admin/components/ImageCrop';
 import { FeaturedImage } from '@/app/admin/components/FeaturedImage';
+import { ASPECT_RATIOS, DISPLAY_ASPECT_RATIOS } from '@/app/admin/components/ui/aspect-ratios';
 import { BannerImage } from '@/app/admin/components/BannerImage';
 import { TripMapImage } from '@/app/admin/components/TripMapImage';
 import { GalleryUpload, type GalleryImage } from '@/app/admin/components/GalleryUpload';
@@ -1443,6 +1444,8 @@ export default function EditPackagePage() {
                 {/* Featured Image */}
                 <FeaturedImage
                   label="Featured Image"
+                  aspectRatio={ASPECT_RATIOS.PACKAGE}
+                  displayAspectRatio={DISPLAY_ASPECT_RATIOS.PACKAGE}
                   imageUrl={formData.featuredImagePreview}
                   imageAlt={formData.featuredImageAlt}
                   imageCaption={formData.featuredImageCaption}
@@ -2037,6 +2040,7 @@ export default function EditPackagePage() {
 
             <ImageCrop
               file={selectedImageFile!}
+              aspect={imageCropType === 'featured' ? ASPECT_RATIOS.PACKAGE : undefined}
               onCrop={(croppedImage) => {
                 if (imageCropType === 'featured') {
                   setFormData(prev => ({

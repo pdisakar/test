@@ -1,6 +1,6 @@
 import React from 'react';
 import { Trash2, UploadCloud, Image as ImageIcon } from 'lucide-react';
-import { DEFAULT_ASPECT_RATIO } from './ImageCrop';
+import { ASPECT_RATIOS } from '@/app/admin/components/ui/aspect-ratios';
 
 interface FeaturedImageProps {
     label: string;
@@ -14,6 +14,8 @@ interface FeaturedImageProps {
     helperText?: string;
     disabled?: boolean;
     required?: boolean;
+    aspectRatio?: number;
+    displayAspectRatio?: string;
 }
 
 export function FeaturedImage({
@@ -27,7 +29,9 @@ export function FeaturedImage({
     onCaptionChange,
     helperText,
     disabled = false,
-    required = false
+    required = false,
+    aspectRatio = ASPECT_RATIOS.DEFAULT,
+    displayAspectRatio
 }: FeaturedImageProps) {
     const inputId = `${label.toLowerCase().replace(/\s+/g, '-')}-upload`;
 
@@ -40,7 +44,7 @@ export function FeaturedImage({
 
     return (
         <div className="space-y-6 p-6 bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-md transition-all duration-300">
-            {/* Image Upload/Preview with 7:5 aspect ratio */}
+            {/* Image Upload/Preview with dynamic aspect ratio */}
             <div>
                 <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 flex items-center gap-2">
                     <ImageIcon className="w-4 h-4 text-primary" />
@@ -48,7 +52,7 @@ export function FeaturedImage({
                 </label>
                 <div className="space-y-3">
                     {imageUrl ? (
-                        <div className="group relative w-full max-w-md mx-auto rounded-2xl overflow-hidden shadow-lg transition-transform duration-300 hover:scale-[1.02]" style={{ aspectRatio: DEFAULT_ASPECT_RATIO }}>
+                        <div className="group relative w-full max-w-md mx-auto rounded-2xl overflow-hidden shadow-lg transition-transform duration-300 hover:scale-[1.02]" style={{ aspectRatio }}>
                             <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10" />
                             <img
                                 src={getSrc(imageUrl)}
@@ -91,8 +95,8 @@ export function FeaturedImage({
                                     </div>
                                     <div className="text-center space-y-1">
                                         <span className="text-sm font-medium text-gray-700 dark:text-gray-300 group-hover:text-primary transition-colors">
-                                            Click to upload image
-                                        </span>
+                                      Click to upload image{displayAspectRatio ? ` (Aspect Ratio: ${displayAspectRatio})` : aspectRatio ? ` (Aspect Ratio: ${aspectRatio.toFixed(2)})` : ''}
+                                    </span>
                                         {helperText && <p className="text-xs text-gray-400 dark:text-gray-500">{helperText}</p>}
                                     </div>
                                 </label>

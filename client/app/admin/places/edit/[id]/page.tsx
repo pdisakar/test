@@ -9,6 +9,7 @@ import { ChevronRight, ChevronDown, X } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { ImageCrop, ImageCropContent, ImageCropApply, ImageCropReset } from '@/app/admin/components/ImageCrop';
 import { FeaturedImage } from '@/app/admin/components/FeaturedImage';
+import { ASPECT_RATIOS, DISPLAY_ASPECT_RATIOS } from '@/app/admin/components/ui/aspect-ratios';
 import { BannerImage } from '@/app/admin/components/BannerImage';
 import { extractImagePaths, processContentImages, cleanupUnusedImages } from '@/app/admin/lib/richTextHelpers';
 
@@ -508,6 +509,8 @@ export default function EditPlacePage() {
                             </div>
                             <FeaturedImage
                                 label="Featured Image"
+                                aspectRatio={ASPECT_RATIOS.PLACE}
+                                displayAspectRatio={DISPLAY_ASPECT_RATIOS.PLACE}
                                 imageUrl={formData.featuredImage}
                                 imageAlt={formData.featuredImageAlt}
                                 imageCaption={formData.featuredImageCaption}
@@ -570,6 +573,7 @@ export default function EditPlacePage() {
                         </div>
                         <ImageCrop
                             file={selectedImageFile}
+                            aspect={ASPECT_RATIOS.PLACE}
 
                             onCrop={async (croppedImage) => {
                                 try {

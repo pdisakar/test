@@ -11,6 +11,7 @@ import { ImageCrop, ImageCropContent, ImageCropApply, ImageCropReset } from '@/a
 import { FeaturedImage } from '@/app/admin/components/FeaturedImage';
 import { BannerImage } from '@/app/admin/components/BannerImage';
 import { processContentImages } from '@/app/admin/lib/richTextHelpers';
+import { ASPECT_RATIOS, DISPLAY_ASPECT_RATIOS } from '@/app/admin/components/ui/aspect-ratios';
 
 const RichTextEditor = dynamic(() => import('@/app/admin/components/RichTextEditor'), { ssr: false });
 
@@ -490,6 +491,8 @@ export default function AddplacePage() {
               {/* Featured Image */}
               <FeaturedImage
                 label="Featured Image"
+                aspectRatio={ASPECT_RATIOS.PLACE}
+                displayAspectRatio={DISPLAY_ASPECT_RATIOS.PLACE}
                 imageUrl={formData.featuredImage}
                 imageAlt={formData.featuredImageAlt}
                 imageCaption={formData.featuredImageCaption}
@@ -555,6 +558,7 @@ export default function AddplacePage() {
               </div>
               <ImageCrop
                 file={selectedImageFile}
+                aspect={ASPECT_RATIOS.PLACE}
 
                 onCrop={async (croppedImage) => {
                   try {

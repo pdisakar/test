@@ -9,6 +9,7 @@ import { X } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { ImageCrop, ImageCropContent, ImageCropApply, ImageCropReset } from '@/app/admin/components/ImageCrop';
 import { FeaturedImage } from '@/app/admin/components/FeaturedImage';
+import { ASPECT_RATIOS, DISPLAY_ASPECT_RATIOS } from '@/app/admin/components/ui/aspect-ratios';
 import { BannerImage } from '@/app/admin/components/BannerImage';
 
 const RichTextEditor = dynamic(() => import('@/app/admin/components/RichTextEditor'), { ssr: false });
@@ -181,9 +182,9 @@ export default function AddTeamPage() {
                 bannerImageAlt: formData.bannerImageAlt,
                 bannerImageCaption: formData.bannerImageCaption,
                 meta: {
-                  title: formData.metaTitle,
-                  keywords: formData.metaKeywords,
-                  description: formData.metaDescription
+                    title: formData.metaTitle,
+                    keywords: formData.metaKeywords,
+                    description: formData.metaDescription
                 },
                 status: formData.status ? 1 : 0,
             };
@@ -396,6 +397,8 @@ export default function AddTeamPage() {
                                 {/* Avatar */}
                                 <FeaturedImage
                                     label="Avatar"
+                                    aspectRatio={ASPECT_RATIOS.TEAM}
+                                    displayAspectRatio={DISPLAY_ASPECT_RATIOS.TEAM}
                                     imageUrl={formData.avatar}
                                     imageAlt={formData.avatarAlt}
                                     imageCaption={formData.avatarCaption}
@@ -481,6 +484,7 @@ export default function AddTeamPage() {
                         </div>
                         <ImageCrop
                             file={selectedImageFile}
+                            aspect={ASPECT_RATIOS.TEAM}
                             onCrop={async (croppedImage) => {
                                 try {
                                     setFormData({ ...formData, avatar: croppedImage });

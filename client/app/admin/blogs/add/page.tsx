@@ -9,6 +9,7 @@ import { X, CalendarIcon } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { ImageCrop, ImageCropContent, ImageCropApply, ImageCropReset } from '@/app/admin/components/ImageCrop';
 import { FeaturedImage } from '@/app/admin/components/FeaturedImage';
+import { ASPECT_RATIOS, DISPLAY_ASPECT_RATIOS } from '@/app/admin/components/ui/aspect-ratios';
 import { BannerImage } from '@/app/admin/components/BannerImage';
 import { Calendar } from "@/app/admin/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/app/admin/components/ui/popover";
@@ -439,6 +440,8 @@ export default function AddBlogPage() {
                                 {/* Featured Image */}
                                 <FeaturedImage
                                     label="Featured Image"
+                                    aspectRatio={ASPECT_RATIOS.BLOG}
+                                    displayAspectRatio={DISPLAY_ASPECT_RATIOS.BLOG}
                                     imageUrl={formData.featuredImage}
                                     imageAlt={formData.featuredImageAlt}
                                     imageCaption={formData.featuredImageCaption}
@@ -530,6 +533,7 @@ export default function AddBlogPage() {
                             </div>
                             <ImageCrop
                                 file={selectedImageFile}
+                                aspect={ASPECT_RATIOS.BLOG}
                                 onCrop={async (croppedImage) => {
                                     try {
                                         setFormData(prev => ({ ...prev, featuredImage: croppedImage }));

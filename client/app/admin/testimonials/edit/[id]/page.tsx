@@ -5,12 +5,12 @@ import React, { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { Button } from '@/app/admin/components/ui/button';
 import { Switch } from '@/app/admin/components/ui/switch';
-import { X } from 'lucide-react';
+import { X, Star } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { ImageCrop, ImageCropContent, ImageCropApply, ImageCropReset } from '@/app/admin/components/ImageCrop';
 import { FeaturedImage } from '@/app/admin/components/FeaturedImage';
+import { ASPECT_RATIOS, DISPLAY_ASPECT_RATIOS } from '@/app/admin/components/ui/aspect-ratios';
 import { COUNTRIES } from '@/app/admin/lib/countries';
-import { Star } from 'lucide-react';
 
 const RichTextEditor = dynamic(() => import('@/app/admin/components/RichTextEditor'), { ssr: false });
 
@@ -544,6 +544,8 @@ export default function EditTestimonialPage() {
                                 {/* Avatar */}
                                 <FeaturedImage
                                     label="Avatar"
+                                    aspectRatio={ASPECT_RATIOS.TESTIMONIAL}
+                                    displayAspectRatio={DISPLAY_ASPECT_RATIOS.TESTIMONIAL}
                                     imageUrl={formData.avatar}
                                     imageAlt={formData.avatarAlt}
                                     imageCaption={formData.avatarCaption}
