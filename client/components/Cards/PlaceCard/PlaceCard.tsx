@@ -13,7 +13,7 @@ export const PlaceCard: React.FC<PlaceCardProps> = ({ data }) => {
 
 
         <Link href={`/${data.slug}`}>
-            <figure className='image-slot aspect-[5/7]'>
+            <figure className='image-slot aspect-320/350'>
                 <Image
                     src={data.featuredImage ? `${IMAGE_URL}${data.featuredImage}` : '/placeholder.jpg'}
                     alt={data.featuredImageAlt || data.title}

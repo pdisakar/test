@@ -441,13 +441,13 @@ app.post('/api/upload/image', async (req, res) => {
   }
 
   try {
-    // Extract base64 data (remove data:image/png;base64, prefix if present)
+    // Extract base64 data (remove data:image/webp;base64, prefix if present)
     const base64Data = image.replace(/^data:image\/\w+;base64,/, '');
     const buffer = Buffer.from(base64Data, 'base64');
 
-    // Generate unique filename
+    // Generate unique filename with .webp extension
     const timestamp = Date.now();
-    const filename = `${type}-${timestamp}.png`;
+    const filename = `${type}-${timestamp}.webp`;
     const filepath = path.join(__dirname, 'uploads', filename);
 
     // Ensure uploads directory exists

@@ -47,9 +47,9 @@ const centerAspectCrop = (
         mediaHeight
     );
 
-const getCroppedPngImage = async (
+const getCroppedImage = async (
     imageSrc: HTMLImageElement,
-    scaleFactor: number,
+    quality: number,
     pixelCrop: PixelCrop,
     maxImageSize: number
 ): Promise<string> => {
@@ -62,10 +62,13 @@ const getCroppedPngImage = async (
     const scaleX = imageSrc.naturalWidth / imageSrc.width;
     const scaleY = imageSrc.naturalHeight / imageSrc.height;
 
-    ctx.imageSmoothingEnabled = false;
+    // Enable high-quality image smoothing for better results
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
 
-    canvas.width = pixelCrop.width;
-    canvas.height = pixelCrop.height;
+    // Use original image resolution to preserve quality
+    canvas.width = pixelCrop.width * scaleX;
+    canvas.height = pixelCrop.height * scaleY;
 
     ctx.drawImage(
         imageSrc,
@@ -79,14 +82,16 @@ const getCroppedPngImage = async (
         canvas.height
     );
 
-    const croppedImageUrl = canvas.toDataURL('image/png');
+    // Use WebP format for better compression and quality
+    const croppedImageUrl = canvas.toDataURL('image/webp', quality);
     const response = await fetch(croppedImageUrl);
     const blob = await response.blob();
 
-    if (blob.size > maxImageSize) {
-        return await getCroppedPngImage(
+    // If file size exceeds limit, reduce quality and try again
+    if (blob.size > maxImageSize && quality > 0.5) {
+        return await getCroppedImage(
             imageSrc,
-            scaleFactor * 0.9,
+            quality * 0.9,
             pixelCrop,
             maxImageSize
         );
@@ -186,9 +191,9 @@ export const ImageCrop = ({
         if (!(imgRef.current && completedCrop)) {
             return;
         }
-        const croppedImage = await getCroppedPngImage(
+        const croppedImage = await getCroppedImage(
             imgRef.current,
-            1,
+            0.92, // WebP achieves excellent quality at 92%
             completedCrop,
             maxImageSize
         );

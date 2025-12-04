@@ -18,7 +18,7 @@ export const FeaturedPlaces = async ({ pretitle, title, subtitle }: FeaturedPlac
                 {subtitle && <p>{subtitle}</p>}
             </div>
 
-            <ul className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <ul className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 {places.map((place) => (
                     <li key={place.id}>
                         <PlaceCard data={place} />
