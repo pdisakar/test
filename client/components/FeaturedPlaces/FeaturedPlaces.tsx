@@ -15,7 +15,17 @@ export const FeaturedPlaces = async ({ pretitle, title, subtitle }: FeaturedPlac
         <section className="featured-places common-box">
             <div className="container">
                 <div className="title">
-                    {pretitle && <span>{pretitle}</span>}
+                    {pretitle && <span>   <svg
+                        className="icon text-primary"
+                        width="36"
+                        height="36"
+                    >
+                        <use
+                            xlinkHref="/icons.svg#company-logo"
+                            fill="currentColor"
+                        ></use>
+                    </svg>
+                        {pretitle}</span>}
                     {title && <h2>{title}</h2>}
                     {subtitle && <p>{subtitle}</p>}
                 </div>

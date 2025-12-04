@@ -46,22 +46,22 @@
   @apply mb-4;
 
   h1 {
-    @apply text-headings font-black leading-[1.2] text-center;
+    @apply text-headings font-bold leading-[1.2] text-center;
     font-size: clamp(1.75rem, 5vw, 2.125rem);
   }
 
   h2 {
-    @apply text-headings font-black leading-[1.2] text-center;
+    @apply text-headings font-bold leading-[1.2] text-center;
     font-size: clamp(1.75rem, 5vw, 2.125rem);
   }
 
   h3 {
-    @apply text-headings font-black leading-[1.2] text-center;
+    @apply text-headings font-bold leading-[1.2] text-center;
     font-size: clamp(1.5rem, 4vw, 1.75rem);
   }
 
   h4 {
-    @apply text-headings font-black leading-[1.2] text-center;
+    @apply text-headings font-bold leading-[1.2] text-center;
     font-size: clamp(1.5rem, 3.5vw, 1.5rem);
   }
 
