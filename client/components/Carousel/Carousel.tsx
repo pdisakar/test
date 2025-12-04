@@ -145,12 +145,17 @@ const CarouselDots = ({ className }: { className?: string }) => {
             {scrollSnaps.map((_, index) => (
                 <button
                     key={index}
+                    aria-label={`Go to slide ${index + 1}`}
+                    title={`Go to slide ${index + 1}`}
                     className={cn(
                         "w-2 h-2 rounded-full transition-all duration-300",
-                        index === selectedIndex ? "bg-primary w-8" : "bg-primary/20 hover:bg-primary/80 hover:cursor-pointer"
+                        index === selectedIndex
+                            ? "bg-primary w-8"
+                            : "bg-primary/20 hover:bg-primary/80 hover:cursor-pointer"
                     )}
                     onClick={() => scrollTo(index)}
                 />
+
             ))}
         </div>
     );

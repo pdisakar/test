@@ -3827,7 +3827,7 @@ app.get('/api/hero', async (req, res) => {
 
 // Update hero section
 app.post('/api/hero', async (req, res) => {
-  const { image, title, subtitle } = req.body;
+  const { image, imageAlt, imageCaption, title, subtitle } = req.body;
 
   try {
     const existing = await getAsync('SELECT id FROM hero_sections ORDER BY id ASC LIMIT 1');
@@ -3836,15 +3836,15 @@ app.post('/api/hero', async (req, res) => {
     if (existing) {
       await runAsync(`
         UPDATE hero_sections SET
-          image = ?, title = ?, subtitle = ?, updatedAt = ?
+          image = ?, imageAlt = ?, imageCaption = ?, title = ?, subtitle = ?, updatedAt = ?
         WHERE id = ?
-      `, [image, title, subtitle, now, existing.id]);
+      `, [image, imageAlt || '', imageCaption || '', title, subtitle, now, existing.id]);
       res.json({ success: true, message: 'Hero section updated' });
     } else {
       await runAsync(`
-        INSERT INTO hero_sections (image, title, subtitle, updatedAt)
-        VALUES (?, ?, ?, ?)
-      `, [image, title, subtitle, now]);
+        INSERT INTO hero_sections (image, imageAlt, imageCaption, title, subtitle, updatedAt)
+        VALUES (?, ?, ?, ?, ?, ?)
+      `, [image, imageAlt || '', imageCaption || '', title, subtitle, now]);
       res.json({ success: true, message: 'Hero section created' });
     }
   } catch (err) {

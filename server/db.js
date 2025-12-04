@@ -453,6 +453,8 @@ const init = () => {
     CREATE TABLE IF NOT EXISTS hero_sections (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       image TEXT NOT NULL,
+      imageAlt TEXT,
+      imageCaption TEXT,
       title TEXT,
       subtitle TEXT,
       updatedAt TEXT
@@ -481,7 +483,25 @@ const init = () => {
     });
   };
   
+  // Migration: Add imageAlt and imageCaption to hero_sections table
+  const migrateHeroSections = () => {
+    const columns = [
+      { name: 'imageAlt', type: 'TEXT' },
+      { name: 'imageCaption', type: 'TEXT' }
+    ];
+    
+    columns.forEach(col => {
+      db.run(`ALTER TABLE hero_sections ADD COLUMN ${col.name} ${col.type}`, (err) => {
+        // Ignore error if column already exists
+        if (!err) {
+          console.log(`Added column ${col.name} to hero_sections table`);
+        }
+      });
+    });
+  };
+  
   migrateArticles();
+  migrateHeroSections();
 };
 
 init();

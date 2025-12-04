@@ -5,6 +5,8 @@ import HomeSearch from '@/components/HomeSearch/HomeSearch';
 
 export default async function HeroSection() {
     const heroData = await fetchHeroSection();
+    console.log(heroData);
+
 
     return (
         <section className="hero-section relative w-full">
@@ -12,12 +14,15 @@ export default async function HeroSection() {
             <figure className="image-slot aspect-1920/750 min-h-[400px]">
                 <Image
                     src={`${IMAGE_URL}${heroData?.image}`}
-                    alt="Hero Banner"
-                    height={750}
+                    alt={heroData?.imageAlt || "Hero banner"}
                     width={1920}
+                    height={750}
                     priority
+                    fetchPriority="high"
+                    sizes="(max-width: 768px) 100vw, 100vw"
                     className="object-cover min-h-[400px]"
                 />
+
             </figure>
 
             <figcaption className="absolute z-20 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-[730px]">

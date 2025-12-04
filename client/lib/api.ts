@@ -62,6 +62,8 @@ export interface MenuItem {
 export interface HeroSectionData {
     id: number;
     image: string;
+    imageAlt?: string;
+    imageCaption?: string;
     title: string;
     subtitle: string;
 }

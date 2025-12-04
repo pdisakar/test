@@ -11,12 +11,16 @@ import { getApiUrl, getImageUrl } from '@/app/admin/lib/api-config';
 interface HeroSection {
     id?: number;
     image: string;
+    imageAlt: string;
+    imageCaption: string;
     title: string;
     subtitle: string;
 }
 
 const initialHero: HeroSection = {
     image: '',
+    imageAlt: '',
+    imageCaption: '',
     title: '',
     subtitle: '',
 };
@@ -157,16 +161,14 @@ export default function HeroSectionPage() {
                         <BannerImage
                             label="Banner Image"
                             imageUrl={hero.image}
-                            imageAlt="" // Hero section doesn't have alt/caption in DB yet, passing empty
-                            imageCaption=""
+                            imageAlt={hero.imageAlt}
+                            imageCaption={hero.imageCaption}
                             onImageSelect={handleImageSelect}
                             onImageRemove={handleImageRemove}
-                            onAltChange={() => { }} // No-op
-                            onCaptionChange={() => { }} // No-op
+                            onAltChange={(alt) => setHero(prev => ({ ...prev, imageAlt: alt }))}
+                            onCaptionChange={(caption) => setHero(prev => ({ ...prev, imageCaption: caption }))}
                             helperText="SVG, PNG, JPG or GIF (MAX. 1920x750)"
                             disabled={saving}
-                            hasAlt={false}
-                            hasCaption={false}
                         />
 
                         {/* Text Content */}
