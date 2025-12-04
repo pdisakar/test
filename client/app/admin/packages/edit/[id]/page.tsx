@@ -17,6 +17,7 @@ import { TripMapImage } from '@/app/admin/components/TripMapImage';
 import { GalleryUpload, type GalleryImage } from '@/app/admin/components/GalleryUpload';
 import { extractImagePaths, processContentImages, cleanupUnusedImages } from '@/app/admin/lib/richTextHelpers';
 import { processImageToWebP } from '@/app/admin/lib/imageUtils';
+import { getApiUrl, getImageUrl } from '@/app/admin/lib/api-config';
 
 interface GroupPrice {
   id: string;
@@ -194,7 +195,7 @@ export default function EditPackagePage() {
     const fetchData = async () => {
       try {
         // 1. Fetch Categories
-        const catRes = await fetch('http://localhost:3001/api/fact-categories');
+        const catRes = await fetch(getApiUrl('fact-categories'));
         const cats: Category[] = await catRes.json();
         setCategories(cats);
 
@@ -202,7 +203,7 @@ export default function EditPackagePage() {
         const options: Record<string, Attribute[]> = {};
         await Promise.all(
           cats.map(async (cat) => {
-            const attrRes = await fetch(`http://localhost:3001/api/attributes/${cat.slug}`);
+            const attrRes = await fetch(getApiUrl(`attributes/${cat.slug}`));
             options[cat.slug] = await attrRes.json();
           })
         );
@@ -251,8 +252,8 @@ export default function EditPackagePage() {
     const fetchData = async () => {
       try {
         const [placesRes, packagesRes] = await Promise.all([
-          fetch('http://localhost:3001/api/places'),
-          fetch('http://localhost:3001/api/packages')
+          fetch(getApiUrl('places')),
+          fetch(getApiUrl('packages'))
         ]);
 
         if (placesRes.ok) {
@@ -281,7 +282,7 @@ export default function EditPackagePage() {
 
   const fetchPackageData = async () => {
     try {
-      const response = await fetch(`http://localhost:3001/api/packages/${packageId}`);
+      const response = await fetch(getApiUrl(`packages/${packageId}`));
       const data = await response.json();
 
       if (!response.ok) {

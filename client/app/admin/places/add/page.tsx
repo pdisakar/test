@@ -13,6 +13,7 @@ import { BannerImage } from '@/app/admin/components/BannerImage';
 import { processContentImages } from '@/app/admin/lib/richTextHelpers';
 import { processImageToWebP } from '@/app/admin/lib/imageUtils';
 import { ASPECT_RATIOS, DISPLAY_ASPECT_RATIOS } from '@/app/admin/lib/aspect-ratios';
+import { getApiUrl, getImageUrl } from '@/app/admin/lib/api-config';
 
 const RichTextEditor = dynamic(() => import('@/app/admin/components/RichTextEditor'), { ssr: false });
 
@@ -73,7 +74,7 @@ export default function AddplacePage() {
   useEffect(() => {
     const fetchParents = async () => {
       try {
-        const res = await fetch('http://localhost:3001/api/places');
+        const res = await fetch(getApiUrl('places'));
         const data = await res.json();
         if (Array.isArray(data)) {
           setParentOptions(data);

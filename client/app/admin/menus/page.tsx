@@ -5,6 +5,7 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/app/admin/components/ui/button';
 import { Search, Edit, ChevronRight, ChevronDown } from 'lucide-react';
+import { getApiUrl, getImageUrl } from '@/app/admin/lib/api-config';
 
 interface Menu {
     id: number;
@@ -46,7 +47,7 @@ export default function MenusPage() {
         setLoading(true);
         setError('');
         try {
-            const response = await fetch('http://localhost:3001/api/menus');
+            const response = await fetch(getApiUrl('menus'));
             const data = await response.json();
 
             if (!response.ok) {

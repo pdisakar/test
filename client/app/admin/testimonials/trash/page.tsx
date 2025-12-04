@@ -5,6 +5,7 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/app/admin/components/ui/button';
 import { Search, RotateCcw, ArrowLeft } from 'lucide-react';
+import { getApiUrl, getImageUrl } from '@/app/admin/lib/api-config';
 
 interface Testimonial {
     id: number;
@@ -39,7 +40,7 @@ export default function TestimonialsTrashPage() {
         setLoading(true);
         setError('');
         try {
-            const response = await fetch('http://localhost:3001/api/testimonials/trash/all');
+            const response = await fetch(getApiUrl('testimonials/trash/all'));
             const data = await response.json();
 
             if (!response.ok) {

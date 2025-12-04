@@ -5,6 +5,7 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/app/admin/components/ui/button';
 import { Search, Edit } from 'lucide-react';
+import { getApiUrl, getImageUrl } from '@/app/admin/lib/api-config';
 
 interface Testimonial {
     id: number;
@@ -50,7 +51,7 @@ export default function TestimonialsPage() {
         setLoading(true);
         setError('');
         try {
-            const response = await fetch('http://localhost:3001/api/testimonials');
+            const response = await fetch(getApiUrl('testimonials'));
             const data = await response.json();
 
             if (!response.ok) {

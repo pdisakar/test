@@ -1,6 +1,7 @@
 import React from 'react';
 import { Trash2, UploadCloud, Image as ImageIcon } from 'lucide-react';
 import { ASPECT_RATIOS } from '@/app/admin/lib/aspect-ratios';
+import { getApiUrl, getImageUrl } from '@/app/admin/lib/api-config';
 
 interface FeaturedImageProps {
     label: string;
@@ -39,7 +40,7 @@ export function FeaturedImage({
         if (url.startsWith('data:') || url.startsWith('blob:') || url.startsWith('http')) {
             return url;
         }
-        return `http://localhost:3001${url}`;
+        return getImageUrl(url);
     };
 
     return (

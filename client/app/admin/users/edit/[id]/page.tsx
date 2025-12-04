@@ -5,6 +5,7 @@ import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { Button } from '@/app/admin/components/ui/button';
 import { Switch } from '@/app/admin/components/ui/switch';
+import { getApiUrl, getImageUrl } from '@/app/admin/lib/api-config';
 
 export default function EditUserPage() {
   const router = useRouter();
@@ -41,7 +42,7 @@ export default function EditUserPage() {
     setError('');
 
     try {
-      const response = await fetch(`http://localhost:3001/api/users`);
+      const response = await fetch(getApiUrl(`users`));
       const data = await response.json();
 
       if (!response.ok) {

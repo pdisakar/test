@@ -7,6 +7,7 @@ import { Button } from '@/app/admin/components/ui/button';
 import { Switch } from '@/app/admin/components/ui/switch';
 
 import { HierarchySelector } from '@/app/admin/components/HierarchySelector';
+import { getApiUrl, getImageUrl } from '@/app/admin/lib/api-config';
 
 interface Menu {
     id: number;
@@ -62,10 +63,10 @@ export default function EditMenuPage({ params }: { params: Promise<{ id: string 
     const fetchData = async () => {
         try {
             const [menuRes, menusRes, articlesRes, placesRes] = await Promise.all([
-                fetch(`http://localhost:3001/api/menus/${id}`),
-                fetch('http://localhost:3001/api/menus'),
-                fetch('http://localhost:3001/api/articles'),
-                fetch('http://localhost:3001/api/places')
+                fetch(getApiUrl(`menus/${id}`)),
+                fetch(getApiUrl('menus')),
+                fetch(getApiUrl('articles')),
+                fetch(getApiUrl('places'))
             ]);
 
             if (!menuRes.ok) {

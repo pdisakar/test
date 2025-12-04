@@ -11,6 +11,7 @@ import { ImageCrop, ImageCropContent, ImageCropApply, ImageCropReset } from '@/a
 import { FeaturedImage } from '@/app/admin/components/FeaturedImage';
 import { ASPECT_RATIOS, DISPLAY_ASPECT_RATIOS } from '@/app/admin/lib/aspect-ratios';
 import { COUNTRIES } from '@/app/admin/lib/countries';
+import { getApiUrl, getImageUrl } from '@/app/admin/lib/api-config';
 
 const RichTextEditor = dynamic(() => import('@/app/admin/components/RichTextEditor'), { ssr: false });
 
@@ -69,9 +70,9 @@ export default function EditTestimonialPage() {
         const fetchData = async () => {
             try {
                 const [packagesRes, teamsRes, testimonialRes] = await Promise.all([
-                    fetch('http://localhost:3001/api/packages?limit=100'),
-                    fetch('http://localhost:3001/api/teams'),
-                    fetch(`http://localhost:3001/api/testimonials/${id}`)
+                    fetch(getApiUrl('packages?limit=100')),
+                    fetch(getApiUrl('teams')),
+                    fetch(getApiUrl(`testimonials/${id}`))
                 ]);
 
                 if (packagesRes.ok) {

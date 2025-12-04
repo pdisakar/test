@@ -17,6 +17,7 @@ import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { processContentImages } from '@/app/admin/lib/richTextHelpers';
 import { processImageToWebP } from '@/app/admin/lib/imageUtils';
+import { getApiUrl, getImageUrl } from '@/app/admin/lib/api-config';
 
 const RichTextEditor = dynamic(() => import('@/app/admin/components/RichTextEditor'), { ssr: false });
 
@@ -70,7 +71,7 @@ export default function AddBlogPage() {
 
     const fetchAuthors = async () => {
         try {
-            const res = await fetch('http://localhost:3001/api/authors');
+            const res = await fetch(getApiUrl('authors'));
             const data = await res.json();
             if (Array.isArray(data)) {
                 setAuthors(data);

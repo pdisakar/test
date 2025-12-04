@@ -12,6 +12,7 @@ import { FeaturedImage } from '@/app/admin/components/FeaturedImage';
 import { ASPECT_RATIOS, DISPLAY_ASPECT_RATIOS } from '@/app/admin/lib/aspect-ratios';
 import { BannerImage } from '@/app/admin/components/BannerImage';
 import { extractImagePaths, processContentImages, cleanupUnusedImages } from '@/app/admin/lib/richTextHelpers';
+import { getApiUrl, getImageUrl } from '@/app/admin/lib/api-config';
 
 const RichTextEditor = dynamic(() => import('@/app/admin/components/RichTextEditor'), { ssr: false });
 
@@ -76,7 +77,7 @@ export default function EditArticlePage() {
   useEffect(() => {
     const fetchParents = async () => {
       try {
-        const res = await fetch('http://localhost:3001/api/articles');
+        const res = await fetch(getApiUrl('articles'));
         const data = await res.json();
         if (Array.isArray(data)) {
           // Get all descendant IDs of current article to prevent circular dependencies
@@ -117,7 +118,7 @@ export default function EditArticlePage() {
     setError('');
 
     try {
-      const response = await fetch(`http://localhost:3001/api/articles/${articleId}`);
+      const response = await fetch(getApiUrl(`articles/${articleId}`));
       const data = await response.json();
 
       if (!response.ok) {

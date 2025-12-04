@@ -6,6 +6,7 @@ import { Button } from '@/app/admin/components/ui/button';
 import { Save, Loader2 } from 'lucide-react';
 import { apiFetch } from '@/lib/api';
 import { BannerImage } from '@/app/admin/components/BannerImage';
+import { getApiUrl, getImageUrl } from '@/app/admin/lib/api-config';
 
 interface HeroSection {
     id?: number;

@@ -5,6 +5,7 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/app/admin/components/ui/button';
 import { Search, Edit } from 'lucide-react';
+import { getApiUrl, getImageUrl } from '@/app/admin/lib/api-config';
 
 interface Blog {
     id: number;
@@ -43,7 +44,7 @@ export default function BlogsPage() {
         setLoading(true);
         setError('');
         try {
-            const response = await fetch('http://localhost:3001/api/blogs');
+            const response = await fetch(getApiUrl('blogs'));
             const data = await response.json();
 
             if (!response.ok) {

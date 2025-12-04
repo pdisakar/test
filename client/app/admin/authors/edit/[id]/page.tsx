@@ -12,6 +12,7 @@ import { FeaturedImage } from '@/app/admin/components/FeaturedImage';
 import { ASPECT_RATIOS, DISPLAY_ASPECT_RATIOS } from '@/app/admin/lib/aspect-ratios';
 import { BannerImage } from '@/app/admin/components/BannerImage';
 import { processImageToWebP } from '@/app/admin/lib/imageUtils';
+import { getApiUrl, getImageUrl } from '@/app/admin/lib/api-config';
 
 const RichTextEditor = dynamic(() => import('@/app/admin/components/RichTextEditor'), { ssr: false });
 
@@ -57,7 +58,7 @@ export default function EditAuthorPage() {
 
   const fetchAuthor = async () => {
     try {
-      const res = await fetch(`http://localhost:3001/api/authors/${params.id}`);
+      const res = await fetch(getApiUrl(`authors/${params.id}`));
       if (!res.ok) throw new Error('Failed to fetch author');
       const data = await res.json();
 

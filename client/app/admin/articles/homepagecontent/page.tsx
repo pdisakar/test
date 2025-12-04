@@ -7,6 +7,7 @@ import { Button } from '@/app/admin/components/ui/button';
 import { BannerImage } from '@/app/admin/components/BannerImage';
 import { extractImagePaths, processContentImages, cleanupUnusedImages } from '@/app/admin/lib/richTextHelpers';
 import dynamic from 'next/dynamic';
+import { getApiUrl, getImageUrl } from '@/app/admin/lib/api-config';
 
 const RichTextEditor = dynamic(() => import('@/app/admin/components/RichTextEditor'), { ssr: false });
 
@@ -35,7 +36,7 @@ export default function HomeContentPage() {
 
     const fetchData = async () => {
         try {
-            const response = await fetch('http://localhost:3001/api/homecontent');
+            const response = await fetch(getApiUrl('homecontent'));
             const data = await response.json();
 
             if (data) {

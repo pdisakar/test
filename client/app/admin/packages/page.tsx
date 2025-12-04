@@ -5,6 +5,7 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/app/admin/components/ui/button';
 import { Search, Edit } from 'lucide-react';
+import { getApiUrl, getImageUrl } from '@/app/admin/lib/api-config';
 
 interface Package {
   id: number;
@@ -40,7 +41,7 @@ export default function PackagesPage() {
     setLoading(true);
     setError('');
     try {
-      const response = await fetch('http://localhost:3001/api/packages');
+      const response = await fetch(getApiUrl('packages'));
       const data = await response.json();
 
       if (!response.ok) {

@@ -5,6 +5,7 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/app/admin/components/ui/button';
 import { Search, RotateCcw, ArrowLeft } from 'lucide-react';
+import { getApiUrl, getImageUrl } from '@/app/admin/lib/api-config';
 
 interface Author {
     id: number;
@@ -43,7 +44,7 @@ export default function TrashPage() {
         setLoading(true);
         setError('');
         try {
-            const response = await fetch('http://localhost:3001/api/authors/trash/all');
+            const response = await fetch(getApiUrl('authors/trash/all'));
             const data = await response.json();
 
             if (!response.ok) {
@@ -137,7 +138,7 @@ export default function TrashPage() {
         if (url.startsWith('data:') || url.startsWith('blob:') || url.startsWith('http')) {
             return url;
         }
-        return `http://localhost:3001${url}`;
+        return getImageUrl(url);
     };
 
     const filteredAuthors = authors.filter(author =>

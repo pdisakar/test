@@ -5,6 +5,7 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/app/admin/components/ui/button';
 import { Search, RotateCcw, ArrowLeft, ChevronRight, ChevronDown } from 'lucide-react';
+import { getApiUrl, getImageUrl } from '@/app/admin/lib/api-config';
 
 interface Menu {
     id: number;
@@ -38,7 +39,7 @@ export default function MenusTrashPage() {
         setLoading(true);
         setError('');
         try {
-            const response = await fetch('http://localhost:3001/api/menus/trash/all');
+            const response = await fetch(getApiUrl('menus/trash/all'));
             const data = await response.json();
             if (!response.ok) throw new Error(data.message || 'Failed to fetch trash');
             setMenus(Array.isArray(data) ? data : []);

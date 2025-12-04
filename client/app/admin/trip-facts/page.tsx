@@ -4,6 +4,7 @@ import { MainLayout } from '@/app/admin/components/MainLayout';
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/app/admin/components/ui/button';
 import { Trash2, Plus, Pencil, Check, X, FolderPlus } from 'lucide-react';
+import { getApiUrl, getImageUrl } from '@/app/admin/lib/api-config';
 
 interface Attribute {
   id: number;
@@ -45,7 +46,7 @@ export default function TripFactsPage() {
 
   const fetchCategories = async () => {
     try {
-      const res = await fetch('http://localhost:3001/api/fact-categories');
+      const res = await fetch(getApiUrl('fact-categories'));
       const data = await res.json();
       setCategories(data);
       if (data.length > 0 && !activeTab) {
@@ -59,7 +60,7 @@ export default function TripFactsPage() {
   const fetchAttributes = async () => {
     try {
       setLoading(true);
-      const res = await fetch(`http://localhost:3001/api/attributes/${activeTab}`);
+      const res = await fetch(getApiUrl(`attributes/${activeTab}`));
       const data = await res.json();
       setAttributes(data);
     } catch (error) {

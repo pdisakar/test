@@ -5,6 +5,7 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/app/admin/components/ui/button';
 import { Search, Edit, ChevronRight, ChevronDown } from 'lucide-react';
+import { getApiUrl, getImageUrl } from '@/app/admin/lib/api-config';
 
 interface Article {
   id: number;
@@ -51,7 +52,7 @@ export default function ArticlesPage() {
     setLoading(true);
     setError('');
     try {
-      const response = await fetch('http://localhost:3001/api/articles');
+      const response = await fetch(getApiUrl('articles'));
       const data = await response.json();
 
       if (!response.ok) {

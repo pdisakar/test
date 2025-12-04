@@ -13,6 +13,7 @@ import { ASPECT_RATIOS, DISPLAY_ASPECT_RATIOS } from '@/app/admin/lib/aspect-rat
 import { BannerImage } from '@/app/admin/components/BannerImage';
 import { extractImagePaths, processContentImages, cleanupUnusedImages } from '@/app/admin/lib/richTextHelpers';
 import { processImageToWebP } from '@/app/admin/lib/imageUtils';
+import { getApiUrl, getImageUrl } from '@/app/admin/lib/api-config';
 
 const RichTextEditor = dynamic(() => import('@/app/admin/components/RichTextEditor'), { ssr: false });
 
@@ -76,7 +77,7 @@ export default function EditPlacePage() {
     useEffect(() => {
         const fetchParents = async () => {
             try {
-                const res = await fetch('http://localhost:3001/api/places');
+                const res = await fetch(getApiUrl('places'));
                 const data = await res.json();
                 if (Array.isArray(data)) {
                     const getDescendantIds = (places: Place[], parentId: number): number[] => {
@@ -114,7 +115,7 @@ export default function EditPlacePage() {
         setError('');
 
         try {
-            const response = await fetch(`http://localhost:3001/api/places/${placeId}`);
+            const response = await fetch(getApiUrl(`places/${placeId}`));
             const data = await response.json();
 
             if (!response.ok) {

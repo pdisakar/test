@@ -52,7 +52,7 @@ export const processContentImages = async (html: string): Promise<string> => {
   for (const { src } of base64Matches) {
     try {
       const serverPath = await uploadBase64Image(src);
-      const fullUrl = `http://localhost:3001${serverPath}`;
+      const fullUrl = getImageUrl(serverPath);
       // Replace the specific base64 src with the new server URL
       // We use replace with the exact src string to ensure we target the right one
       newHtml = newHtml.replace(src, fullUrl);

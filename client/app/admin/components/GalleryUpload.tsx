@@ -18,6 +18,7 @@ import {
   rectSortingStrategy,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import { getApiUrl, getImageUrl } from '@/app/admin/lib/api-config';
 
 export interface GalleryImage {
   id: string;
@@ -167,7 +168,7 @@ export function GalleryUpload({
     if (url.startsWith('data:') || url.startsWith('blob:') || url.startsWith('http')) {
       return url;
     }
-    return `http://localhost:3001${url}`;
+    return getImageUrl(url);
   };
 
   return (

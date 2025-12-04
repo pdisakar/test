@@ -5,6 +5,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/app/admin/components/ui/button';
 import { Switch } from '@/app/admin/components/ui/switch';
+import { getApiUrl, getImageUrl } from '@/app/admin/lib/api-config';
 
 export default function AddUserPage() {
   const router = useRouter();
@@ -67,7 +68,7 @@ export default function AddUserPage() {
     setLoading(true);
 
     try {
-      const response = await fetch('http://localhost:3001/api/users', {
+      const response = await fetch(getApiUrl('users'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
