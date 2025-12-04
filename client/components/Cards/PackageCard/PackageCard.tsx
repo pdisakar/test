@@ -3,6 +3,7 @@ import React from 'react';
 import { Package } from '@/lib/api';
 import Image from 'next/image';
 import { IMAGE_URL } from '@/lib/constants';
+import PackageButton from '@/components/Buttons/PackageButton/PackageButton';
 interface PackageCardProps {
   data: Package;
 }
@@ -11,7 +12,7 @@ export const PackageCard = ({ data }: PackageCardProps) => {
   console.log(data);
 
   return (
-    <div className='card group shadow-custom-shadow rounded-lg'>
+    <div className='card group shadow-custom-shadow rounded-lg border border-primary/5'>
       <figure className='image-slot aspect-[420/350] rounded-t-lg'>
         <Link href={`/${data.slug}`} className='group'>
           <Image
@@ -70,12 +71,12 @@ export const PackageCard = ({ data }: PackageCardProps) => {
             </span>
           </div>
         </div>
-        <div className="bottom-section flex items-center justify-between gap-4 flex-wrap px-4 py-4 md:px-6 md:py-5 border-t border-primary/20">
+        <div className="bottom-section flex items-center justify-between gap-4 flex-wrap px-4 py-4 md:px-6 md:py-5 border-t border-primary/15">
           <div className="cost">
-            <span className="text-headings text-[22px] leading-[1.29] font-semibold">{data.defaultPrice}</span>
-            <span className="text-muted text-sm leading-[100%]">per person</span>
-
+            <span className="text-xs block font-semibold text-headings tracking-[0.5px]">Starting From</span>
+            <span className="text-lg lg:text-2xl block font-black text-primary tracking-[0.5px]">UD$ {data.defaultPrice}</span>
           </div>
+          <PackageButton href={`/${data.slug}`} label="View Details" />
         </div>
 
       </figcaption>
