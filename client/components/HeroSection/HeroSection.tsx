@@ -7,9 +7,9 @@ export default async function HeroSection() {
     const heroData = await fetchHeroSection();
 
     return (
-        <div className="relative w-full">
+        <section className="hero-section relative w-full">
             <span className="absolute inset-0 bg-black/10 z-20"></span>
-            <figure className="image-slot aspect-[1920/750] min-h-[400px]">
+            <figure className="image-slot aspect-1920/750 min-h-[400px]">
                 <Image
                     src={`${IMAGE_URL}${heroData?.image}`}
                     alt="Hero Banner"
@@ -27,6 +27,6 @@ export default async function HeroSection() {
                     <HomeSearch />
                 </div>
             </figcaption>
-        </div>
+        </section>
     );
 }

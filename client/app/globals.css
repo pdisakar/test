@@ -24,6 +24,10 @@
 @utility container {
   @apply mx-auto px-3.75 max-w-[1280px];
 }
+/* Common Box */
+@utility common-box {
+    @apply relative pt-[3rem]  pb-[3rem] md:pt-[4rem]  md:pb-[4rem] lg:pt-[6rem] lg:pb-[6rem];
+  }
 
 @utility font-primary {
   font-family: var(--primaryfont);

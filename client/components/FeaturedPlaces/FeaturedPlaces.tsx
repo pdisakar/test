@@ -11,20 +11,23 @@ export const FeaturedPlaces = async ({ pretitle, title, subtitle }: FeaturedPlac
     const places = await fetchFeaturedPlaces();
 
     return (
-        <section className="py-16 container">
-            <div className="title">
-                {pretitle && <span>{pretitle}</span>}
-                {title && <h2>{title}</h2>}
-                {subtitle && <p>{subtitle}</p>}
-            </div>
+        <section className="featured-places common-box">
+            <div className="container">
+                <div className="title">
+                    {pretitle && <span>{pretitle}</span>}
+                    {title && <h2>{title}</h2>}
+                    {subtitle && <p>{subtitle}</p>}
+                </div>
 
-            <ul className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                {places.map((place) => (
-                    <li key={place.id}>
-                        <PlaceCard data={place} />
-                    </li>
-                ))}
-            </ul>
+                <ul className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-8">
+                    {places.map((place) => (
+                        <li key={place.id}>
+                            <PlaceCard data={place} />
+                        </li>
+                    ))}
+                </ul>
+            </div>
         </section>
+
     );
 };
