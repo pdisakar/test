@@ -19,12 +19,12 @@ export const PackageCard = ({ data }: PackageCardProps) => {
             alt={data.featuredImageAlt || data.title}
             fill
             priority
-            className='rounded-lg transition-all duration-500 ease-out group-hover:scale-110 group-hover:blur-[1px]'
+            className='rounded-lg transition-all duration-500 ease-out group-hover:scale-110 group-hover:blur-[0.5px]'
           />
         </Link>
       </figure>
       <figcaption className=' '>
-        <div className="top-section p-6">
+        <div className="top-section p-4 md:p-6">
           <div className="package_rating flex items-center gap-1 mb-[5px]">
             <svg
               className="icon text-primary"
@@ -43,9 +43,9 @@ export const PackageCard = ({ data }: PackageCardProps) => {
             )}
           </div>
           <Link href={`/${data.slug}`} className='group'>
-            <h3 className='text-headings text-[22px] leading-[1.29] font-semibold capitalize'>{data.title}</h3>
+            <h3 className='text-headings text-[22px] leading-[1.29] font-semibold capitalize transition-all duration-200 ease-out group-hover:text-primary'>{data.title}</h3>
           </Link>
-          <div className="duration flex items-center gap-1 mt-[15px]">
+          <div className="duration flex items-center gap-1 mt-[10px]">
             <svg
               className="icon text-muted"
               width="15"
@@ -56,10 +56,10 @@ export const PackageCard = ({ data }: PackageCardProps) => {
                 fill="currentColor"
               ></use>
             </svg>
-            <span className="text-muted">
+            <span className="text-muted font-medium">
               {data.durationUnit === "days" ? (
                 <span className="text-sm leading-[100%]">
-                  {data.duration} days {data.duration + 1} nights
+                  {data.duration} Days {data.duration + 1} Nights
                 </span>
               ) : (
                 <span className="text-sm leading-[100%]">
@@ -70,11 +70,11 @@ export const PackageCard = ({ data }: PackageCardProps) => {
             </span>
           </div>
         </div>
-        <div className="bottom-section flex items-center justify-between gap-4 flex-wrap px-6 py-5 border-t border-primary/20">
+        <div className="bottom-section flex items-center justify-between gap-4 flex-wrap px-4 py-4 md:px-6 md:py-5 border-t border-primary/20">
           <div className="cost">
             <span className="text-headings text-[22px] leading-[1.29] font-semibold">{data.defaultPrice}</span>
             <span className="text-muted text-sm leading-[100%]">per person</span>
-            
+
           </div>
         </div>
 
