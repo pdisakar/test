@@ -10,7 +10,7 @@ interface PlaceCardProps {
 
 export const PlaceCard: React.FC<PlaceCardProps> = ({ data }) => {
     return (
-        <Link href={`/${data.slug}`} className='relative rounded-lg group'>
+        <Link href={`/${data.slug}`} className='relative rounded-lg group shadow-2xl'>
             <figure className='image-slot aspect-320/420 rounded-lg'>
                 <Image
                     src={data.featuredImage ? `${IMAGE_URL}${data.featuredImage}` : '/placeholder.jpg'}

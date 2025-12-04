@@ -1,5 +1,6 @@
 import { fetchFeaturedPlaces } from '@/lib/api';
 import { PlaceCard } from '@/components/Cards/PlaceCard/PlaceCard';
+import { Carousel, CarouselContent, CarouselItem, CarouselDots } from '@/components/Carousel/Carousel';
 
 interface FeaturedPlacesProps {
     pretitle?: string;
@@ -19,13 +20,22 @@ export const FeaturedPlaces = async ({ pretitle, title, subtitle }: FeaturedPlac
                     {subtitle && <p>{subtitle}</p>}
                 </div>
 
-                <ul className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-8">
-                    {places.map((place) => (
-                        <li key={place.id}>
-                            <PlaceCard data={place} />
-                        </li>
-                    ))}
-                </ul>
+                <div className="mt-8">
+                    <Carousel
+                        options={{ align: 'start', loop: true }}
+                        className="w-full"
+                    >
+                        <CarouselContent className="flex touch-pan-y -mx-3">
+                            {places.map((place) => (
+                                <CarouselItem key={place.id} className="min-w-0 shrink-0 grow-0 px-3 flex-[0_0_100%] sm:flex-[0_0_50%] md:flex-[0_0_33.3333334%] lg:flex-[0_0_25%] h-full">
+                                    <PlaceCard data={place} />
+                                </CarouselItem>
+                            ))}
+                        </CarouselContent>
+
+                        <CarouselDots className="mt-6" />
+                    </Carousel>
+                </div>
             </div>
         </section>
 
