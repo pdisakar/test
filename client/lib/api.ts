@@ -112,7 +112,9 @@ export const fetchBestsellingPackages = async (): Promise<Package[]> => {
                     pkg.tripFacts = {} as Record<string, string | null>;
                 }
             }
-            return pkg as Package;
+            // Remove meta fields
+            const { meta, metaTitle, metaKeywords, metaDescription, ...packageWithoutMeta } = pkg;
+            return packageWithoutMeta as Package;
         });
         return packages;
     }

@@ -1,5 +1,7 @@
 
 import { fetchBestsellingPackages, Package } from '@/lib/api';
+import { Carousel, CarouselContent, CarouselDots, CarouselItem } from '../Carousel/Carousel';
+import { PackageCard } from '../Cards/PackageCard/PackageCard';
 
 interface FeaturedPlacesProps {
     pretitle?: string;
@@ -34,6 +36,22 @@ export default async function BestsellingPackages({ pretitle, title, subtitle }:
                     {subtitle && <p dangerouslySetInnerHTML={{ __html: subtitle }} />}
                 </div>
 
+                <div className="mt-8">
+                    <Carousel
+                        options={{ align: 'start', loop: true }}
+                        className="w-full"
+                    >
+                        <CarouselContent className="flex touch-pan-y -mx-3">
+                            {packages.map((packagedata) => (
+                                <CarouselItem key={packagedata.id} className="min-w-0 shrink-0 grow-0 px-3 flex-[0_0_100%] sm:flex-[0_0_50%] md:flex-[0_0_33.3333334%] lg:flex-[0_0_25%] h-full">
+                                    <PackageCard data={packagedata} />
+                                </CarouselItem>
+                            ))}
+                        </CarouselContent>
+
+                        <CarouselDots className="mt-8" />
+                    </Carousel>
+                </div>
 
             </div>
         </section>
