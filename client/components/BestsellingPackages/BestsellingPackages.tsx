@@ -1,9 +1,13 @@
-import Image from 'next/image';
-import Link from 'next/link';
-import { fetchBestsellingPackages, Package } from '@/lib/api';
-import { IMAGE_URL } from '@/lib/constants';
 
-export default async function BestsellingPackages() {
+import { fetchBestsellingPackages, Package } from '@/lib/api';
+
+interface FeaturedPlacesProps {
+    pretitle?: string;
+    title?: string;
+    subtitle?: string;
+}
+
+export default async function BestsellingPackages({ pretitle, title, subtitle }: FeaturedPlacesProps) {
     const packages: Package[] = await fetchBestsellingPackages();
 
     if (packages.length === 0) {
@@ -11,35 +15,26 @@ export default async function BestsellingPackages() {
     }
 
     return (
-        <section className="py-12 bg-gray-50">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <h2 className="text-3xl font-bold mb-8">Bestselling Packages</h2>
-                <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                    {packages.map((pkg) => (
-                        <Link
-                            key={pkg.id}
-                            href={`/${pkg.slug}`}
-                            className="group block rounded-xl overflow-hidden bg-white shadow-lg hover:shadow-xl transition-shadow"
+        <section className="best-selling-packages common-box pt-0">
+            <div className="container">
+                <div className="title">
+                    {pretitle && <span>
+                        <svg
+                            className="icon text-primary"
+                            width="36"
+                            height="26.4"
                         >
-                            <div className="relative h-48 w-full">
-                                <Image
-                                    src={pkg.featuredImage ? `${IMAGE_URL}${pkg.featuredImage}` : '/placeholder.jpg'}
-                                    alt={pkg.title}
-                                    fill
-                                    className="object-cover group-hover:scale-105 transition-transform"
-                                />
-                            </div>
-                            <div className="p-4">
-                                <h3 className="text-xl font-semibold text-gray-900 group-hover:text-primary transition-colors">
-                                    {pkg.title}
-                                </h3>
-                                <p className="mt-2 text-sm text-gray-600">
-                                    {pkg.duration} {pkg.durationUnit} • ${pkg.defaultPrice}
-                                </p>
-                            </div>
-                        </Link>
-                    ))}
+                            <use
+                                xlinkHref="/icons.svg#company-logo"
+                                fill="currentColor"
+                            ></use>
+                        </svg>
+                        {pretitle}</span>}
+                    {title && <h2 dangerouslySetInnerHTML={{ __html: title }} />}
+                    {subtitle && <p dangerouslySetInnerHTML={{ __html: subtitle }} />}
                 </div>
+
+
             </div>
         </section>
     );

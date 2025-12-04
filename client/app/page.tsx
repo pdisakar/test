@@ -1,3 +1,4 @@
+import BestsellingPackages from "@/components/BestsellingPackages/BestsellingPackages";
 import { FeaturedPlaces } from "@/components/FeaturedPlaces/FeaturedPlaces";
 import HeroSection from "@/components/HeroSection/HeroSection";
 
@@ -11,6 +12,10 @@ export default function Home() {
         title="Featured Places"
         subtitle="From Himalayan peaks to cultural treasures, Nepal offers unforgettable experiences. Here’s your shortlist of the best things to do."
       />
+      <BestsellingPackages
+        pretitle='Bestselling Packages'
+        title="Bestselling Packages"
+        subtitle="From Himalayan peaks to cultural treasures, Nepal offers unforgettable experiences. Here’s your shortlist of the best things to do." />
     </main>
   );
 }

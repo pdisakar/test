@@ -26,8 +26,8 @@ export const FeaturedPlaces = async ({ pretitle, title, subtitle }: FeaturedPlac
                         ></use>
                     </svg>
                         {pretitle}</span>}
-                    {title && <h2>{title}</h2>}
-                    {subtitle && <p>{subtitle}</p>}
+                    {title && <h2 dangerouslySetInnerHTML={{ __html: title }} />}
+                    {subtitle && <p dangerouslySetInnerHTML={{ __html: subtitle }} />}
                 </div>
 
                 <div className="mt-8">
@@ -43,7 +43,7 @@ export const FeaturedPlaces = async ({ pretitle, title, subtitle }: FeaturedPlac
                             ))}
                         </CarouselContent>
 
-                        <CarouselDots className="mt-6" />
+                        <CarouselDots className="mt-8" />
                     </Carousel>
                 </div>
             </div>

@@ -46,31 +46,31 @@
   @apply mb-4;
 
   h1 {
-    @apply text-headings font-bold leading-[1.2] text-center;
+    @apply text-headings font-bold leading-[1.2] text-center tracking-[1px];
     font-size: clamp(1.75rem, 5vw, 2.125rem);
   }
 
   h2 {
-    @apply text-headings font-bold leading-[1.2] text-center;
+    @apply text-headings font-bold leading-[1.2] text-center tracking-[1px];
     font-size: clamp(1.75rem, 5vw, 2.125rem);
   }
 
   h3 {
-    @apply text-headings font-bold leading-[1.2] text-center;
+    @apply text-headings font-bold leading-[1.2] text-center tracking-[1px];
     font-size: clamp(1.5rem, 4vw, 1.75rem);
   }
 
   h4 {
-    @apply text-headings font-bold leading-[1.2] text-center;
+    @apply text-headings font-bold leading-[1.2] text-center tracking-[1px];
     font-size: clamp(1.5rem, 3.5vw, 1.5rem);
   }
 
   p {
-    @apply text-sm leading-[160%] font-medium max-w-[664px] mx-auto text-body-text/80 block text-center mt-[10px];
+    @apply text-sm leading-[160%] font-medium max-w-[664px] mx-auto text-body-text/80 block tracking-[0.05px] text-center mt-[10px];
   }
 
   span {
-    @apply text-sm font-semibold text-primary flex items-center justify-center mb-1 gap-2;
+    @apply text-sm font-semibold text-primary flex items-center justify-center mb-1 gap-2 tracking-[0.5px];
   }
 }
 
