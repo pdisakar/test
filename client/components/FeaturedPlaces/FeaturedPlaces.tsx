@@ -1,7 +1,5 @@
-import Link from 'next/link';
-import Image from 'next/image';
 import { fetchFeaturedPlaces } from '@/lib/api';
-import { IMAGE_URL } from '@/lib/constants';
+import { PlaceCard } from '@/components/Cards/PlaceCard/PlaceCard';
 
 interface FeaturedPlacesProps {
     pretitle?: string;
@@ -12,7 +10,6 @@ interface FeaturedPlacesProps {
 export const FeaturedPlaces = async ({ pretitle, title, subtitle }: FeaturedPlacesProps) => {
     const places = await fetchFeaturedPlaces();
 
-
     return (
         <section className="py-16 container">
             <div className="title">
@@ -21,33 +18,13 @@ export const FeaturedPlaces = async ({ pretitle, title, subtitle }: FeaturedPlac
                 {subtitle && <p>{subtitle}</p>}
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <ul className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {places.map((place) => (
-                    <Link
-                        href={`/${place.slug}`}
-                        key={place.id}
-                        className="group relative overflow-hidden rounded-2xl aspect-[4/3] block"
-                    >
-                        <Image
-                            src={place.featuredImage ? `${IMAGE_URL}${place.featuredImage}` : '/placeholder.jpg'}
-                            alt={place.featuredImageAlt || place.title}
-                            fill
-                            className="object-cover transition-transform duration-500 group-hover:scale-110"
-                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                        />
-                        <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/20 to-transparent opacity-80 group-hover:opacity-90 transition-opacity" />
-
-                        <div className="absolute bottom-0 left-0 right-0 p-6 transform translate-y-2 group-hover:translate-y-0 transition-transform duration-300">
-                            <h3 className="text-2xl font-bold text-white mb-2">{place.title}</h3>
-                            {place.packageCount !== undefined && place.packageCount > 0 && (
-                                <div className="inline-block px-3 py-1 bg-primary/90 backdrop-blur-sm rounded-full text-sm text-white font-semibold">
-                                    {place.packageCount} {place.packageCount === 1 ? 'Package' : 'Packages'}
-                                </div>
-                            )}
-                        </div>
-                    </Link>
+                    <li key={place.id}>
+                        <PlaceCard data={place} />
+                    </li>
                 ))}
-            </div>
+            </ul>
         </section>
     );
 };
