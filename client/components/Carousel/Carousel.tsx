@@ -88,10 +88,10 @@ const Carousel = ({ children, options, className, autoplay = false }: CarouselPr
     );
 };
 
-const CarouselContent = ({ children, className }: { children: React.ReactNode; className?: string }) => {
+const CarouselContent = ({ children, className, containerClassName }: { children: React.ReactNode; className?: string; containerClassName?: string }) => {
     const { emblaRef } = useCarousel();
     return (
-        <div className="overflow-hidden" ref={emblaRef}>
+        <div className={cn("overflow-hidden", containerClassName)} ref={emblaRef}>
             <div className={cn("", className)}>
                 {children}
             </div>

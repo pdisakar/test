@@ -11,7 +11,7 @@ export const PackageCard = ({ data }: PackageCardProps) => {
   console.log(data);
 
   return (
-    <div className='card group h-fit shadow-custom-shadow rounded-lg'>
+    <div className='card group shadow-custom-shadow rounded-lg'>
       <figure className='image-slot aspect-[420/350] rounded-t-lg'>
         <Link href={`/${data.slug}`} className='group'>
           <Image
