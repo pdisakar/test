@@ -17,6 +17,9 @@ export default function HomeContentPage() {
     const [bannerImage, setBannerImage] = useState('');
     const [bannerImageAlt, setBannerImageAlt] = useState('');
     const [bannerImageCaption, setBannerImageCaption] = useState('');
+    const [metaTitle, setMetaTitle] = useState('');
+    const [metaKeywords, setMetaKeywords] = useState('');
+    const [metaDescription, setMetaDescription] = useState('');
     const [saving, setSaving] = useState(false);
     const [loading, setLoading] = useState(true);
 
@@ -42,6 +45,9 @@ export default function HomeContentPage() {
             if (data) {
                 setContent(data.content || '');
                 setBannerImage(data.bannerImage || '');
+                setMetaTitle(data.meta?.title || '');
+                setMetaKeywords(data.meta?.keywords || '');
+                setMetaDescription(data.meta?.description || '');
 
                 // Extract initial images from RichTextEditor for cleanup tracking
                 const initialImages = extractImagePaths(data.content || '');
@@ -110,7 +116,15 @@ export default function HomeContentPage() {
             const response = await fetch('http://localhost:3001/api/homecontent', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ content: processedContent, bannerImage: bannerImageUrl })
+                body: JSON.stringify({
+                    content: processedContent,
+                    bannerImage: bannerImageUrl,
+                    meta: {
+                        title: metaTitle,
+                        keywords: metaKeywords,
+                        description: metaDescription
+                    }
+                })
             });
 
             const data = await response.json();
@@ -205,6 +219,52 @@ export default function HomeContentPage() {
                                 onChange={setContent}
                                 placeholder="Enter home page content..."
                             />
+                        </div>
+
+                        {/* Meta Information */}
+                        <div className="border-t border-gray-200 dark:border-gray-700 pt-6">
+                            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">SEO Meta Information</h3>
+                            <div className="space-y-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                        Meta Title
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={metaTitle}
+                                        onChange={(e) => setMetaTitle(e.target.value)}
+                                        placeholder="SEO Title for homepage"
+                                        className="w-full px-4 py-2.5 rounded-lg border border-gray-200 dark:border-gray-700 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                                        disabled={saving}
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                        Meta Keywords
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={metaKeywords}
+                                        onChange={(e) => setMetaKeywords(e.target.value)}
+                                        placeholder="keyword1, keyword2, keyword3"
+                                        className="w-full px-4 py-2.5 rounded-lg border border-gray-200 dark:border-gray-700 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                                        disabled={saving}
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                        Meta Description
+                                    </label>
+                                    <textarea
+                                        value={metaDescription}
+                                        onChange={(e) => setMetaDescription(e.target.value)}
+                                        rows={3}
+                                        placeholder="Brief description for search engines..."
+                                        className="w-full px-4 py-2.5 rounded-lg border border-gray-200 dark:border-gray-700 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all resize-none"
+                                        disabled={saving}
+                                    />
+                                </div>
+                            </div>
                         </div>
 
                         {/* Actions */}

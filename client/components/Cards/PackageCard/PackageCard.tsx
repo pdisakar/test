@@ -9,7 +9,6 @@ interface PackageCardProps {
 }
 
 export const PackageCard = ({ data }: PackageCardProps) => {
-  console.log(data);
 
   return (
     <div className='card group shadow-custom-shadow rounded-lg border border-primary/5'>

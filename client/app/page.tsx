@@ -1,6 +1,25 @@
 import BestsellingPackages from "@/components/BestsellingPackages/BestsellingPackages";
 import { FeaturedPlaces } from "@/components/FeaturedPlaces/FeaturedPlaces";
 import HeroSection from "@/components/HeroSection/HeroSection";
+import { fetchHomeContent } from "@/lib/api";
+import type { Metadata } from 'next';
+
+export async function generateMetadata(): Promise<Metadata> {
+  const homeContent = await fetchHomeContent();
+
+
+  return {
+    title: homeContent?.meta?.title,
+    description: homeContent?.meta?.description,
+    alternates: {
+      canonical: process.env.CANONICAL_BASE,
+    },
+    openGraph: {
+      title: homeContent?.meta?.title,
+      description: homeContent?.meta?.description,
+    },
+  };
+}
 
 export default function Home() {
 

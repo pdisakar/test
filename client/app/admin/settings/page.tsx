@@ -11,9 +11,6 @@ interface GlobalSettings {
     viatorLink: string;
     tourradarLink: string;
     tripAdvisorLink: string;
-    defaultMetaDescription: string;
-    defaultMetaKeywords: string;
-    defaultMetaTitle: string;
     youtubeLink: string;
     pinterestLink: string;
     linkedinLink: string;
@@ -37,9 +34,6 @@ const initialSettings: GlobalSettings = {
     viatorLink: '',
     tourradarLink: '',
     tripAdvisorLink: '',
-    defaultMetaDescription: '',
-    defaultMetaKeywords: '',
-    defaultMetaTitle: '',
     youtubeLink: '',
     pinterestLink: '',
     linkedinLink: '',
@@ -362,44 +356,6 @@ export default function GlobalSettingsPage() {
                                         value={settings.tourradarLink}
                                         onChange={handleChange}
                                         className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-primary/20 outline-none"
-                                    />
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* SEO Defaults */}
-                        <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 p-6">
-                            <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">Default SEO Settings</h2>
-                            <div className="space-y-6">
-                                <div className="space-y-2">
-                                    <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Default Meta Title</label>
-                                    <input
-                                        type="text"
-                                        name="defaultMetaTitle"
-                                        value={settings.defaultMetaTitle}
-                                        onChange={handleChange}
-                                        className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-primary/20 outline-none"
-                                    />
-                                </div>
-                                <div className="space-y-2">
-                                    <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Default Meta Keywords</label>
-                                    <input
-                                        type="text"
-                                        name="defaultMetaKeywords"
-                                        value={settings.defaultMetaKeywords}
-                                        onChange={handleChange}
-                                        className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-primary/20 outline-none"
-                                        placeholder="travel, tours, vacation..."
-                                    />
-                                </div>
-                                <div className="space-y-2">
-                                    <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Default Meta Description</label>
-                                    <textarea
-                                        name="defaultMetaDescription"
-                                        value={settings.defaultMetaDescription}
-                                        onChange={handleChange}
-                                        rows={3}
-                                        className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-primary/20 outline-none resize-none"
                                     />
                                 </div>
                             </div>

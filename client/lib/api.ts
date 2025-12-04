@@ -4,23 +4,23 @@
 const BASE_URL = 'http://localhost:3001/api';
 
 export interface Package {
-  id: number;
-  title: string;
-  slug: string;
-  duration: number;
-  durationUnit: string;
-  defaultPrice: number;
-  featuredImage: string;
-  featured: number;
-  isBestselling?: number;
-  carouselOrder?: number;
-  description?: string;
-  testimonials?: any[];
-  total_testimonials?: number;
-  statusRibbon?: string;
-  groupSize?: number;
-  maxAltitude?: number;
-  featuredImageAlt?: string;
+    id: number;
+    title: string;
+    slug: string;
+    duration: number;
+    durationUnit: string;
+    defaultPrice: number;
+    featuredImage: string;
+    featured: number;
+    isBestselling?: number;
+    carouselOrder?: number;
+    description?: string;
+    testimonials?: any[];
+    total_testimonials?: number;
+    statusRibbon?: string;
+    groupSize?: number;
+    maxAltitude?: number;
+    featuredImageAlt?: string;
 }
 
 export interface Blog {
@@ -74,6 +74,18 @@ export interface Place {
     featuredImageAlt?: string;
     featuredImageCaption?: string;
     packageCount?: number;
+}
+
+export interface HomeContent {
+    id: number;
+    title: string;
+    content: string;
+    bannerImage: string;
+    meta: {
+        title: string;
+        keywords: string;
+        description: string;
+    };
 }
 
 // Fetch featured packages (build‑time only)
@@ -152,12 +164,12 @@ export const fetchFeaturedTestimonials = async (): Promise<Testimonial[]> => {
     return [];
 };
 
-export async function fetchHomeContent() {
-  const res = await fetch(`${BASE_URL}/homecontent`, {
-    cache: 'no-store', // Dynamic content
-  });
-  if (!res.ok) return null;
-  return res.json();
+export async function fetchHomeContent(): Promise<HomeContent | null> {
+    const res = await fetch(`${BASE_URL}/homecontent`, {
+        cache: 'force-cache', // Cache for build-time
+    });
+    if (!res.ok) return null;
+    return res.json();
 }
 
 export async function fetchPackages(page = 1, limit = 10, search = '', status?: number) {
@@ -177,8 +189,8 @@ export async function fetchPackages(page = 1, limit = 10, search = '', status?: 
 
 // Fetch bestselling testimonials (build‑time only)
 export const fetchBestsellingTestimonials = async (): Promise<Testimonial[]> => {
-  const res = await fetch(`${BASE_URL}/testimonials?isBestselling=1`, { cache: 'force-cache' });
-  const data = await res.json();
+    const res = await fetch(`${BASE_URL}/testimonials?isBestselling=1`, { cache: 'force-cache' });
+    const data = await res.json();
     if (Array.isArray(data)) {
         return data.slice(0, 3);
     }
