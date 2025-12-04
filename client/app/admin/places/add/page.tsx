@@ -11,7 +11,8 @@ import { ImageCrop, ImageCropContent, ImageCropApply, ImageCropReset } from '@/a
 import { FeaturedImage } from '@/app/admin/components/FeaturedImage';
 import { BannerImage } from '@/app/admin/components/BannerImage';
 import { processContentImages } from '@/app/admin/lib/richTextHelpers';
-import { ASPECT_RATIOS, DISPLAY_ASPECT_RATIOS } from '@/app/admin/components/ui/aspect-ratios';
+import { processImageToWebP } from '@/app/admin/lib/imageUtils';
+import { ASPECT_RATIOS, DISPLAY_ASPECT_RATIOS } from '@/app/admin/lib/aspect-ratios';
 
 const RichTextEditor = dynamic(() => import('@/app/admin/components/RichTextEditor'), { ssr: false });
 
@@ -516,14 +517,13 @@ export default function AddplacePage() {
                 imageUrl={formData.bannerImageUrl}
                 imageAlt={formData.bannerImageAlt}
                 imageCaption={formData.bannerImageCaption}
-                onImageSelect={(file) => {
-                  const reader = new FileReader();
-                  reader.onload = (event) => {
-                    const base64 = event.target?.result as string;
-                    // Store base64, will upload on submit
-                    setFormData({ ...formData, bannerImageUrl: base64 });
-                  };
-                  reader.readAsDataURL(file);
+                onImageSelect={async (file) => {
+                  try {
+                    const webpImage = await processImageToWebP(file, 0.92, 1024 * 1024 * 5);
+                    setFormData({ ...formData, bannerImageUrl: webpImage });
+                  } catch (error) {
+                    setError(error instanceof Error ? error.message : 'Failed to process banner image');
+                  }
                 }}
                 onImageRemove={async () => {
                   await deleteImage(formData.bannerImageUrl);

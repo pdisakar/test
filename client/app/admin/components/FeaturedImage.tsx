@@ -1,6 +1,6 @@
 import React from 'react';
 import { Trash2, UploadCloud, Image as ImageIcon } from 'lucide-react';
-import { ASPECT_RATIOS } from '@/app/admin/components/ui/aspect-ratios';
+import { ASPECT_RATIOS } from '@/app/admin/lib/aspect-ratios';
 
 interface FeaturedImageProps {
     label: string;

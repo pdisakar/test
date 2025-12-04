@@ -1,5 +1,6 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import { Plus, Trash2 } from 'lucide-react';
+import { processImageToWebP } from '@/app/admin/lib/imageUtils';
 import {
   DndContext,
   closestCenter,
@@ -93,6 +94,7 @@ export function GalleryUpload({
   disabled = false
 }: GalleryUploadProps) {
   const galleryInputRef = useRef<HTMLInputElement>(null);
+  const [uploadError, setUploadError] = useState<string>('');
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -111,20 +113,31 @@ export function GalleryUpload({
     }
   };
 
-  const handleGalleryUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleGalleryUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
-    files.forEach(file => {
-      const reader = new FileReader();
-      reader.onloadend = () => {
+    setUploadError('');
+    
+    for (const file of files) {
+      try {
+        // Convert to WebP with 90% quality and 2MB limit
+        const webpImage = await processImageToWebP(
+          file,
+          0.90, // 90% quality for gallery images
+          1024 * 1024 * 2 // 2MB limit
+        );
+        
         const newImage: GalleryImage = {
           id: Date.now() + Math.random().toString(),
           file,
-          preview: reader.result as string
+          preview: webpImage
         };
         onImagesChange([...images, newImage]);
-      };
-      reader.readAsDataURL(file);
-    });
+      } catch (error) {
+        console.error('Failed to process image:', error);
+        setUploadError(error instanceof Error ? error.message : 'Failed to process image. Please try a smaller file.');
+      }
+    }
+    
     if (galleryInputRef.current) galleryInputRef.current.value = '';
   };
 
@@ -160,6 +173,12 @@ export function GalleryUpload({
   return (
     <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 p-6">
       <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">{label}</h2>
+      
+      {uploadError && (
+        <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+          <p className="text-sm text-red-800 dark:text-red-300">{uploadError}</p>
+        </div>
+      )}
 
       <DndContext
         sensors={sensors}

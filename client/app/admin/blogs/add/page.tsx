@@ -9,13 +9,14 @@ import { X, CalendarIcon } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { ImageCrop, ImageCropContent, ImageCropApply, ImageCropReset } from '@/app/admin/components/ImageCrop';
 import { FeaturedImage } from '@/app/admin/components/FeaturedImage';
-import { ASPECT_RATIOS, DISPLAY_ASPECT_RATIOS } from '@/app/admin/components/ui/aspect-ratios';
+import { ASPECT_RATIOS, DISPLAY_ASPECT_RATIOS } from '@/app/admin/lib/aspect-ratios';
 import { BannerImage } from '@/app/admin/components/BannerImage';
 import { Calendar } from "@/app/admin/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/app/admin/components/ui/popover";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { processContentImages } from '@/app/admin/lib/richTextHelpers';
+import { processImageToWebP } from '@/app/admin/lib/imageUtils';
 
 const RichTextEditor = dynamic(() => import('@/app/admin/components/RichTextEditor'), { ssr: false });
 
@@ -465,12 +466,13 @@ export default function AddBlogPage() {
                                     imageUrl={formData.bannerImage}
                                     imageAlt={formData.bannerImageAlt}
                                     imageCaption={formData.bannerImageCaption}
-                                    onImageSelect={(file) => {
-                                        const reader = new FileReader();
-                                        reader.onload = (e) => {
-                                            setFormData(prev => ({ ...prev, bannerImage: e.target?.result as string }));
-                                        };
-                                        reader.readAsDataURL(file);
+                                    onImageSelect={async (file) => {
+                                        try {
+                                            const webpImage = await processImageToWebP(file, 0.92, 1024 * 1024 * 5);
+                                            setFormData(prev => ({ ...prev, bannerImage: webpImage }));
+                                        } catch (error) {
+                                            setError(error instanceof Error ? error.message : 'Failed to process banner image');
+                                        }
                                     }}
                                     onImageRemove={async () => {
                                         await deleteImage(formData.bannerImage);

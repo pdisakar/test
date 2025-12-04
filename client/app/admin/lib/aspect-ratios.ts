@@ -1,6 +1,6 @@
 export const ASPECT_RATIOS = {
     DEFAULT: 5 / 7,
-    PLACE: 320 / 350,
+    PLACE: 320 / 420,
     PACKAGE: 420 / 350,
     BLOG: 450 / 560,
     ARTICLE: 270 / 480,
@@ -11,7 +11,7 @@ export const ASPECT_RATIOS = {
 
 export const DISPLAY_ASPECT_RATIOS = {
     DEFAULT: "5/7",
-    PLACE: "320/350",
+    PLACE: "320/420",
     PACKAGE: "420/350",
     BLOG: "450/560",
     ARTICLE: "270/480",

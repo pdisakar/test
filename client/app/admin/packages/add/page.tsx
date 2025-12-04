@@ -11,11 +11,12 @@ import dynamic from 'next/dynamic';
 const RichTextEditor = dynamic(() => import('@/app/admin/components/RichTextEditor'), { ssr: false });
 import { ImageCrop, ImageCropContent, ImageCropApply, ImageCropReset } from '@/app/admin/components/ImageCrop';
 import { FeaturedImage } from '@/app/admin/components/FeaturedImage';
-import { ASPECT_RATIOS, DISPLAY_ASPECT_RATIOS } from '@/app/admin/components/ui/aspect-ratios';
+import { ASPECT_RATIOS, DISPLAY_ASPECT_RATIOS } from '@/app/admin/lib/aspect-ratios';
 import { BannerImage } from '@/app/admin/components/BannerImage';
 import { TripMapImage } from '@/app/admin/components/TripMapImage';
 import { GalleryUpload, GalleryImage } from '@/app/admin/components/GalleryUpload';
 import { processContentImages } from '@/app/admin/lib/richTextHelpers';
+import { processImageToWebP } from '@/app/admin/lib/imageUtils';
 
 interface GroupPrice {
   id: string;
@@ -373,16 +374,17 @@ export default function AddPackagePage() {
   };
 
   // Image Handling
-  const handleTripMapUpload = (file: File) => {
-    const reader = new FileReader();
-    reader.onloadend = () => {
+  const handleTripMapUpload = async (file: File) => {
+    try {
+      const webpImage = await processImageToWebP(file, 0.92, 1024 * 1024 * 5);
       setFormData(prev => ({
         ...prev,
         tripMapImage: file,
-        tripMapImagePreview: reader.result as string
+        tripMapImagePreview: webpImage
       }));
-    };
-    reader.readAsDataURL(file);
+    } catch (error) {
+      setError(error instanceof Error ? error.message : 'Failed to process trip map image');
+    }
   };
 
   const removeImage = async (type: 'featured' | 'banner' | 'tripMap') => {
@@ -490,13 +492,13 @@ export default function AddPackagePage() {
     ));
   };
 
-  const fileToBase64 = (file: File): Promise<string> => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onload = () => resolve(reader.result as string);
-      reader.onerror = error => reject(error);
-    });
+  const fileToBase64 = async (file: File): Promise<string> => {
+    try {
+      const webpImage = await processImageToWebP(file, 0.92, 1024 * 1024 * 5);
+      return webpImage;
+    } catch (error) {
+      throw new Error(error instanceof Error ? error.message : 'Failed to process image');
+    }
   };
 
   const uploadImage = async (file: File): Promise<string> => {
@@ -1310,16 +1312,17 @@ export default function AddPackagePage() {
                   imageUrl={formData.bannerImagePreview}
                   imageAlt={formData.bannerImageAlt}
                   imageCaption={formData.bannerImageCaption}
-                  onImageSelect={(file) => {
-                    const reader = new FileReader();
-                    reader.onloadend = () => {
+                  onImageSelect={async (file) => {
+                    try {
+                      const webpImage = await processImageToWebP(file, 0.92, 1024 * 1024 * 5);
                       setFormData(prev => ({
                         ...prev,
                         bannerImage: file,
-                        bannerImagePreview: reader.result as string
+                        bannerImagePreview: webpImage
                       }));
-                    };
-                    reader.readAsDataURL(file);
+                    } catch (error) {
+                      setError(error instanceof Error ? error.message : 'Failed to process banner image');
+                    }
                   }}
                   onImageRemove={() => removeImage('banner')}
                   onAltChange={(value) => setFormData(prev => ({ ...prev, bannerImageAlt: value }))}

@@ -138,11 +138,11 @@ export type ImageCropProps = {
     onComplete?: ReactCropProps['onComplete'];
 } & Omit<ReactCropProps, 'onChange' | 'onComplete' | 'children'>;
 
-import { ASPECT_RATIOS } from '@/app/admin/components/ui/aspect-ratios';
+import { ASPECT_RATIOS } from '@/app/admin/lib/aspect-ratios';
 
 export const ImageCrop = ({
     file,
-    maxImageSize = 1024 * 1024 * 5,
+    maxImageSize = 1024 * 1024 * 5, // 5MB max image upload size
     onCrop,
     children,
     onChange,

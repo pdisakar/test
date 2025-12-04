@@ -9,9 +9,10 @@ import { ChevronRight, ChevronDown, X } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { ImageCrop, ImageCropContent, ImageCropApply, ImageCropReset } from '@/app/admin/components/ImageCrop';
 import { FeaturedImage } from '@/app/admin/components/FeaturedImage';
-import { ASPECT_RATIOS, DISPLAY_ASPECT_RATIOS } from '@/app/admin/components/ui/aspect-ratios';
+import { ASPECT_RATIOS, DISPLAY_ASPECT_RATIOS } from '@/app/admin/lib/aspect-ratios';
 import { BannerImage } from '@/app/admin/components/BannerImage';
 import { extractImagePaths, processContentImages, cleanupUnusedImages } from '@/app/admin/lib/richTextHelpers';
+import { processImageToWebP } from '@/app/admin/lib/imageUtils';
 
 const RichTextEditor = dynamic(() => import('@/app/admin/components/RichTextEditor'), { ssr: false });
 
@@ -533,13 +534,13 @@ export default function EditPlacePage() {
                                 imageUrl={formData.bannerImageUrl}
                                 imageAlt={formData.bannerImageAlt}
                                 imageCaption={formData.bannerImageCaption}
-                                onImageSelect={(file) => {
-                                    const reader = new FileReader();
-                                    reader.onload = (event) => {
-                                        const base64 = event.target?.result as string;
-                                        setFormData({ ...formData, bannerImageUrl: base64 });
-                                    };
-                                    reader.readAsDataURL(file);
+                                onImageSelect={async (file) => {
+                                    try {
+                                        const webpImage = await processImageToWebP(file, 0.92, 1024 * 1024 * 5);
+                                        setFormData({ ...formData, bannerImageUrl: webpImage });
+                                    } catch (error) {
+                                        setError(error instanceof Error ? error.message : 'Failed to process banner image');
+                                    }
                                 }}
                                 onImageRemove={async () => {
                                     await deleteImage(formData.bannerImageUrl);

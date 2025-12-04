@@ -9,7 +9,7 @@ import { ChevronRight, ChevronDown, X } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { ImageCrop, ImageCropContent, ImageCropApply, ImageCropReset } from '@/app/admin/components/ImageCrop';
 import { FeaturedImage } from '@/app/admin/components/FeaturedImage';
-import { ASPECT_RATIOS, DISPLAY_ASPECT_RATIOS } from '@/app/admin/components/ui/aspect-ratios';
+import { ASPECT_RATIOS, DISPLAY_ASPECT_RATIOS } from '@/app/admin/lib/aspect-ratios';
 import { BannerImage } from '@/app/admin/components/BannerImage';
 import { processContentImages } from '@/app/admin/lib/richTextHelpers';
 
@@ -255,6 +255,17 @@ export default function AddArticlePage() {
 
       let bannerImageUrl = formData.bannerImageUrl;
       if (formData.bannerImageUrl && formData.bannerImageUrl.startsWith('data:')) {
+        // Validate banner image size (5MB limit)
+        const base64Data = formData.bannerImageUrl.split(',')[1];
+        const bytes = atob(base64Data).length;
+        const sizeMB = bytes / (1024 * 1024);
+
+        if (sizeMB > 5) {
+          setError(`Banner image size (${sizeMB.toFixed(2)}MB) exceeds the 5MB limit. Please use a smaller image.`);
+          setLoading(false);
+          return;
+        }
+
         bannerImageUrl = await uploadImage(formData.bannerImageUrl, 'banner');
         uploadedImagePaths.push(bannerImageUrl);
       }
