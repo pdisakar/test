@@ -18,7 +18,7 @@ export const PackageCard = ({ data }: PackageCardProps) => {
             src={data.featuredImage ? `${IMAGE_URL}${data.featuredImage}` : '/placeholder.jpg'}
             alt={data.featuredImageAlt || data.title}
             fill
-            priority
+            sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
             className='rounded-lg transition-all duration-500 ease-out group-hover:scale-110 group-hover:blur-[0.5px]'
           />
         </Link>

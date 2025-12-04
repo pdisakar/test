@@ -16,7 +16,7 @@ export const PlaceCard: React.FC<PlaceCardProps> = ({ data }) => {
                     src={data.featuredImage ? `${IMAGE_URL}${data.featuredImage}` : '/placeholder.jpg'}
                     alt={data.featuredImageAlt || data.title}
                     fill
-                    priority
+                    sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
                     className='rounded-lg transition-all duration-500 ease-out group-hover:scale-110 group-hover:blur-[1px]'
                 />
             </figure>
