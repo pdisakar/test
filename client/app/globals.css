@@ -70,7 +70,7 @@
   }
 
   span {
-    @apply text-[15px] font-semibold text-primary flex items-center justify-center mb-1 gap-2;
+    @apply text-sm font-semibold text-primary flex items-center justify-center mb-1 gap-2;
   }
 }
 

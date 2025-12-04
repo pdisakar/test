@@ -18,7 +18,7 @@ export const FeaturedPlaces = async ({ pretitle, title, subtitle }: FeaturedPlac
                     {pretitle && <span>   <svg
                         className="icon text-primary"
                         width="36"
-                        height="36"
+                        height="26.4"
                     >
                         <use
                             xlinkHref="/icons.svg#company-logo"
