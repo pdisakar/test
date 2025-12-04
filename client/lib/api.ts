@@ -20,6 +20,7 @@ export interface Package {
   statusRibbon?: string;
   groupSize?: number;
   maxAltitude?: number;
+  featuredImageAlt?: string;
 }
 
 export interface Blog {

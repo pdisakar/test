@@ -43,7 +43,7 @@ export default async function BestsellingPackages({ pretitle, title, subtitle }:
                     >
                         <CarouselContent className="flex touch-pan-y -mx-3">
                             {packages.map((packagedata) => (
-                                <CarouselItem key={packagedata.id} className="min-w-0 shrink-0 grow-0 px-3 flex-[0_0_100%] sm:flex-[0_0_50%] md:flex-[0_0_33.3333334%] lg:flex-[0_0_25%] h-full">
+                                <CarouselItem key={packagedata.id} className="min-w-0 shrink-0 grow-0 px-3 flex-[0_0_100%]  md:flex-[0_0_50%] lg:flex-[0_0_33.333336%] h-full">
                                     <PackageCard data={packagedata} />
                                 </CarouselItem>
                             ))}
