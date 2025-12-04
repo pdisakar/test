@@ -11,8 +11,8 @@ export const PackageCard = ({ data }: PackageCardProps) => {
   console.log(data);
 
   return (
-    <>
-      <figure className='image-slot aspect-[420/350]'>
+    <div className='card group h-fit shadow-custom-shadow rounded-lg'>
+      <figure className='image-slot aspect-[420/350] rounded-t-lg'>
         <Link href={`/${data.slug}`} className='group'>
           <Image
             src={data.featuredImage ? `${IMAGE_URL}${data.featuredImage}` : '/placeholder.jpg'}
@@ -23,11 +23,62 @@ export const PackageCard = ({ data }: PackageCardProps) => {
           />
         </Link>
       </figure>
-      <figcaption>
-        <Link href={`/${data.slug}`} className='group'>
-          <h3 className='text-headings text-[22px] font-semibold capitalize'>{data.title}</h3>
-        </Link>
+      <figcaption className=' '>
+        <div className="top-section p-6">
+          <div className="package_rating flex items-center gap-1 mb-[5px]">
+            <svg
+              className="icon text-primary"
+              width="82"
+              height="14"
+            >
+              <use
+                xlinkHref="/icons.svg#5_star"
+                fill="currentColor"
+              ></use>
+            </svg>
+            {Number(data?.total_testimonials) > 0 && (
+              <span className="text-sm leading-[100%] text-muted font-light">
+                ({String(data.total_testimonials).padStart(2, '0')})
+              </span>
+            )}
+          </div>
+          <Link href={`/${data.slug}`} className='group'>
+            <h3 className='text-headings text-[22px] leading-[1.29] font-semibold capitalize'>{data.title}</h3>
+          </Link>
+          <div className="duration flex items-center gap-1 mt-[15px]">
+            <svg
+              className="icon text-muted"
+              width="15"
+              height="15"
+            >
+              <use
+                xlinkHref="/icons.svg#package_card_duration"
+                fill="currentColor"
+              ></use>
+            </svg>
+            <span className="text-muted">
+              {data.durationUnit === "days" ? (
+                <span className="text-sm leading-[100%]">
+                  {data.duration} days {data.duration + 1} nights
+                </span>
+              ) : (
+                <span className="text-sm leading-[100%]">
+                  {data.duration} {data.durationUnit}
+                </span>
+              )}
+
+            </span>
+          </div>
+        </div>
+        <div className="bottom-section flex items-center justify-between gap-4 flex-wrap px-6 py-5 border-t border-primary/20">
+          <div className="cost">
+            <span className="text-headings text-[22px] leading-[1.29] font-semibold">{data.defaultPrice}</span>
+            <span className="text-muted text-sm leading-[100%]">per person</span>
+            
+          </div>
+        </div>
+
       </figcaption>
-    </>
+    </div>
   );
 };
