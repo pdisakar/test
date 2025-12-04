@@ -2,7 +2,7 @@
 
 import React, { useCallback, useEffect, useState, createContext, useContext } from 'react';
 import useEmblaCarousel from 'embla-carousel-react';
-import Autoplay from 'embla-carousel-autoplay';
+
 import { EmblaOptionsType, EmblaCarouselType } from 'embla-carousel';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -33,11 +33,10 @@ type CarouselProps = {
     children: React.ReactNode;
     options?: EmblaOptionsType;
     className?: string;
-    autoplay?: boolean;
 };
 
-const Carousel = ({ children, options, className, autoplay = false }: CarouselProps) => {
-    const [emblaRef, emblaApi] = useEmblaCarousel(options, autoplay ? [Autoplay({ delay: 4000 })] : []);
+const Carousel = ({ children, options, className }: CarouselProps) => {
+    const [emblaRef, emblaApi] = useEmblaCarousel(options);
     const [selectedIndex, setSelectedIndex] = useState(0);
     const [scrollSnaps, setScrollSnaps] = useState<number[]>([]);
     const [prevBtnDisabled, setPrevBtnDisabled] = useState(true);
