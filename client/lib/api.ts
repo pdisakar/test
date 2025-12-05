@@ -34,6 +34,7 @@ export interface Blog {
 }
 
 export interface Testimonial {
+    slug: any;
     id: number;
     reviewTitle: string;
     fullName: string;
