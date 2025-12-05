@@ -13,7 +13,9 @@ interface FeaturedPackagesProps {
 
 export default async function FeaturedPackages({ pretitle, title, subtitle }: FeaturedPackagesProps) {
     const packages: Package[] = await fetchFeaturedPackages();
-
+    if (packages.length === 0) {
+        return null;
+    }
 
     return (
         <section className='featured-packages common-box pt-0'>

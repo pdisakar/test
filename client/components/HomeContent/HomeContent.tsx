@@ -73,7 +73,7 @@ export default async function HomeContent({ pretitle }: HomeContentProps) {
                 </svg>
 
                 <div className="service-body">
-                  <h3
+                  <h2
                     className="capitalize text-xl font-semibold text-headings"
                     dangerouslySetInnerHTML={{ __html: service.title }}
                   />
