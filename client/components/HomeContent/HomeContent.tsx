@@ -1,9 +1,9 @@
 import { fetchHomeContent } from '@/lib/api';
 
-export default async function HomePage() {
+export default async function HomeContent() {
   const HomePageData = await fetchHomeContent();
   console.log(HomePageData);
   return (
-    <p>{HomePageData.content}</p>
+    <p>this is sakar</p>
   );
 }

@@ -23,7 +23,7 @@ export async function generateStaticParams() {
         // Excluded slugs - pages that have their own routes
         const excludedSlugs = [
             'blog', 'blogs', 'contact', 'contact-us', 'about', 'about-us',
-            'packages', 'places', 'articles', 'team', 'teams'
+            'packages', 'places', 'articles', 'team', 'teams', 'admin', 'admin/dashboard'
         ];
 
         // Filter and prioritize featured content, limit to top 50 for faster builds
