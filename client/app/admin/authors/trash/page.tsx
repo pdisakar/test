@@ -62,7 +62,7 @@ export default function TrashPage() {
     const handleRestore = async (id: number) => {
         setProcessing(true);
         try {
-            const response = await fetch(`http://localhost:3001/api/authors/${id}/restore`, {
+            const response = await fetch(getApiUrl(`authors/${id}/restore`), {
                 method: 'PUT',
             });
             if (!response.ok) throw new Error('Failed to restore author');
@@ -80,7 +80,7 @@ export default function TrashPage() {
         try {
             await Promise.all(
                 selectedAuthors.map(id =>
-                    fetch(`http://localhost:3001/api/authors/${id}/restore`, { method: 'PUT' })
+                    fetch(getApiUrl(`authors/${id}/restore`), { method: 'PUT' })
                 )
             );
             await fetchTrash();
@@ -99,7 +99,7 @@ export default function TrashPage() {
         try {
             await Promise.all(
                 selectedAuthors.map(id =>
-                    fetch(`http://localhost:3001/api/authors/${id}/permanent`, { method: 'DELETE' })
+                    fetch(getApiUrl(`authors/${id}/permanent`), { method: 'DELETE' })
                 )
             );
             await fetchTrash();

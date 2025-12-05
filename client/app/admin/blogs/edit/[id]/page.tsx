@@ -146,7 +146,7 @@ export default function EditBlogPage() {
     if (!imagePath) return;
     if (imagePath.startsWith('data:')) return;
     try {
-      await fetch('http://localhost:3001/api/upload/image', {
+      await fetch(getApiUrl('upload/image'), {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ path: imagePath }),
@@ -158,7 +158,7 @@ export default function EditBlogPage() {
 
   const uploadImage = async (base64Image: string, type: string = 'featured'): Promise<string> => {
     try {
-      const response = await fetch('http://localhost:3001/api/upload/image', {
+      const response = await fetch(getApiUrl('upload/image'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ image: base64Image, type }),
@@ -223,7 +223,7 @@ export default function EditBlogPage() {
         pageType: formData.pageType,
       };
 
-      const res = await fetch(`http://localhost:3001/api/blogs/${blogId}`, {
+      const res = await fetch(getApiUrl(`blogs/${blogId}`), {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),

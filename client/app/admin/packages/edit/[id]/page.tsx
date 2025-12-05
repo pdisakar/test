@@ -557,7 +557,7 @@ export default function EditPackagePage() {
     // Delete from backend if image exists
     if (imageUrl) {
       try {
-        await fetch('http://localhost:3001/api/upload/image', {
+        await fetch(getApiUrl('upload/image'), {
           method: 'DELETE',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ path: imageUrl }),
@@ -668,7 +668,7 @@ export default function EditPackagePage() {
     try {
       const base64 = await fileToBase64(file);
 
-      const res = await fetch('http://localhost:3001/api/upload/image', {
+      const res = await fetch(getApiUrl('upload/image'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -849,7 +849,7 @@ export default function EditPackagePage() {
 
       await cleanupUnusedImages(initialRichTextImages, finalImages);
 
-      const res = await fetch(`http://localhost:3001/api/packages/${packageId}`, {
+      const res = await fetch(getApiUrl(`packages/${packageId}`), {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

@@ -63,7 +63,7 @@ export default function TrashPage() {
   const handleRestore = async (id: number) => {
     setProcessing(true);
     try {
-      const response = await fetch(`http://localhost:3001/api/articles/${id}/restore`, {
+      const response = await fetch(getApiUrl(`articles/${id}/restore`), {
         method: 'POST',
       });
       if (!response.ok) throw new Error('Failed to restore article');
@@ -79,7 +79,7 @@ export default function TrashPage() {
     if (selectedArticles.length === 0) return;
     setProcessing(true);
     try {
-      const response = await fetch('http://localhost:3001/api/articles/bulk-restore', {
+      const response = await fetch(getApiUrl('articles/bulk-restore'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ids: selectedArticles }),
@@ -99,7 +99,7 @@ export default function TrashPage() {
     if (selectedArticles.length === 0) return;
     setProcessing(true);
     try {
-      const response = await fetch('http://localhost:3001/api/articles/bulk-delete-permanent', {
+      const response = await fetch(getApiUrl('articles/bulk-delete-permanent'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ids: selectedArticles }),

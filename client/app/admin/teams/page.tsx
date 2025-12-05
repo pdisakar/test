@@ -79,7 +79,7 @@ export default function TeamsPage() {
             // Delete each selected team member
             await Promise.all(
                 selectedTeams.map(id =>
-                    fetch(`http://localhost:3001/api/teams/${id}`, { method: 'DELETE' })
+                    fetch(getApiUrl(`teams/${id}`), { method: 'DELETE' })
                 )
             );
 

@@ -79,7 +79,7 @@ export default function BlogsPage() {
 
         try {
             // Bulk delete
-            const response = await fetch('http://localhost:3001/api/blogs/bulk-delete', {
+            const response = await fetch(getApiUrl('blogs/bulk-delete'), {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ ids: selectedBlogs }),

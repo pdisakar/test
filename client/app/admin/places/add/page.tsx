@@ -251,7 +251,7 @@ export default function AddplacePage() {
         isFeatured: formData.isFeatured ? 1 : 0,
         pageType: formData.pageType,
       };
-      const response = await fetch('http://localhost:3001/api/places', {
+      const response = await fetch(getApiUrl('places'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
@@ -305,7 +305,7 @@ export default function AddplacePage() {
     // Don't delete if it's a base64 image (not yet uploaded)
     if (imageUrl.startsWith('data:')) return;
     try {
-      await fetch('http://localhost:3001/api/upload/image', {
+      await fetch(getApiUrl('upload/image'), {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ path: imageUrl }),
@@ -317,7 +317,7 @@ export default function AddplacePage() {
 
   const uploadImage = async (base64Image: string): Promise<string> => {
     try {
-      const response = await fetch('http://localhost:3001/api/upload/image', {
+      const response = await fetch(getApiUrl('upload/image'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ image: base64Image, type: 'featured' }),

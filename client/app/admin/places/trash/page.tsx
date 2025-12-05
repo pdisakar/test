@@ -63,7 +63,7 @@ export default function TrashPage() {
   const handleRestore = async (id: number) => {
     setProcessing(true);
     try {
-      const response = await fetch(`http://localhost:3001/api/places/${id}/restore`, {
+      const response = await fetch(getApiUrl(`places/${id}/restore`), {
         method: 'POST',
       });
       if (!response.ok) throw new Error('Failed to restore place');
@@ -79,7 +79,7 @@ export default function TrashPage() {
     if (selectedplaces.length === 0) return;
     setProcessing(true);
     try {
-      const response = await fetch('http://localhost:3001/api/places/bulk-restore', {
+      const response = await fetch(getApiUrl('places/bulk-restore'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ids: selectedplaces }),
@@ -99,7 +99,7 @@ export default function TrashPage() {
     if (selectedplaces.length === 0) return;
     setProcessing(true);
     try {
-      const response = await fetch('http://localhost:3001/api/places/bulk-delete-permanent', {
+      const response = await fetch(getApiUrl('places/bulk-delete-permanent'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ids: selectedplaces }),

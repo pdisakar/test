@@ -113,7 +113,7 @@ export default function EditTeamPage() {
         // Don't delete if it's a base64 image (not yet uploaded)
         if (imagePath.startsWith('data:')) return;
         try {
-            await fetch('http://localhost:3001/api/upload/image', {
+            await fetch(getApiUrl('upload/image'), {
                 method: 'DELETE',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ path: imagePath }),
@@ -141,7 +141,7 @@ export default function EditTeamPage() {
 
     const uploadImage = async (file: File): Promise<string> => {
         const base64 = await fileToBase64(file);
-        const res = await fetch('http://localhost:3001/api/upload/image', {
+        const res = await fetch(getApiUrl('upload/image'), {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ image: base64 }),
@@ -197,7 +197,7 @@ export default function EditTeamPage() {
                 status: formData.status ? 1 : 0,
             };
 
-            const res = await fetch(`http://localhost:3001/api/teams/${params.id}`, {
+            const res = await fetch(getApiUrl(`teams/${params.id}`), {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload),

@@ -107,7 +107,7 @@ export default function AddMenuPage() {
                 displayOrder: 0
             };
 
-            const response = await fetch('http://localhost:3001/api/menus', {
+            const response = await fetch(getApiUrl('menus'), {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)

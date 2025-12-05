@@ -1,3 +1,4 @@
+import { getApiUrl, getImageUrl } from './api-config';
 
 export const extractImagePaths = (html: string): string[] => {
   const imgRegex = /<img[^>]+src="([^"]+)"/g;
@@ -16,7 +17,7 @@ export const extractImagePaths = (html: string): string[] => {
 
 export const uploadBase64Image = async (base64: string): Promise<string> => {
   try {
-    const res = await fetch('http://localhost:3001/api/upload/image', {
+    const res = await fetch(getApiUrl('upload/image'), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -78,7 +79,7 @@ export const cleanupUnusedImages = async (initialPaths: string[], finalHtmlConte
 
   for (const path of unusedPaths) {
     try {
-      await fetch('http://localhost:3001/api/upload/image', {
+      await fetch(getApiUrl('upload/image'), {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ path }),

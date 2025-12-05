@@ -57,7 +57,7 @@ export default function BlogsTrashPage() {
   const handleRestore = async (id: number) => {
     setProcessing(true);
     try {
-      const response = await fetch(`http://localhost:3001/api/blogs/${id}/restore`, {
+      const response = await fetch(getApiUrl(`blogs/${id}/restore`), {
         method: 'POST',
       });
       if (!response.ok) throw new Error('Failed to restore blog');
@@ -73,7 +73,7 @@ export default function BlogsTrashPage() {
     if (selectedBlogs.length === 0) return;
     setProcessing(true);
     try {
-      const response = await fetch('http://localhost:3001/api/blogs/bulk-restore', {
+      const response = await fetch(getApiUrl('blogs/bulk-restore'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ids: selectedBlogs }),
@@ -93,7 +93,7 @@ export default function BlogsTrashPage() {
     if (selectedBlogs.length === 0) return;
     setProcessing(true);
     try {
-      const response = await fetch('http://localhost:3001/api/blogs/bulk-delete-permanent', {
+      const response = await fetch(getApiUrl('blogs/bulk-delete-permanent'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ids: selectedBlogs }),

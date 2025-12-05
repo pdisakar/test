@@ -53,7 +53,7 @@ export default function MenusTrashPage() {
     const handleRestore = async (id: number) => {
         setProcessing(true);
         try {
-            const response = await fetch(`http://localhost:3001/api/menus/${id}/restore`, { method: 'PUT' });
+            const response = await fetch(getApiUrl(`menus/${id}/restore`), { method: 'PUT' });
             if (!response.ok) throw new Error('Failed to restore menu');
             await fetchTrash();
         } catch (err: any) {
@@ -67,7 +67,7 @@ export default function MenusTrashPage() {
         if (selectedMenus.length === 0) return;
         setProcessing(true);
         try {
-            const response = await fetch('http://localhost:3001/api/menus/bulk-restore', {
+            const response = await fetch(getApiUrl('menus/bulk-restore'), {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ ids: selectedMenus })
@@ -87,7 +87,7 @@ export default function MenusTrashPage() {
         if (selectedMenus.length === 0) return;
         setProcessing(true);
         try {
-            const response = await fetch('http://localhost:3001/api/menus/bulk-delete-permanent', {
+            const response = await fetch(getApiUrl('menus/bulk-delete-permanent'), {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ ids: selectedMenus })

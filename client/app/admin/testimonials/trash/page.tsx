@@ -58,7 +58,7 @@ export default function TestimonialsTrashPage() {
     const handleRestore = async (id: number) => {
         setProcessing(true);
         try {
-            const response = await fetch(`http://localhost:3001/api/testimonials/${id}/restore`, {
+            const response = await fetch(getApiUrl(`testimonials/${id}/restore`), {
                 method: 'PUT',
             });
             if (!response.ok) throw new Error('Failed to restore testimonial');
@@ -74,7 +74,7 @@ export default function TestimonialsTrashPage() {
         if (selectedTestimonials.length === 0) return;
         setProcessing(true);
         try {
-            const response = await fetch('http://localhost:3001/api/testimonials/bulk-restore', {
+            const response = await fetch(getApiUrl('testimonials/bulk-restore'), {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ ids: selectedTestimonials }),
@@ -94,7 +94,7 @@ export default function TestimonialsTrashPage() {
         if (selectedTestimonials.length === 0) return;
         setProcessing(true);
         try {
-            const response = await fetch('http://localhost:3001/api/testimonials/bulk-delete-permanent', {
+            const response = await fetch(getApiUrl('testimonials/bulk-delete-permanent'), {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ ids: selectedTestimonials }),

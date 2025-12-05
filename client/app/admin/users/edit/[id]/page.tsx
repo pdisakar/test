@@ -127,7 +127,7 @@ export default function EditUserPage() {
         updateData.password = formData.password;
       }
 
-      const response = await fetch(`http://localhost:3001/api/users/${userId}`, {
+      const response = await fetch(getApiUrl(`users/${userId}`), {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

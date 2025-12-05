@@ -8,6 +8,8 @@ interface TestimonialCardProps {
 }
 
 export const TestimonialCard = ({ data }: TestimonialCardProps) => {
+    console.log(data);
+
     return (
         <>
             review</>

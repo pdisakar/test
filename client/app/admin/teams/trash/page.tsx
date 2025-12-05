@@ -62,7 +62,7 @@ export default function TeamsTrashPage() {
     const handleRestore = async (id: number) => {
         setProcessing(true);
         try {
-            const response = await fetch(`http://localhost:3001/api/teams/${id}/restore`, {
+            const response = await fetch(getApiUrl(`teams/${id}/restore`), {
                 method: 'PUT',
             });
             if (!response.ok) throw new Error('Failed to restore team member');
@@ -80,7 +80,7 @@ export default function TeamsTrashPage() {
         try {
             await Promise.all(
                 selectedTeams.map(id =>
-                    fetch(`http://localhost:3001/api/teams/${id}/restore`, { method: 'PUT' })
+                    fetch(getApiUrl(`teams/${id}/restore`), { method: 'PUT' })
                 )
             );
             await fetchTrash();
@@ -99,7 +99,7 @@ export default function TeamsTrashPage() {
         try {
             await Promise.all(
                 selectedTeams.map(id =>
-                    fetch(`http://localhost:3001/api/teams/${id}/permanent`, { method: 'DELETE' })
+                    fetch(getApiUrl(`teams/${id}/permanent`), { method: 'DELETE' })
                 )
             );
             await fetchTrash();

@@ -175,7 +175,7 @@ export default function EditTestimonialPage() {
     const deleteImage = async (imagePath: string) => {
         if (!imagePath || imagePath.startsWith('data:')) return;
         try {
-            await fetch('http://localhost:3001/api/upload/image', {
+            await fetch(getApiUrl('upload/image'), {
                 method: 'DELETE',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ path: imagePath }),
@@ -186,7 +186,7 @@ export default function EditTestimonialPage() {
     };
 
     const uploadImage = async (base64Image: string): Promise<string> => {
-        const res = await fetch('http://localhost:3001/api/upload/image', {
+        const res = await fetch(getApiUrl('upload/image'), {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ image: base64Image, type: 'avatar' }),
@@ -226,7 +226,7 @@ export default function EditTestimonialPage() {
                 isFeatured: formData.isFeatured ? 1 : 0,
             };
 
-            const res = await fetch(`http://localhost:3001/api/testimonials/${id}`, {
+            const res = await fetch(getApiUrl(`testimonials/${id}`), {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload),

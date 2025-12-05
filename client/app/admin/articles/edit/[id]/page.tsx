@@ -245,7 +245,7 @@ export default function EditArticlePage() {
 
   const uploadImage = async (base64Image: string, type: string = 'featured'): Promise<string> => {
     try {
-      const response = await fetch('http://localhost:3001/api/upload/image', {
+      const response = await fetch(getApiUrl('upload/image'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ image: base64Image, type }),
@@ -263,7 +263,7 @@ export default function EditArticlePage() {
   const deleteImage = async (imagePath: string) => {
     if (!imagePath) return;
     try {
-      await fetch('http://localhost:3001/api/upload/image', {
+      await fetch(getApiUrl('upload/image'), {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ path: imagePath }),
@@ -333,7 +333,7 @@ export default function EditArticlePage() {
         pageType: formData.pageType,
       };
 
-      const response = await fetch(`http://localhost:3001/api/articles/${articleId}`, {
+      const response = await fetch(getApiUrl(`articles/${articleId}`), {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),

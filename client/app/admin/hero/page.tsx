@@ -57,7 +57,7 @@ export default function HeroSectionPage() {
     const deleteImage = async (imagePath: string) => {
         if (!imagePath || imagePath.startsWith('data:')) return;
         try {
-            await fetch('http://localhost:3001/api/upload/image', {
+            await fetch(getApiUrl('upload/image'), {
                 method: 'DELETE',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ path: imagePath }),
@@ -93,7 +93,7 @@ export default function HeroSectionPage() {
             let imagePath = hero.image;
             // Upload if it's a base64 string (new image)
             if (hero.image && hero.image.startsWith('data:')) {
-                const res = await fetch('http://localhost:3001/api/upload/image', {
+                const res = await fetch(getApiUrl('upload/image'), {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ image: hero.image, type: 'hero' }),

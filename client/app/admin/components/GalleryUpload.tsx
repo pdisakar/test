@@ -149,7 +149,7 @@ export function GalleryUpload({
     // If it's an existing image from the database (has preview but no file), delete from server
     if (imageToDelete && imageToDelete.preview && !imageToDelete.file) {
       try {
-        await fetch('http://localhost:3001/api/upload/image', {
+        await fetch(getApiUrl('upload/image'), {
           method: 'DELETE',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ path: imageToDelete.preview }),

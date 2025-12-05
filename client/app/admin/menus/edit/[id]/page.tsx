@@ -132,7 +132,7 @@ export default function EditMenuPage({ params }: { params: Promise<{ id: string 
                 displayOrder: 0 // Preserve existing order? API might handle this
             };
 
-            const response = await fetch(`http://localhost:3001/api/menus/${id}`, {
+            const response = await fetch(getApiUrl(`menus/${id}`), {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)

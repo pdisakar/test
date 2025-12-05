@@ -69,7 +69,7 @@ export default function HomeContentPage() {
     const deleteImage = async (imagePath: string) => {
         if (!imagePath) return;
         try {
-            await fetch('http://localhost:3001/api/upload/image', {
+            await fetch(getApiUrl('upload/image'), {
                 method: 'DELETE',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ path: imagePath }),
@@ -82,7 +82,7 @@ export default function HomeContentPage() {
     // Function to upload image to backend
     const uploadImage = async (base64Image: string, type: string = 'banner'): Promise<string> => {
         try {
-            const response = await fetch('http://localhost:3001/api/upload/image', {
+            const response = await fetch(getApiUrl('upload/image'), {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ image: base64Image, type }),
@@ -117,7 +117,7 @@ export default function HomeContentPage() {
 
             const processedContent = await processContentImages(content);
 
-            const response = await fetch('http://localhost:3001/api/homecontent', {
+            const response = await fetch(getApiUrl('homecontent'), {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({

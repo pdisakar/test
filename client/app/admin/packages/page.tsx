@@ -78,7 +78,7 @@ export default function PackagesPage() {
       // Delete packages one by one (or implement bulk delete endpoint)
       await Promise.all(
         selectedPackages.map(id =>
-          fetch(`http://localhost:3001/api/packages/${id}`, {
+          fetch(getApiUrl(`packages/${id}`), {
             method: 'DELETE',
           })
         )

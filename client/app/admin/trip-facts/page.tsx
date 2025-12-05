@@ -75,7 +75,7 @@ export default function TripFactsPage() {
     if (!newCategory.trim()) return;
 
     try {
-      const res = await fetch('http://localhost:3001/api/fact-categories', {
+      const res = await fetch(getApiUrl('fact-categories'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ label: newCategory }),
@@ -103,7 +103,7 @@ export default function TripFactsPage() {
     if (!categoryToDelete) return;
 
     try {
-      const res = await fetch(`http://localhost:3001/api/fact-categories/${categoryToDelete.id}`, {
+      const res = await fetch(getApiUrl(`fact-categories/${categoryToDelete.id}`), {
         method: 'DELETE',
       });
       if (res.ok) {
@@ -133,7 +133,7 @@ export default function TripFactsPage() {
     if (!newAttribute.trim()) return;
 
     try {
-      const res = await fetch('http://localhost:3001/api/attributes', {
+      const res = await fetch(getApiUrl('attributes'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name: newAttribute, type: activeTab }),
@@ -156,7 +156,7 @@ export default function TripFactsPage() {
     if (!attributeToDelete) return;
 
     try {
-      const res = await fetch(`http://localhost:3001/api/attributes/${attributeToDelete.id}`, {
+      const res = await fetch(getApiUrl(`attributes/${attributeToDelete.id}`), {
         method: 'DELETE',
       });
       if (res.ok) {
@@ -182,7 +182,7 @@ export default function TripFactsPage() {
   const saveEdit = async (id: number) => {
     if (!editValue.trim()) return;
     try {
-      const res = await fetch(`http://localhost:3001/api/attributes/${id}`, {
+      const res = await fetch(getApiUrl(`attributes/${id}`), {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name: editValue }),

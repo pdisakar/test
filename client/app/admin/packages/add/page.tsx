@@ -395,7 +395,7 @@ export default function AddPackagePage() {
     // Delete from backend if image exists
     if (imageUrl) {
       try {
-        await fetch('http://localhost:3001/api/upload/image', {
+        await fetch(getApiUrl('upload/image'), {
           method: 'DELETE',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ path: imageUrl }),
@@ -506,7 +506,7 @@ export default function AddPackagePage() {
     try {
       const base64 = await fileToBase64(file);
 
-      const res = await fetch('http://localhost:3001/api/upload/image', {
+      const res = await fetch(getApiUrl('upload/image'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -661,7 +661,7 @@ export default function AddPackagePage() {
         }))
       };
 
-      const res = await fetch('http://localhost:3001/api/packages', {
+      const res = await fetch(getApiUrl('packages'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -679,7 +679,7 @@ export default function AddPackagePage() {
           console.log('Cleaning up uploaded images due to failure...');
           await Promise.all(uploadedImagePaths.map(async (path) => {
             try {
-              await fetch('http://localhost:3001/api/upload/image', {
+              await fetch(getApiUrl('upload/image'), {
                 method: 'DELETE',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ path }),
@@ -699,7 +699,7 @@ export default function AddPackagePage() {
         console.log('Cleaning up uploaded images due to exception...');
         await Promise.all(uploadedImagePaths.map(async (path) => {
           try {
-            await fetch('http://localhost:3001/api/upload/image', {
+            await fetch(getApiUrl('upload/image'), {
               method: 'DELETE',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ path }),

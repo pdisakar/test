@@ -58,7 +58,7 @@ export default function TrashPackagesPage() {
 
         setProcessing(true);
         try {
-            const res = await fetch(`http://localhost:3001/api/packages/${id}/restore`, {
+            const res = await fetch(getApiUrl(`packages/${id}/restore`), {
                 method: 'PUT'
             });
 
@@ -85,7 +85,7 @@ export default function TrashPackagesPage() {
         try {
             await Promise.all(
                 selectedPackages.map(id =>
-                    fetch(`http://localhost:3001/api/packages/${id}/permanent`, {
+                    fetch(getApiUrl(`packages/${id}/permanent`), {
                         method: 'DELETE',
                     })
                 )

@@ -35,7 +35,6 @@ const services = [
 export default async function HomeContent({ pretitle }: HomeContentProps) {
   const HomePageData = await fetchHomeContent();
   const GlobalData = await fetchGlobalData();
-  console.log(GlobalData.mobileNumber1);
 
   return (
     <div className='home-content common-box pt-0'>

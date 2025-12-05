@@ -79,7 +79,7 @@ export default function AuthorsPage() {
             // Delete each selected author
             await Promise.all(
                 selectedAuthors.map(id =>
-                    fetch(`http://localhost:3001/api/authors/${id}`, { method: 'DELETE' })
+                    fetch(getApiUrl(`authors/${id}`), { method: 'DELETE' })
                 )
             );
 
