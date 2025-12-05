@@ -40,8 +40,8 @@ export default function Home() {
       <HomeContent
         pretitle='Who Are We?' />
       <FeaturedPackages
-        pretitle='Handpicked Activities'
-        title="Featured Places"
+        pretitle='Just Made For You'
+        title="Featured Packages"
         subtitle="From Himalayan peaks to cultural treasures, Nepal offers unforgettable experiences. Here’s your shortlist of the best things to do." />
     </main>
   );
