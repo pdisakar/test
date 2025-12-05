@@ -1,68 +1,55 @@
-'use client';
-
-import React, { useEffect, useState } from 'react';
-import { useParams, notFound } from 'next/navigation';
+import React from 'react';
+import { notFound } from 'next/navigation';
+import { Metadata } from 'next';
 import { fetchSlugData } from '@/lib/api';
 import { Places } from '@/components/Pages/Places/Places';
 import { Package } from '@/components/Pages/Package/Package';
 import { Article } from '@/components/Pages/Article/Article';
 import { Blog } from '@/components/Pages/Blog/Blog';
 
+interface PageProps {
+    params: Promise<{ slug: string }>;
+}
 
+// Generate metadata
+export async function generateMetadata(props: PageProps): Promise<Metadata> {
+    const params = await props.params;
+    const data = await fetchSlugData(params.slug);
 
-export default function DynamicPage() {
-    const params = useParams();
-    const slug = params.slug as string;
-    const [data, setData] = useState<{ datatype: string; content: any } | null>(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(false);
-
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const result = await fetchSlugData(slug);
-                if (!result) {
-                    setError(true);
-                } else {
-                    setData(result);
-                }
-            } catch (err) {
-                console.error(err);
-                setError(true);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        if (slug) {
-            fetchData();
-        }
-    }, [slug]);
-
-    if (loading) {
-        return (
-            <div className="min-h-screen flex items-center justify-center">
-                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
-            </div>
-        );
+    if (!data || !data.content) {
+        notFound();
     }
 
-    if (error || !data) {
-        return notFound();
-    }
-    console.log(data);
+    const { content } = data;
+    const meta = content.meta || {};
 
+    return {
+        title: meta.title,
+        description: meta.description,
+        alternates: {
+            canonical: `${process.env.NEXT_PUBLIC_CANONICAL_BASE}/${params.slug}`,
+        },
+        openGraph: {
+            title: meta.title,
+            description: meta.description,
+        },
+    };
+}
+
+export default async function DynamicPage(props: PageProps) {
+    const params = await props.params;
+    const data = await fetchSlugData(params.slug);
+
+    if (!data || !data.content) {
+        notFound();
+    }
 
     return (
-        <>
-
-            <main className="">
-                {data.datatype === 'place' && <Places content={data.content} />}
-                {data.datatype === 'package' && <Package content={data.content} />}
-                {data.datatype === 'article' && <Article content={data.content} />}
-                {data.datatype === 'blog' && <Blog content={data.content} />}
-            </main>
-
-        </>
+        <main>
+            {data.datatype === 'place' && <Places content={data.content} />}
+            {data.datatype === 'package' && <Package content={data.content} />}
+            {data.datatype === 'article' && <Article content={data.content} />}
+            {data.datatype === 'blog' && <Blog content={data.content} />}
+        </main>
     );
 }
