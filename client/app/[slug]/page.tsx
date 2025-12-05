@@ -12,29 +12,29 @@ interface PageProps {
 }
 
 // Generate static params for important pages (ISR - Incremental Static Regeneration)
-export async function generateStaticParams() {
-    try {
-        const data = await fetchAllSlugs();
+// export async function generateStaticParams() {
+//     try {
+//         const data = await fetchAllSlugs();
 
-        if (!Array.isArray(data)) {
-            return [];
-        }
+//         if (!Array.isArray(data)) {
+//             return [];
+//         }
 
-        // Excluded slugs - pages that have their own routes
-        const excludedSlugs = [
-            'blog', 'blogs', 'contact', 'contact-us', 'about', 'about-us',
-            'packages', 'places', 'articles', 'team', 'teams', 'admin', 'admin/dashboard'
-        ];
+//         // Excluded slugs - pages that have their own routes
+//         const excludedSlugs = [
+//             'blog', 'blogs', 'contact', 'contact-us', 'about', 'about-us',
+//             'packages', 'places', 'articles', 'team', 'teams', 'admin', 'admin/dashboard'
+//         ];
 
-        // Filter and prioritize featured content, limit to top 50 for faster builds
-        return data
-            .filter(({ slug }) => !excludedSlugs.includes(slug))
-            .map(({ slug }) => ({ slug }));
-    } catch (error) {
-        console.error('Error in generateStaticParams:', error);
-        return [];
-    }
-}
+//         // Filter and prioritize featured content, limit to top 50 for faster builds
+//         return data
+//             .filter(({ slug }) => !excludedSlugs.includes(slug))
+//             .map(({ slug }) => ({ slug }));
+//     } catch (error) {
+//         console.error('Error in generateStaticParams:', error);
+//         return [];
+//     }
+// }
 
 // Generate metadata
 export async function generateMetadata(props: PageProps): Promise<Metadata> {

@@ -25,7 +25,7 @@ export default async function HeroSection() {
 
             <figcaption className="absolute z-20 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-[730px]">
                 <span className="text-[1.125rem] text-shadow-lg  text-center font-semibold text-white items-center justify-center mb-3 block gap-2">{heroData?.subtitle}</span>
-                <h1 className="text-[clamp(32px,5vw,52px)] text-shadow-lg  text-center text-white font-black leading-[1.2]">{heroData?.title}</h1>
+                <h2 className="text-[clamp(32px,5vw,52px)] text-shadow-lg  text-center text-white font-black leading-[1.2]">{heroData?.title}</h2>
                 <div className="hidden md:block mt-4">
                     <HomeSearch />
                 </div>

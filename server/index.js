@@ -524,13 +524,34 @@ app.get('/api/homecontent', async (req, res) => {
     const article = await getAsync('SELECT * FROM articles WHERE slug = ?', ['home-content']);
     if (!article) {
       return res.json({ 
-        title: 'Home Content', 
+        id: null,
+        title: '',
         content: '', 
         bannerImage: '',
+        bannerImageAlt: '',
+        bannerImageCaption: '',
+        pageType: 'default',
+        createdAt: null,
         meta: { title: '', keywords: '', description: '' }
       });
     }
-    res.json(formatMeta(article));
+    
+    // Return only necessary fields
+    res.json({
+      id: article.id,
+      title: article.title,
+      content: article.content,
+      bannerImage: article.bannerImage,
+      bannerImageAlt: article.bannerImageAlt,
+      bannerImageCaption: article.bannerImageCaption,
+      pageType: article.pageType,
+      createdAt: article.createdAt,
+      meta: {
+        title: article.metaTitle,
+        keywords: article.metaKeywords,
+        description: article.metaDescription
+      }
+    });
   } catch (err) {
     console.error('Error fetching home content:', err);
     res.status(500).json({ success: false, message: 'Server error' });
@@ -539,16 +560,19 @@ app.get('/api/homecontent', async (req, res) => {
 
 // Update Home Content
 app.post('/api/homecontent', async (req, res) => {
-  const { content, bannerImage, meta } = req.body;
+  const { title, content, bannerImage, bannerImageAlt, bannerImageCaption, meta } = req.body;
   try {
     const existing = await getAsync('SELECT id FROM articles WHERE slug = ?', ['home-content']);
     
     if (existing) {
       await runAsync(
-        'UPDATE articles SET content = ?, bannerImage = ?, metaTitle = ?, metaKeywords = ?, metaDescription = ?, updatedAt = CURRENT_TIMESTAMP WHERE slug = ?',
+        'UPDATE articles SET title = ?, content = ?, bannerImage = ?, bannerImageAlt = ?, bannerImageCaption = ?, metaTitle = ?, metaKeywords = ?, metaDescription = ?, updatedAt = CURRENT_TIMESTAMP WHERE slug = ?',
         [
+          title || 'Home Content',
           content, 
-          bannerImage, 
+          bannerImage,
+          bannerImageAlt || null,
+          bannerImageCaption || null,
           meta?.title || null, 
           meta?.keywords || null, 
           meta?.description || null, 
@@ -557,16 +581,19 @@ app.post('/api/homecontent', async (req, res) => {
       );
     } else {
       await runAsync(
-        'INSERT INTO articles (title, urlTitle, slug, content, bannerImage, metaTitle, metaKeywords, metaDescription, status, createdAt, updatedAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)',
+        'INSERT INTO articles (title, urlTitle, slug, content, bannerImage, bannerImageAlt, bannerImageCaption, metaTitle, metaKeywords, metaDescription, status, pageType, createdAt, updatedAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)',
         [
-          'Home Content', 
-          'Home Content', 
+          title || 'Home Content', 
+          title || 'Home Content', 
           'home-content', 
           content, 
           bannerImage,
+          bannerImageAlt || null,
+          bannerImageCaption || null,
           meta?.title || null, 
           meta?.keywords || null, 
-          meta?.description || null
+          meta?.description || null,
+          'default'
         ]
       );
     }
@@ -574,34 +601,6 @@ app.post('/api/homecontent', async (req, res) => {
     res.json({ success: true, message: 'Home content updated successfully' });
   } catch (err) {
     console.error('Error updating home content:', err);
-    res.status(500).json({ success: false, message: 'Server error' });
-  }
-});
-
-// Get Home Content
-app.get('/api/homecontent', async (req, res) => {
-  try {
-    const article = await getAsync('SELECT * FROM articles WHERE slug = ?', ['home-content']);
-    
-    if (!article) {
-      return res.status(404).json({ success: false, message: 'Home content not found' });
-    }
-
-    const formattedArticle = {
-      ...article,
-      meta: {
-        title: article.metaTitle,
-        keywords: article.metaKeywords,
-        description: article.metaDescription
-      },
-      metaTitle: undefined,
-      metaKeywords: undefined,
-      metaDescription: undefined
-    };
-    
-    res.json(formattedArticle);
-  } catch (err) {
-    console.error('Error fetching home content:', err);
     res.status(500).json({ success: false, message: 'Server error' });
   }
 });

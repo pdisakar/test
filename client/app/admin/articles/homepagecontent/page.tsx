@@ -13,6 +13,7 @@ const RichTextEditor = dynamic(() => import('@/app/admin/components/RichTextEdit
 
 export default function HomeContentPage() {
     const router = useRouter();
+    const [title, setTitle] = useState('');
     const [content, setContent] = useState('');
     const [bannerImage, setBannerImage] = useState('');
     const [bannerImageAlt, setBannerImageAlt] = useState('');
@@ -43,8 +44,11 @@ export default function HomeContentPage() {
             const data = await response.json();
 
             if (data) {
+                setTitle(data.title || '');
                 setContent(data.content || '');
                 setBannerImage(data.bannerImage || '');
+                setBannerImageAlt(data.bannerImageAlt || '');
+                setBannerImageCaption(data.bannerImageCaption || '');
                 setMetaTitle(data.meta?.title || '');
                 setMetaKeywords(data.meta?.keywords || '');
                 setMetaDescription(data.meta?.description || '');
@@ -117,8 +121,11 @@ export default function HomeContentPage() {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
+                    title,
                     content: processedContent,
                     bannerImage: bannerImageUrl,
+                    bannerImageAlt,
+                    bannerImageCaption,
                     meta: {
                         title: metaTitle,
                         keywords: metaKeywords,
@@ -184,6 +191,21 @@ export default function HomeContentPage() {
                     )}
 
                     <form onSubmit={handleSubmit} className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 p-6 space-y-6">
+
+                        {/* Title */}
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                Title
+                            </label>
+                            <input
+                                type="text"
+                                value={title}
+                                onChange={(e) => setTitle(e.target.value)}
+                                placeholder="Enter home content title"
+                                className="w-full px-4 py-2.5 rounded-lg border border-gray-200 dark:border-gray-700 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                                disabled={saving}
+                            />
+                        </div>
 
                         {/* Banner Image */}
                         <BannerImage

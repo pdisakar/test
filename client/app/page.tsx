@@ -36,7 +36,8 @@ export default function Home() {
         pretitle='Bestselling Packages'
         title="Bestselling Packages"
         subtitle="From Himalayan peaks to cultural treasures, Nepal offers unforgettable experiences. Here’s your shortlist of the best things to do." />
-      <HomeContent />
+      <HomeContent
+        pretitle='Who are we?' />
     </main>
   );
 }
