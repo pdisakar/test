@@ -3,13 +3,13 @@ import { fetchBestsellingPackages, Package } from '@/lib/api';
 import { Carousel, CarouselContent, CarouselDots, CarouselItem } from '../Carousel/Carousel';
 import { PackageCard } from '../Cards/PackageCard/PackageCard';
 
-interface FeaturedPlacesProps {
+interface FeaturedPackagesProps {
     pretitle?: string;
     title?: string;
     subtitle?: string;
 }
 
-export default async function BestsellingPackages({ pretitle, title, subtitle }: FeaturedPlacesProps) {
+export default async function BestsellingPackages({ pretitle, title, subtitle }: FeaturedPackagesProps) {
     const packages: Package[] = await fetchBestsellingPackages();
 
     if (packages.length === 0) {
