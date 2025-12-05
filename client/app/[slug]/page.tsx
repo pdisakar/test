@@ -1,7 +1,7 @@
 import React from 'react';
 import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
-import { fetchSlugData } from '@/lib/api';
+import { fetchSlugData, fetchAllSlugs } from '@/lib/api';
 import { Places } from '@/components/Pages/Places/Places';
 import { Package } from '@/components/Pages/Package/Package';
 import { Article } from '@/components/Pages/Article/Article';
@@ -9,6 +9,31 @@ import { Blog } from '@/components/Pages/Blog/Blog';
 
 interface PageProps {
     params: Promise<{ slug: string }>;
+}
+
+// Generate static params for important pages (ISR - Incremental Static Regeneration)
+export async function generateStaticParams() {
+    try {
+        const data = await fetchAllSlugs();
+
+        if (!Array.isArray(data)) {
+            return [];
+        }
+
+        // Excluded slugs - pages that have their own routes
+        const excludedSlugs = [
+            'blog', 'blogs', 'contact', 'contact-us', 'about', 'about-us',
+            'packages', 'places', 'articles', 'team', 'teams'
+        ];
+
+        // Filter and prioritize featured content, limit to top 50 for faster builds
+        return data
+            .filter(({ slug }) => !excludedSlugs.includes(slug))
+            .map(({ slug }) => ({ slug }));
+    } catch (error) {
+        console.error('Error in generateStaticParams:', error);
+        return [];
+    }
 }
 
 // Generate metadata

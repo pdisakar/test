@@ -5,8 +5,6 @@ import HomeSearch from '@/components/HomeSearch/HomeSearch';
 
 export default async function HeroSection() {
     const heroData = await fetchHeroSection();
-    console.log(heroData);
-
 
     return (
         <section className="hero-section relative w-full">
