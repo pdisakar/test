@@ -82,6 +82,9 @@ export interface HomeContent {
     title: string;
     content: string;
     bannerImage: string;
+    bannerImageAlt?: string;
+    bannerImageCaption?: string;
+    pageType?: string;
     meta: {
         title: string;
         keywords: string;

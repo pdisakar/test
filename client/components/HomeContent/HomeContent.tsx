@@ -1,7 +1,8 @@
-import { fetchHomeContent } from '@/lib/api';
+import { fetchGlobalData, fetchHomeContent } from '@/lib/api';
 import { IMAGE_URL } from '@/lib/constants';
 import Image from 'next/image';
 import Link from 'next/link';
+import PrimaryButton from '../Buttons/PrimaryButton/PrimaryButton';
 
 interface HomeContentProps {
   pretitle?: string;
@@ -33,7 +34,9 @@ const services = [
 
 export default async function HomeContent({ pretitle }: HomeContentProps) {
   const HomePageData = await fetchHomeContent();
-  console.log(HomePageData);
+  const GlobalData = await fetchGlobalData();
+  console.log(GlobalData.mobileNumber1);
+
   return (
     <div className='home-content common-box pt-0'>
       <div className="container grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -51,9 +54,9 @@ export default async function HomeContent({ pretitle }: HomeContentProps) {
                 ></use>
               </svg>
               {pretitle}</span>}
-            <h1 className='capitalize text-left!' dangerouslySetInnerHTML={{ __html: HomePageData?.title }} />
+            <h1 className='capitalize text-left!' dangerouslySetInnerHTML={{ __html: HomePageData?.title || '' }} />
           </div>
-          <article dangerouslySetInnerHTML={{ __html: HomePageData?.content }} />
+          <article dangerouslySetInnerHTML={{ __html: HomePageData?.content || '' }} />
           <ul className="sercives grid grid-cols-1 md:grid-cols-2 mt-6 [&>*]:bg-primary/5 [&>*:first-child]:rounded-tl-lg [&>*:first-child]:bg-primary/15 [&>*:nth-child(2)]:rounded-tr-lg [&>*:nth-child(3)]:rounded-bl-lg [&>*:last-child]:bg-primary/15 [&>*:last-child]:rounded-br-lg">
 
             {services.map((service, index) => (
@@ -82,17 +85,36 @@ export default async function HomeContent({ pretitle }: HomeContentProps) {
               </li>
             ))}
           </ul>
-          <ul className='mt-6'>
-            {/* <li>
-              <Link className="py-2 px-5 md:py-3 relative z-10 md:px-6 md:text-md text-sm bg-primary inline-block border-primary rounded-full text-white font-bold leading-[1] shadow-[1px_2px_#143254] hover:bg-primary-100" href="/about-us">Read more about us</Link>
-            </li> */}
+          <ul className='mt-6 flex flex-wrap items-center gap-6'>
             <li>
-              <Link href='#' className="relative group cursor-pointer text-white  overflow-hidden h-10.5 w-50 rounded-full bg-[#0068a7] p-2 flex justify-center items-center font-semibold">
-                <div className="absolute top-3 right-20 group-hover:top-12 group-hover:-right-8 z-10 w-32 h-32 rounded-full group-hover:scale-150 group-hover:opacity-50 duration-500 bg-[#3785c9]"></div>
-                <div className="absolute top-3 right-20 group-hover:top-12 group-hover:-right-8 z-10 w-24 h-24 rounded-full group-hover:scale-150 group-hover:opacity-50 duration-500 bg-[#4592da]"></div>
-                <p className="z-10">Read more</p>
+              <PrimaryButton href='/about-us'>
+                Read more
+              </PrimaryButton>
+            </li>
+            <li className='flex items-center gap-2'>
+              <Link
+                href={`https://wa.me/977${GlobalData.mobileNumber1}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 hover:opacity-80 transition-opacity"
+              >
+                <div className="icon h-10 w-10 bg-primary rounded-full flex items-center justify-center">
+                  <svg
+                    className="icon text-white shrink-0 pt-1"
+                    width="26"
+                    height="26"
+                  >
+                    <use
+                      xlinkHref={`/icons.svg#call-us-now`}
+                      fill="currentColor"
+                    ></use>
+                  </svg>
+                </div>
+                <div className="call-us-now-body">
+                  <span className='block leading-[100%] text-sm font-medium text-primary'>Call Us Now</span>
+                  <span className='block text-headings leading-[100%] mt-1 font-semibold text-base md:text-[1.125rem] tracking-[0.5px]'>+977 {GlobalData.mobileNumber1}</span>
+                </div>
               </Link>
-
             </li>
 
           </ul>
@@ -102,7 +124,7 @@ export default async function HomeContent({ pretitle }: HomeContentProps) {
           <figure className='image-slot aspect-613/657 w-full h-full rounded-lg'>
             <Image
               src={HomePageData?.bannerImage ? `${IMAGE_URL}${HomePageData.bannerImage}` : '/placeholder.jpg'}
-              alt={HomePageData?.bannerImageAlt || HomePageData?.bannerImageAlt || 'Banner Image'}
+              alt={HomePageData?.bannerImageAlt || 'Banner Image'}
               className='bg-page-body object-fill rounded-lg'
               fill
             />
