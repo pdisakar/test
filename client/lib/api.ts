@@ -30,7 +30,6 @@ export interface Blog {
     publishedDate: string;
     featuredImage: string;
     isFeatured: number;
-
     carouselOrder?: number;
 }
 
@@ -42,7 +41,6 @@ export interface Testimonial {
     description: string; // HTML content
     avatar: string;
     isFeatured: number;
-    isBestselling?: number;
     address: string;
     carouselOrder?: number;
 }
@@ -191,17 +189,6 @@ export async function fetchPackages(page = 1, limit = 10, search = '', status?: 
     return res.json();
 }
 
-// Fetch bestselling testimonials (build‑time only)
-export const fetchBestsellingTestimonials = async (): Promise<Testimonial[]> => {
-    const res = await fetch(`${BASE_URL}/testimonials?isBestselling=1`, { next: { revalidate: CACHE_REVALIDATE_TIME } });
-    const data = await res.json();
-    if (Array.isArray(data)) {
-        return data.slice(0, 3);
-    }
-    return [];
-};
-
-
 // Fetch all packages (build‑time only)
 export const fetchAllPackages = async (): Promise<Package[]> => {
     const res = await fetch(`${BASE_URL}/packages`, { next: { revalidate: CACHE_REVALIDATE_TIME } });
@@ -333,4 +320,3 @@ export const fetchAllSlugs = async (): Promise<Array<{ slug: string; featured?: 
         return [];
     }
 };
-
