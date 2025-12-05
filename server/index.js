@@ -3004,7 +3004,7 @@ app.post('/api/testimonials', async (req, res) => {
 
 // Get all testimonials (exclude deleted)
 app.get('/api/testimonials', async (req, res) => {
-  const { isFeatured } = req.query;
+  const { isFeatured, limit, offset } = req.query;
   try {
     let query = 'SELECT * FROM testimonials WHERE deletedAt IS NULL';
     const params = [];
@@ -3013,6 +3013,48 @@ app.get('/api/testimonials', async (req, res) => {
       params.push(isFeatured);
     }
     query += ' ORDER BY createdAt DESC';
+
+    // If pagination is requested
+    if (limit !== undefined) {
+      // Get total count first
+      let countQuery = 'SELECT COUNT(*) as total FROM testimonials WHERE deletedAt IS NULL';
+      const countParams = [];
+      if (isFeatured !== undefined) {
+        countQuery += ' AND isFeatured = ?';
+        countParams.push(isFeatured);
+      }
+      const countResult = await getAsync(countQuery, countParams);
+      const total = countResult ? countResult.total : 0;
+
+      query += ' LIMIT ?';
+      params.push(parseInt(limit));
+
+      if (offset !== undefined) {
+        query += ' OFFSET ?';
+        params.push(parseInt(offset));
+      }
+
+      const testimonials = await allAsync(query, params);
+      const formattedTestimonials = testimonials.map(t => ({
+        ...t,
+        meta: {
+          title: t.metaTitle,
+          keywords: t.metaKeywords,
+          description: t.metaDescription
+        },
+        metaTitle: undefined,
+        metaKeywords: undefined,
+        metaDescription: undefined
+      }));
+
+      return res.status(200).json({
+        success: true,
+        data: formattedTestimonials,
+        total
+      });
+    }
+
+    // Default behavior (return array for backward compatibility)
     const testimonials = await allAsync(query, params);
     const formattedTestimonials = testimonials.map(t => ({
       ...t,

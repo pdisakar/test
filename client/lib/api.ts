@@ -243,6 +243,19 @@ export const fetchAllTestimonials = async (): Promise<Testimonial[]> => {
     return [];
 };
 
+// Fetch testimonials with pagination (client-side)
+export const fetchTestimonials = async (page = 1, limit = 6): Promise<{ data: Testimonial[]; total: number }> => {
+    const offset = (page - 1) * limit;
+    const res = await fetch(`${BASE_URL}/testimonials?limit=${limit}&offset=${offset}`, { 
+        cache: 'no-store' 
+    });
+    const data = await res.json();
+    if (data.success && Array.isArray(data.data)) {
+        return { data: data.data, total: data.total };
+    }
+    return { data: [], total: 0 };
+};
+
 /** Fetch data by slug (for dynamic pages) */
 export const fetchSlugData = async (slug: string): Promise<{ datatype: string; content: any } | null> => {
     const res = await fetch(`${BASE_URL}/resolve-slug/${slug}`, {
