@@ -107,9 +107,9 @@ export default function EditTestimonialPage() {
                         status: testimonialData.status === 1,
                         isFeatured: testimonialData.isFeatured === 1,
                         description: testimonialData.description || '',
-                        metaTitle: testimonialData.metaTitle || '',
-                        metaKeywords: testimonialData.metaKeywords || '',
-                        metaDescription: testimonialData.metaDescription || '',
+                        metaTitle: testimonialData.meta?.title || testimonialData.metaTitle || '',
+                        metaKeywords: testimonialData.meta?.keywords || testimonialData.metaKeywords || '',
+                        metaDescription: testimonialData.meta?.description || testimonialData.metaDescription || '',
                         avatar: testimonialData.avatar || '',
                         avatarAlt: testimonialData.avatarAlt || '',
                         avatarCaption: testimonialData.avatarCaption || '',
@@ -614,6 +614,7 @@ export default function EditTestimonialPage() {
                         </div>
                         <ImageCrop
                             file={selectedImageFile}
+                            aspect={ASPECT_RATIOS.TESTIMONIAL}
                             onCrop={async (croppedImage) => {
                                 try {
                                     setFormData(prev => ({ ...prev, avatar: croppedImage }));

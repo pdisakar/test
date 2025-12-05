@@ -70,7 +70,7 @@ export function FeaturedImage({
                             </button>
                         </div>
                     ) : (
-                        <div className="relative group w-full max-w-md mx-auto aspect-[1/1]" >
+                        <div className="relative group w-full max-w-md mx-auto" style={{ aspectRatio }}>
                             <div className="absolute -inset-0.5 bg-gradient-to-r from-primary/30 to-purple-400/30 rounded-2xl blur opacity-30 group-hover:opacity-75 transition duration-500" />
                             <div className="relative h-full bg-white dark:bg-gray-900 rounded-xl border-2 border-dashed border-gray-200 dark:border-gray-700 group-hover:border-transparent transition-all duration-300 overflow-hidden">
                                 <input

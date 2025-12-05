@@ -1,6 +1,7 @@
 import BestsellingPackages from "@/components/BestsellingPackages/BestsellingPackages";
 import FeaturedPackages from "@/components/FeaturedPackages/FeaturedPackages";
 import { FeaturedPlaces } from "@/components/FeaturedPlaces/FeaturedPlaces";
+import FeaturedTestimonials from "@/components/FeaturedTestimonials/FeaturedTestimonials";
 import HeroSection from "@/components/HeroSection/HeroSection";
 import HomeContent from "@/components/HomeContent/HomeContent";
 import { fetchHomeContent } from "@/lib/api";
@@ -42,6 +43,10 @@ export default function Home() {
       <FeaturedPackages
         pretitle='Just Made For You'
         title="Featured Packages"
+        subtitle="From Himalayan peaks to cultural treasures, Nepal offers unforgettable experiences. Here’s your shortlist of the best things to do." />
+      <FeaturedTestimonials
+        pretitle='What Our Customers Say'
+        title="Featured Testimonials"
         subtitle="From Himalayan peaks to cultural treasures, Nepal offers unforgettable experiences. Here’s your shortlist of the best things to do." />
     </main>
   );

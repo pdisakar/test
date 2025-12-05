@@ -4,7 +4,7 @@ export const ASPECT_RATIOS = {
     PACKAGE: 420 / 350,
     BLOG: 450 / 560,
     ARTICLE: 270 / 480,
-    TESTIMONIAL: 5 / 7,
+    TESTIMONIAL: 1 / 1,
     AUTHOR: 5 / 7,
     TEAM: 5 / 7,
 };
@@ -15,7 +15,7 @@ export const DISPLAY_ASPECT_RATIOS = {
     PACKAGE: "420/350",
     BLOG: "450/560",
     ARTICLE: "270/480",
-    TESTIMONIAL: "5/7",
+    TESTIMONIAL: "1/1",
     AUTHOR: "5/7",
     TEAM: "5/7",
 };
