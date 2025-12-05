@@ -3102,6 +3102,34 @@ app.get('/api/testimonials/:id', async (req, res) => {
   }
 });
 
+// Get single testimonial by Slug
+app.get('/api/testimonial-by-slug/:slug', async (req, res) => {
+  const { slug } = req.params;
+  try {
+    const testimonial = await getAsync('SELECT * FROM testimonials WHERE slug = ?', [slug]);
+    if (!testimonial) {
+      return res.status(404).json({ success: false, message: 'Testimonial not found' });
+    }
+    const formattedTestimonial = {
+      ...testimonial,
+      meta: {
+        title: testimonial.metaTitle,
+        keywords: testimonial.metaKeywords,
+        description: testimonial.metaDescription
+      },
+      metaTitle: undefined,
+      metaKeywords: undefined,
+      metaDescription: undefined
+    };
+
+    const breadcrumbs = await getBreadcrumbs('testimonial', testimonial);
+    res.status(200).json({ ...formattedTestimonial, breadcrumbs });
+  } catch (err) {
+    console.error('Error fetching testimonial by slug:', err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
 // Update testimonial
 app.put('/api/testimonials/:id', async (req, res) => {
   const { id } = req.params;

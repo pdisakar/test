@@ -256,6 +256,29 @@ export const fetchTestimonials = async (page = 1, limit = 6): Promise<{ data: Te
     return { data: [], total: 0 };
 };
 
+// Fetch single testimonial by slug
+export const fetchTestimonialBySlug = async (slug: string): Promise<Testimonial | null> => {
+    // Decode slug to ensure handling of special chars if any
+    const decodedSlug = decodeURIComponent(slug);
+    const url = `${BASE_URL}/testimonial-by-slug/${decodedSlug}`;
+    console.log('[API] Fetching testimonial:', url);
+    try {
+        const res = await fetch(url, {
+            cache: 'no-store'
+        });
+        console.log('[API] Testimonial response status:', res.status);
+        
+        if (!res.ok) {
+            console.error('[API] Failed to fetch testimonial:', await res.text());
+            return null;
+        }
+        return res.json();
+    } catch (error) {
+        console.error('[API] Error fetching testimonial:', error);
+        return null;
+    }
+};
+
 /** Fetch data by slug (for dynamic pages) */
 export const fetchSlugData = async (slug: string): Promise<{ datatype: string; content: any } | null> => {
     const res = await fetch(`${BASE_URL}/resolve-slug/${slug}`, {
