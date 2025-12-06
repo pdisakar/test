@@ -9,7 +9,6 @@ interface TestimonialCardProps {
 }
 
 export const TestimonialCard = ({ data }: TestimonialCardProps) => {
-    console.log(data);
 
     return (
         <div className='testimonial-card shadow-custom-shadow rounded-lg border border-primary/5 '>
