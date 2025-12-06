@@ -50,9 +50,9 @@ export default function Home() {
         title="Featured Testimonials"
         subtitle="From Himalayan peaks to cultural treasures, Nepal offers unforgettable experiences. Here’s your shortlist of the best things to do." />
       <FeaturedBlog
-        pretitle='What Our Customers Say'
-        title="Featured Testimonials"
-        subtitle="From Himalayan peaks to cultural treasures, Nepal offers unforgettable experiences. Here’s your shortlist of the best things to do." />
+        pretitle='Read Our Voice'
+        title="Read Our Travel Guides"
+        subtitle="Stay updated with essential travel insights, helpful tips, and important news shared by our experienced team. Follow us for the latest guides, alerts, and expert recommendations to make your journey smoother and more memorable." />
     </main>
   );
 }
