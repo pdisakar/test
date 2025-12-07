@@ -142,7 +142,7 @@ export const fetchFeaturedBlogs = async (): Promise<Blog[]> => {
     const res = await fetch(`${BASE_URL}/blogs?isFeatured=1`, { next: { revalidate: CACHE_REVALIDATE_TIME } });
     const data = await res.json();
     if (Array.isArray(data)) {
-        return data.slice(0, 3);
+        return data.slice(0, 4);
     }
     return [];
 };
